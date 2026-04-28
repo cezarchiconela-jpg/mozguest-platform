@@ -1,10 +1,29 @@
-import os
+﻿import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'mozguest-dev-key-change-before-production')
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ['1', 'true', 'yes', 'on']
+
+# ===============================
+# CORE SETTINGS - MOZGUEST
+# ===============================
+
+SECRET_KEY = (
+    os.environ.get('DJANGO_SECRET_KEY')
+    or os.environ.get('SECRET_KEY')
+    or 'mozguest-dev-key-change-before-production'
+)
+
+DEBUG = (
+    os.environ.get('DJANGO_DEBUG')
+    or os.environ.get('DEBUG')
+    or 'True'
+).lower() in ['1', 'true', 'yes', 'on']
+
+
+# ===============================
+# HOSTS / CSRF - RENDER READY
+# ===============================
 
 _allowed_hosts = (
     os.environ.get('DJANGO_ALLOWED_HOSTS')
@@ -12,7 +31,11 @@ _allowed_hosts = (
     or '127.0.0.1,localhost'
 )
 
-ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts.split(',') if host.strip()]
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in _allowed_hosts.split(',')
+    if host.strip()
+]
 
 _csrf_trusted_origins = (
     os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS')
@@ -25,9 +48,6 @@ CSRF_TRUSTED_ORIGINS = [
     for origin in _csrf_trusted_origins.split(',')
     if origin.strip()
 ]
-
-_csrf_origins = os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '')
-CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_origins.split(',') if origin.strip()]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -93,7 +113,7 @@ if DATABASE_URL:
             )
         }
     except ImportError:
-        raise ImportError('Instale dj-database-url para usar DATABASE_URL em produção.')
+        raise ImportError('Instale dj-database-url para usar DATABASE_URL em produÃ§Ã£o.')
 else:
     DATABASES = {
         'default': {
@@ -145,3 +165,5 @@ CSRF_COOKIE_SECURE = not DEBUG
 SECURE_SSL_REDIRECT = os.environ.get('DJANGO_SECURE_SSL_REDIRECT', 'False').lower() in ['1', 'true', 'yes', 'on']
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 X_FRAME_OPTIONS = 'DENY'
+
+
