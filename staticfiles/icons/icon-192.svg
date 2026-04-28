@@ -1,0 +1,6 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="42" fill="#1d4ed8"/>
+  <circle cx="145" cy="48" r="18" fill="#10b981"/>
+  <text x="96" y="112" text-anchor="middle" font-size="48" font-family="Arial, sans-serif" font-weight="800" fill="white">MG</text>
+  <text x="96" y="138" text-anchor="middle" font-size="16" font-family="Arial, sans-serif" fill="#dbeafe">MozGuest</text>
+</svg>

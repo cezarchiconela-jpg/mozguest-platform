@@ -1,0 +1,67 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Planos Comerciais - MozGuest{% endblock %}
+
+{% block content %}
+
+<section class="bg-gradient-to-br from-blue-950 via-blue-800 to-emerald-600 text-white">
+    <div class="max-w-7xl mx-auto px-4 py-16">
+        <h1 class="text-4xl md:text-5xl font-black mb-4">Planos comerciais MozGuest</h1>
+        <p class="text-blue-50 max-w-3xl">
+            Escolha o plano adequado para publicar e promover os seus alojamentos na plataforma.
+        </p>
+    </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-4 py-12">
+    <div class="grid md:grid-cols-3 gap-6">
+        {% for plan in plans %}
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-xl transition">
+                <div class="mb-5">
+                    <span class="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
+                        {{ plan.get_plan_type_display }}
+                    </span>
+
+                    <h2 class="text-2xl font-black mt-4">{{ plan.name }}</h2>
+
+                    <p class="text-slate-600 mt-2">{{ plan.description }}</p>
+                </div>
+
+                <div class="mb-6">
+                    <span class="text-4xl font-black">{{ plan.monthly_price }}</span>
+                    <span class="text-slate-500"> MT/mês</span>
+                </div>
+
+                <ul class="space-y-3 text-sm text-slate-700 mb-6">
+                    <li>✔ Até {{ plan.max_properties }} propriedade(s)</li>
+                    <li>✔ Até {{ plan.max_photos_per_property }} fotos por propriedade</li>
+                    <li>✔ Comissão: {{ plan.commission_percentage }}%</li>
+
+                    {% if plan.can_feature_properties %}
+                        <li>✔ Possibilidade de destaque</li>
+                    {% endif %}
+
+                    {% if plan.priority_support %}
+                        <li>✔ Suporte prioritário</li>
+                    {% endif %}
+                </ul>
+
+                {% if user.is_authenticated and user.owner_profile %}
+                    <a href="/comercial/planos/{{ plan.id }}/solicitar/" class="block text-center bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-800">
+                        Solicitar plano
+                    </a>
+                {% else %}
+                    <a href="/cadastro/proprietario/" class="block text-center bg-slate-900 text-white px-5 py-3 rounded-xl font-semibold hover:bg-slate-800">
+                        Criar conta de proprietário
+                    </a>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="md:col-span-3 bg-white rounded-2xl p-8 text-center border border-dashed border-slate-300">
+                <p class="text-slate-600">Ainda não existem planos comerciais cadastrados.</p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

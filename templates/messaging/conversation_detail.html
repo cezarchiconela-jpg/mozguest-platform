@@ -1,0 +1,77 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Conversa #{{ conversation.booking.id }} - MozGuest{% endblock %}
+
+{% block content %}
+
+<section class="max-w-5xl mx-auto px-4 py-10">
+    <div class="mb-8">
+        <a href="/mensagens/" class="text-blue-700 font-semibold">← Voltar às mensagens</a>
+
+        <h1 class="text-4xl font-black mt-4">
+            Conversa da reserva #{{ conversation.booking.id }}
+        </h1>
+
+        <p class="text-slate-600 mt-2">
+            {{ conversation.property.name }} · {{ conversation.booking.room.name }}
+        </p>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-200 p-6 mb-6">
+        <div class="grid md:grid-cols-3 gap-4 text-sm">
+            <div class="bg-slate-50 rounded-xl p-4">
+                <span class="block text-slate-500">Cliente</span>
+                <strong>{{ conversation.booking.customer_name }}</strong>
+            </div>
+
+            <div class="bg-slate-50 rounded-xl p-4">
+                <span class="block text-slate-500">Estado da reserva</span>
+                <strong>{{ conversation.booking.get_status_display }}</strong>
+            </div>
+
+            <div class="bg-slate-50 rounded-xl p-4">
+                <span class="block text-slate-500">Valor estimado</span>
+                <strong>{{ conversation.booking.estimated_amount|default:'A confirmar' }} MT</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-200 p-6">
+        <div class="space-y-4 mb-6 max-h-[520px] overflow-y-auto pr-2">
+            {% for message in messages_qs %}
+                <div class="flex {% if message.sender == user %}justify-end{% else %}justify-start{% endif %}">
+                    <div class="max-w-[75%] rounded-2xl px-5 py-3
+                        {% if message.sender == user %}
+                            bg-blue-700 text-white
+                        {% else %}
+                            bg-slate-100 text-slate-900
+                        {% endif %}">
+                        <p class="whitespace-pre-line">{{ message.text }}</p>
+
+                        <p class="text-xs mt-2 {% if message.sender == user %}text-blue-100{% else %}text-slate-500{% endif %}">
+                            {{ message.sender.username }} · {{ message.created_at }}
+                        </p>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="text-center text-slate-500 py-8">
+                    Ainda não existem mensagens. Escreva a primeira mensagem abaixo.
+                </div>
+            {% endfor %}
+        </div>
+
+        <form method="post" class="border-t border-slate-200 pt-5">
+            {% csrf_token %}
+
+            {{ form.text }}
+
+            <div class="flex justify-end mt-4">
+                <button class="bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-800">
+                    Enviar mensagem
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,76 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Confirmar Pagamentos - MozGuest{% endblock %}
+
+{% block content %}
+
+<section class="max-w-7xl mx-auto px-4 py-10">
+    <div class="mb-8">
+        <a href="/moz-admin/" class="text-blue-700 font-semibold">← Voltar ao painel</a>
+        <h1 class="text-4xl font-bold mt-4">Pagamentos pendentes</h1>
+        <p class="text-slate-600 mt-2">Confirme ou rejeite comprovativos enviados pelos clientes.</p>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-slate-100">
+                <tr>
+                    <th class="text-left p-4">Reserva</th>
+                    <th class="text-left p-4">Cliente</th>
+                    <th class="text-left p-4">Método</th>
+                    <th class="text-left p-4">Valor</th>
+                    <th class="text-left p-4">Comissão</th>
+                    <th class="text-left p-4">Proprietário</th>
+                    <th class="text-left p-4">Referência</th>
+                    <th class="text-left p-4">Comprovativo</th>
+                    <th class="text-right p-4">Acções</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for payment in payments %}
+                    <tr class="border-t border-slate-200 align-top">
+                        <td class="p-4">
+                            #{{ payment.booking.id }}<br>
+                            <span class="text-slate-500">{{ payment.booking.property.name }}</span>
+                        </td>
+
+                        <td class="p-4">{{ payment.booking.customer_name }}</td>
+                        <td class="p-4">{{ payment.get_payment_method_display }}</td>
+                        <td class="p-4">{{ payment.amount }} MT</td>
+                        <td class="p-4">{{ payment.platform_commission_amount }} MT</td>
+                        <td class="p-4">{{ payment.owner_amount }} MT</td>
+                        <td class="p-4">{{ payment.transaction_reference }}</td>
+
+                        <td class="p-4">
+                            {% if payment.proof %}
+                                <a href="{{ payment.proof.url }}" target="_blank" class="text-blue-700 font-semibold">
+                                    Ver
+                                </a>
+                            {% else %}
+                                Sem ficheiro
+                            {% endif %}
+                        </td>
+
+                        <td class="p-4 text-right">
+                            <a href="/moz-admin/pagamentos/{{ payment.id }}/confirmar/" class="text-emerald-700 font-semibold mr-3">
+                                Confirmar
+                            </a>
+                            <a href="/moz-admin/pagamentos/{{ payment.id }}/rejeitar/" class="text-red-700 font-semibold">
+                                Rejeitar
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="9" class="p-8 text-center text-slate-600">
+                            Não existem pagamentos pendentes.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}

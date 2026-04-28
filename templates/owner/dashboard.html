@@ -1,0 +1,131 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Painel do Proprietário - MozGuest{% endblock %}
+
+{% block content %}
+
+<section class="max-w-7xl mx-auto px-4 py-10">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-4xl font-bold">Painel do Proprietário</h1>
+            <p class="text-slate-600 mt-2">Bem-vindo à área de gestão dos seus alojamentos.</p>
+        </div>
+
+        <a href="/proprietario/propriedades/nova/" class="bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-800">
+            Nova propriedade
+        </a>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-5 mb-8">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Total de propriedades</p>
+            <h3 class="text-3xl font-bold mt-2">{{ total_properties }}</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Aprovadas</p>
+            <h3 class="text-3xl font-bold mt-2 text-emerald-600">{{ approved_properties }}</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Pendentes</p>
+            <h3 class="text-3xl font-bold mt-2 text-amber-600">{{ pending_properties }}</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Quartos/Unidades</p>
+            <h3 class="text-3xl font-bold mt-2">{{ total_rooms }}</h3>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-5 mb-10">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Total de reservas</p>
+            <h3 class="text-3xl font-bold mt-2">{{ total_bookings }}</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Reservas pendentes</p>
+            <h3 class="text-3xl font-bold mt-2 text-amber-600">{{ pending_bookings }}</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Reservas aceites</p>
+            <h3 class="text-3xl font-bold mt-2 text-emerald-600">{{ accepted_bookings }}</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Concluídas</p>
+            <h3 class="text-3xl font-bold mt-2 text-blue-600">{{ completed_bookings }}</h3>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-2xl font-bold">Propriedades recentes</h2>
+                <a href="/proprietario/propriedades/" class="text-blue-700 font-semibold">Ver todas</a>
+            </div>
+
+            <div class="space-y-3">
+                {% for property in recent_properties %}
+                    <div class="flex items-center justify-between border border-slate-200 rounded-xl p-4">
+                        <div>
+                            <h3 class="font-bold">{{ property.name }}</h3>
+                            <p class="text-sm text-slate-500">{{ property.city }}{% if property.neighbourhood %}, {{ property.neighbourhood }}{% endif %}</p>
+                        </div>
+
+                        <span class="text-xs px-3 py-1 rounded-full
+                            {% if property.status == 'approved' %}bg-emerald-100 text-emerald-700
+                            {% elif property.status == 'pending' %}bg-amber-100 text-amber-700
+                            {% elif property.status == 'rejected' %}bg-red-100 text-red-700
+                            {% else %}bg-slate-100 text-slate-700{% endif %}">
+                            {{ property.get_status_display }}
+                        </span>
+                    </div>
+                {% empty %}
+                    <p class="text-slate-600">Ainda não cadastrou nenhuma propriedade.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-2xl font-bold">Reservas recentes</h2>
+                <a href="/reservas/proprietario/reservas/" class="text-blue-700 font-semibold">Ver todas</a>
+            </div>
+
+            <div class="space-y-3">
+                {% for booking in recent_bookings %}
+                    <div class="border border-slate-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold">{{ booking.customer_name }}</h3>
+                                <p class="text-sm text-slate-500">
+                                    {{ booking.property.name }} · {{ booking.room.name }}
+                                </p>
+                            </div>
+
+                            <span class="text-xs px-3 py-1 rounded-full
+                                {% if booking.status == 'accepted' %}bg-emerald-100 text-emerald-700
+                                {% elif booking.status == 'pending' %}bg-amber-100 text-amber-700
+                                {% elif booking.status == 'rejected' %}bg-red-100 text-red-700
+                                {% elif booking.status == 'completed' %}bg-blue-100 text-blue-700
+                                {% else %}bg-slate-100 text-slate-700{% endif %}">
+                                {{ booking.get_status_display }}
+                            </span>
+                        </div>
+
+                        <p class="text-xs text-slate-400 mt-2">
+                            Entrada: {{ booking.checkin_date }}{% if booking.checkin_time %} às {{ booking.checkin_time }}{% endif %}
+                        </p>
+                    </div>
+                {% empty %}
+                    <p class="text-slate-600">Ainda não existem reservas recebidas.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

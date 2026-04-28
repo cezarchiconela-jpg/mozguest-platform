@@ -1,0 +1,334 @@
+﻿<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}MozGuest{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#1d4ed8">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="MozGuest">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        img { image-rendering: auto; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(16px);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900">
+
+<header class="bg-white/95 backdrop-blur border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-[1500px] mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <a href="/" class="text-xl md:text-2xl font-black tracking-tight text-blue-700 whitespace-nowrap">
+            Moz<span class="text-emerald-600">Guest</span>
+        </a>
+
+        <nav class="hidden xl:flex items-center gap-4 text-[13px] font-semibold">
+            <a href="/" class="hover:text-blue-700">Início</a>
+            <a href="/properties/explorar/" class="hover:text-blue-700">Explorar</a>
+            <a href="/comercial/planos/" class="hover:text-blue-700">Planos</a>
+
+            {% if user.is_authenticated %}
+                <a href="/notificacoes/" class="hover:text-blue-700 relative">
+                    Central
+                    {% if unread_notifications_count %}
+                        <span class="ml-1 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
+                            {{ unread_notifications_count }}
+                        </span>
+                    {% endif %}
+                </a>
+
+                <a href="/reservas/cliente/minhas-reservas/" class="hover:text-blue-700">Reservas</a>
+                <a href="/reviews/meus-favoritos/" class="hover:text-blue-700">Favoritos</a>
+
+                {% if user.owner_profile %}
+                    <a href="/proprietario/dashboard/" class="hover:text-blue-700">Painel</a>
+                    <a href="/proprietario/propriedades/nova/" class="bg-blue-700 text-white px-4 py-2 rounded-xl hover:bg-blue-800">
+                        Nova propriedade
+                    </a>
+                {% else %}
+                    <a href="/cliente/perfil/" class="hover:text-blue-700">Perfil</a>
+                {% endif %}
+
+                <a href="/suporte/" class="hover:text-blue-700">Suporte</a>
+
+                {% if user.is_staff %}
+                    <a href="/moz-admin/" class="hover:text-blue-700">MozAdmin</a>
+                {% endif %}
+
+                <a href="/logout/" class="bg-slate-900 text-white px-4 py-2 rounded-xl hover:bg-slate-800">
+                    Sair
+                </a>
+            {% else %}
+                <a href="/institucional/sobre/" class="hover:text-blue-700">Sobre</a>
+                <a href="/cadastro/cliente/" class="hover:text-blue-700">Criar conta</a>
+                <a href="/cadastro/proprietario/" class="hover:text-blue-700">Cadastrar alojamento</a>
+                <a href="/login/" class="bg-blue-700 text-white px-4 py-2 rounded-xl hover:bg-blue-800">
+                    Entrar
+                </a>
+            {% endif %}
+        </nav>
+
+        <button onclick="toggleMobileMenu()" class="xl:hidden bg-slate-100 px-4 py-2 rounded-xl font-semibold">
+            Menu
+        </button>
+    </div>
+
+    <div id="mobileMenu" class="hidden xl:hidden border-t border-slate-200 bg-white">
+        <nav class="max-w-7xl mx-auto px-4 py-4 grid gap-3 text-sm font-medium">
+            <a href="/" class="p-3 rounded-xl hover:bg-slate-100">Início</a>
+            <a href="/properties/explorar/" class="p-3 rounded-xl hover:bg-slate-100">Explorar</a>
+            <a href="/comercial/planos/" class="p-3 rounded-xl hover:bg-slate-100">Planos</a>
+
+            {% if user.is_authenticated %}
+                <a href="/notificacoes/" class="p-3 rounded-xl hover:bg-slate-100">
+                    Central
+                    {% if unread_notifications_count %}
+                        <span class="ml-1 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
+                            {{ unread_notifications_count }}
+                        </span>
+                    {% endif %}
+                </a>
+
+                <a href="/reservas/cliente/minhas-reservas/" class="p-3 rounded-xl hover:bg-slate-100">Minhas reservas</a>
+                <a href="/reviews/meus-favoritos/" class="p-3 rounded-xl hover:bg-slate-100">Favoritos</a>
+
+                {% if user.owner_profile %}
+                    <a href="/proprietario/dashboard/" class="p-3 rounded-xl hover:bg-slate-100">Painel do proprietário</a>
+                    <a href="/proprietario/propriedades/" class="p-3 rounded-xl hover:bg-slate-100">Minhas propriedades</a>
+                    <a href="/reservas/proprietario/reservas/" class="p-3 rounded-xl hover:bg-slate-100">Reservas recebidas</a>
+                    <a href="/pagamentos/proprietario/financeiro/" class="p-3 rounded-xl hover:bg-slate-100">Financeiro</a>
+                    <a href="/comercial/proprietario/subscricoes/" class="p-3 rounded-xl hover:bg-slate-100">Meu plano</a>
+                    <a href="/proprietario/propriedades/nova/" class="p-3 rounded-xl bg-blue-700 text-white">Nova propriedade</a>
+                {% else %}
+                    <a href="/cliente/perfil/" class="p-3 rounded-xl hover:bg-slate-100">Perfil</a>
+                {% endif %}
+
+                <a href="/suporte/" class="p-3 rounded-xl hover:bg-slate-100">Suporte</a>
+
+                {% if user.is_staff %}
+                    <a href="/moz-admin/" class="p-3 rounded-xl hover:bg-slate-100">MozAdmin</a>
+                    <a href="/pagamentos/admin/financeiro/" class="p-3 rounded-xl hover:bg-slate-100">Financeiro Admin</a>
+                    <a href="/admin/" class="p-3 rounded-xl hover:bg-slate-100">Django Admin</a>
+                {% endif %}
+
+                <a href="/logout/" class="p-3 rounded-xl bg-slate-900 text-white">Sair</a>
+            {% else %}
+                <a href="/institucional/sobre/" class="p-3 rounded-xl hover:bg-slate-100">Sobre</a>
+                <a href="/cadastro/cliente/" class="p-3 rounded-xl hover:bg-slate-100">Criar conta</a>
+                <a href="/cadastro/proprietario/" class="p-3 rounded-xl hover:bg-slate-100">Cadastrar alojamento</a>
+                <a href="/login/" class="p-3 rounded-xl bg-blue-700 text-white">Entrar</a>
+            {% endif %}
+        </nav>
+    </div>
+</header>
+
+{% if user.is_authenticated and user.owner_profile %}
+<section class="bg-white border-b border-slate-200">
+    <div class="max-w-[1500px] mx-auto px-4 py-3 flex flex-wrap items-center gap-3 text-sm font-semibold">
+        <span class="text-slate-500 mr-2">Gestão:</span>
+
+        <a href="/proprietario/dashboard/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+            Painel
+        </a>
+
+        <a href="/proprietario/propriedades/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+            Propriedades
+        </a>
+
+        <a href="/reservas/proprietario/reservas/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+            Reservas recebidas
+        </a>
+
+        <a href="/pagamentos/proprietario/financeiro/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+            Financeiro
+        </a>
+
+        <a href="/comercial/proprietario/subscricoes/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+            Meu plano
+        </a>
+
+        <a href="/proprietario/propriedades/nova/" class="px-4 py-2 rounded-xl bg-blue-700 text-white hover:bg-blue-800">
+            Nova propriedade
+        </a>
+
+        {% if user.is_staff %}
+            <span class="text-slate-300 mx-2">|</span>
+
+            <a href="/moz-admin/" class="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800">
+                MozAdmin
+            </a>
+
+            <a href="/pagamentos/admin/financeiro/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+                Financeiro Admin
+            </a>
+
+            <a href="/comercial/admin/subscricoes/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+                Subscrições
+            </a>
+
+            <a href="/admin/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+                Django Admin
+            </a>
+        {% endif %}
+    </div>
+</section>
+{% elif user.is_authenticated and user.is_staff %}
+<section class="bg-white border-b border-slate-200">
+    <div class="max-w-[1500px] mx-auto px-4 py-3 flex flex-wrap items-center gap-3 text-sm font-semibold">
+        <span class="text-slate-500 mr-2">Admin:</span>
+
+        <a href="/moz-admin/" class="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800">
+            MozAdmin
+        </a>
+
+        <a href="/pagamentos/admin/financeiro/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+            Financeiro Admin
+        </a>
+
+        <a href="/comercial/admin/subscricoes/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+            Subscrições
+        </a>
+
+        <a href="/admin/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+            Django Admin
+        </a>
+    </div>
+</section>
+{% endif %}
+
+{% if messages %}
+    <div class="max-w-7xl mx-auto px-4 mt-4">
+        {% for message in messages %}
+            <div class="p-4 rounded-xl mb-3 {% if message.tags == 'success' %}bg-emerald-100 text-emerald-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="bg-slate-950 text-white mt-16">
+    <div class="max-w-7xl mx-auto px-4 py-12 grid md:grid-cols-4 gap-8">
+        <div>
+            <h3 class="text-2xl font-black mb-3">Moz<span class="text-emerald-500">Guest</span></h3>
+            <p class="text-slate-300 text-sm">
+                Plataforma para encontrar guest houses, quartos, apartamentos e residências próximas de si.
+            </p>
+        </div>
+
+        <div>
+            <h4 class="font-semibold mb-3">Explorar</h4>
+            <ul class="space-y-2 text-sm text-slate-300">
+                <li><a href="/properties/explorar/">Explorar alojamentos</a></li>
+                <li><a href="/comercial/planos/">Planos comerciais</a></li>
+                <li><a href="/cadastro/cliente/">Criar conta</a></li>
+                <li><a href="/cadastro/proprietario/">Cadastrar alojamento</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <h4 class="font-semibold mb-3">Institucional</h4>
+            <ul class="space-y-2 text-sm text-slate-300">
+                <li><a href="/institucional/sobre/">Sobre</a></li>
+                <li><a href="/institucional/contacto/">Contacto</a></li>
+                <li><a href="/institucional/termos/">Termos e Condições</a></li>
+                <li><a href="/institucional/privacidade/">Privacidade</a></li>
+                <li><a href="/institucional/politica-cancelamento/">Cancelamento</a></li>
+                <li><a href="/institucional/politica-reembolso/">Reembolso</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <h4 class="font-semibold mb-3">Suporte</h4>
+            <p class="text-sm text-slate-300 mb-4">
+                Suporte, reclamações, parcerias e cadastro de propriedades.
+            </p>
+
+            <button id="installAppBtn" style="display:inline-block;" class="mb-3 bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-semibold">
+                Instalar App
+            </button>
+
+            <br>
+
+            <a href="/suporte/" class="inline-block bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold">
+                Abrir suporte
+            </a>
+        </div>
+    </div>
+
+    <div class="border-t border-slate-800 py-4 text-center text-sm text-slate-400">
+        © 2026 MozGuest. Todos os direitos reservados.
+    </div>
+</footer>
+
+<script>
+function toggleMobileMenu() {
+    const menu = document.getElementById('mobileMenu');
+    menu.classList.toggle('hidden');
+}
+
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function() {
+        navigator.serviceWorker.register("/service-worker.js", { scope: "/" }).catch(function(error) {
+            console.log("Service worker error:", error);
+        });
+    });
+}
+
+(function () {
+    let mozGuestInstallPrompt = null;
+    const installBtn = document.getElementById("installAppBtn");
+
+    if (installBtn) {
+        installBtn.style.display = "inline-block";
+        installBtn.innerText = "Instalar App";
+    }
+
+    window.addEventListener("beforeinstallprompt", function (event) {
+        event.preventDefault();
+        mozGuestInstallPrompt = event;
+
+        if (installBtn) {
+            installBtn.style.display = "inline-block";
+        }
+    });
+
+    if (installBtn) {
+        installBtn.addEventListener("click", async function () {
+            if (mozGuestInstallPrompt) {
+                mozGuestInstallPrompt.prompt();
+                await mozGuestInstallPrompt.userChoice;
+                mozGuestInstallPrompt = null;
+                return;
+            }
+
+            alert(
+                "Para instalar a MozGuest como app:\n\n" +
+                "No Chrome: clique nos 3 pontos do navegador e escolha 'Instalar app' ou 'Adicionar ao ecrã inicial'.\n\n" +
+                "Nota: em produção, a instalação funciona melhor com domínio próprio e HTTPS."
+            );
+        });
+    }
+
+    window.addEventListener("appinstalled", function () {
+        if (installBtn) {
+            installBtn.style.display = "none";
+        }
+    });
+})();
+</script>
+
+</body>
+</html>
+

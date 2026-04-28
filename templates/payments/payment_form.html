@@ -1,0 +1,64 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Enviar Pagamento - MozGuest{% endblock %}
+
+{% block content %}
+
+<section class="max-w-4xl mx-auto px-4 py-10">
+    <div class="mb-8">
+        <a href="/reservas/cliente/minhas-reservas/" class="text-blue-700 font-semibold">← Voltar às reservas</a>
+        <h1 class="text-4xl font-bold mt-4">Enviar comprovativo de pagamento</h1>
+        <p class="text-slate-600 mt-2">
+            {{ booking.property.name }} · {{ booking.room.name }}
+        </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8">
+        <div class="md:col-span-2">
+            <form method="post" enctype="multipart/form-data" class="bg-white rounded-3xl border border-slate-200 p-6 space-y-5">
+                {% csrf_token %}
+
+                {% for field in form %}
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ field.errors|striptags }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <div class="bg-blue-50 border border-blue-200 text-blue-800 rounded-2xl p-4 text-sm">
+                    Após enviar o comprovativo, a administração irá confirmar o pagamento.
+                </div>
+
+                <div class="flex justify-end gap-3">
+                    <a href="/reservas/cliente/minhas-reservas/" class="px-5 py-3 rounded-xl border border-slate-300">
+                        Cancelar
+                    </a>
+
+                    <button class="bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-800">
+                        Enviar comprovativo
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <aside>
+            <div class="bg-white rounded-2xl border border-slate-200 p-6">
+                <h3 class="text-xl font-bold mb-4">Resumo</h3>
+
+                <p><strong>Reserva:</strong> #{{ booking.id }}</p>
+                <p><strong>Cliente:</strong> {{ booking.customer_name }}</p>
+                <p><strong>Valor:</strong> {{ booking.estimated_amount }} MT</p>
+                <p><strong>Estado da reserva:</strong> {{ booking.get_status_display }}</p>
+
+                <div class="mt-5 p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-sm">
+                    Métodos recomendados: M-Pesa, e-Mola ou transferência bancária.
+                </div>
+            </div>
+        </aside>
+    </div>
+</section>
+
+{% endblock %}

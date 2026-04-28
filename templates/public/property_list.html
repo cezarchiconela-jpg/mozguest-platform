@@ -1,0 +1,277 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Explorar alojamentos - MozGuest{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<section class="max-w-7xl mx-auto px-4 py-10">
+    <div class="mb-8">
+        <h1 class="text-4xl font-black">Explorar alojamentos</h1>
+        <p class="text-slate-600 mt-2">
+            Pesquise por localização, raio, preço, comodidades, distância e avaliação.
+        </p>
+    </div>
+
+    <form method="get" class="bg-white border border-slate-200 rounded-3xl p-5 mb-8 shadow-sm">
+        <div class="grid md:grid-cols-4 gap-4 mb-4">
+            <input 
+                type="text" 
+                name="q" 
+                value="{{ query|default:'' }}"
+                placeholder="Cidade, bairro, ponto de referência..."
+                class="px-4 py-3 border border-slate-200 rounded-xl"
+            >
+
+            <select name="type" class="px-4 py-3 border border-slate-200 rounded-xl">
+                <option value="">Todos os tipos</option>
+                <option value="guest_house" {% if property_type == 'guest_house' %}selected{% endif %}>Guest House</option>
+                <option value="room" {% if property_type == 'room' %}selected{% endif %}>Quarto</option>
+                <option value="apartment" {% if property_type == 'apartment' %}selected{% endif %}>Apartamento</option>
+                <option value="residence" {% if property_type == 'residence' %}selected{% endif %}>Residência</option>
+                <option value="lodge" {% if property_type == 'lodge' %}selected{% endif %}>Pousada</option>
+            </select>
+
+            <select name="price_mode" class="px-4 py-3 border border-slate-200 rounded-xl">
+                <option value="">Qualquer modalidade</option>
+                <option value="hour" {% if price_mode == 'hour' %}selected{% endif %}>Por hora</option>
+                <option value="day" {% if price_mode == 'day' %}selected{% endif %}>Por dia</option>
+                <option value="night" {% if price_mode == 'night' %}selected{% endif %}>Por noite</option>
+                <option value="month" {% if price_mode == 'month' %}selected{% endif %}>Mensal</option>
+            </select>
+
+            <select name="sort" class="px-4 py-3 border border-slate-200 rounded-xl">
+                <option value="recent" {% if sort == 'recent' %}selected{% endif %}>Mais recentes</option>
+                <option value="featured" {% if sort == 'featured' %}selected{% endif %}>Destaques primeiro</option>
+                <option value="distance" {% if sort == 'distance' %}selected{% endif %}>Mais próximos</option>
+                <option value="price" {% if sort == 'price' %}selected{% endif %}>Menor preço</option>
+                <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Melhor avaliação</option>
+            </select>
+        </div>
+
+        <div class="grid md:grid-cols-4 gap-4 mb-4">
+            <input 
+                type="number" 
+                name="min_price" 
+                value="{{ min_price|default:'' }}"
+                placeholder="Preço mínimo"
+                class="px-4 py-3 border border-slate-200 rounded-xl"
+            >
+
+            <input 
+                type="number" 
+                name="max_price" 
+                value="{{ max_price|default:'' }}"
+                placeholder="Preço máximo"
+                class="px-4 py-3 border border-slate-200 rounded-xl"
+            >
+
+            <select name="radius" class="px-4 py-3 border border-slate-200 rounded-xl">
+                <option value="">Qualquer distância</option>
+                <option value="1" {% if radius == '1' %}selected{% endif %}>Até 1 km</option>
+                <option value="3" {% if radius == '3' %}selected{% endif %}>Até 3 km</option>
+                <option value="5" {% if radius == '5' %}selected{% endif %}>Até 5 km</option>
+                <option value="10" {% if radius == '10' %}selected{% endif %}>Até 10 km</option>
+                <option value="20" {% if radius == '20' %}selected{% endif %}>Até 20 km</option>
+            </select>
+
+            <button type="button" onclick="useMyLocation()" class="bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 px-4 py-3">
+                Usar minha localização
+            </button>
+        </div>
+
+        <div class="grid md:grid-cols-4 gap-4 mb-5">
+            <label class="flex items-center gap-2 bg-slate-50 px-4 py-3 rounded-xl">
+                <input type="checkbox" name="wifi" value="1" {% if has_wifi == '1' %}checked{% endif %}>
+                Wi-Fi
+            </label>
+
+            <label class="flex items-center gap-2 bg-slate-50 px-4 py-3 rounded-xl">
+                <input type="checkbox" name="ac" value="1" {% if has_ac == '1' %}checked{% endif %}>
+                Ar condicionado
+            </label>
+
+            <label class="flex items-center gap-2 bg-slate-50 px-4 py-3 rounded-xl">
+                <input type="checkbox" name="parking" value="1" {% if has_parking == '1' %}checked{% endif %}>
+                Estacionamento
+            </label>
+
+            <label class="flex items-center gap-2 bg-slate-50 px-4 py-3 rounded-xl">
+                <input type="checkbox" name="private_bathroom" value="1" {% if private_bathroom == '1' %}checked{% endif %}>
+                WC privativo
+            </label>
+        </div>
+
+        <div class="grid md:grid-cols-4 gap-4">
+            <label class="flex items-center gap-2 bg-slate-50 px-4 py-3 rounded-xl">
+                <input type="checkbox" name="verified" value="1" {% if verified == '1' %}checked{% endif %}>
+                Apenas verificados
+            </label>
+
+            {% if user_lat and user_lng %}
+                <input type="hidden" name="lat" value="{{ user_lat }}">
+                <input type="hidden" name="lng" value="{{ user_lng }}">
+            {% endif %}
+
+            <button class="bg-blue-700 text-white rounded-xl font-semibold hover:bg-blue-800 px-4 py-3">
+                Aplicar filtros
+            </button>
+
+            <a href="/properties/explorar/" class="text-center bg-slate-100 text-slate-800 rounded-xl font-semibold hover:bg-slate-200 px-4 py-3">
+                Limpar
+            </a>
+        </div>
+    </form>
+
+    {% if user_lat and user_lng %}
+        <div class="bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-2xl p-4 mb-8">
+            Localização activa. As distâncias são aproximadas e podem variar conforme a rota real.
+        </div>
+    {% endif %}
+
+    <div id="map" class="h-96 rounded-3xl border border-slate-200 mb-10 overflow-hidden shadow-sm"></div>
+
+    <div class="flex items-center justify-between mb-5">
+        <h2 class="text-2xl font-bold">Resultados encontrados</h2>
+        <span class="text-sm text-slate-500">{{ properties|length }} alojamento(s)</span>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+        {% for property in properties %}
+            <a href="/properties/{{ property.id }}/" class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl transition">
+                <div class="h-56 bg-slate-200 relative">
+                    {% if property.main_photo %}
+                        <img src="{{ property.main_photo.image.url }}" loading="lazy" class="w-full h-full object-cover">
+                    {% endif %}
+
+                    {% if property.is_featured %}
+                        <span class="absolute top-3 left-3 bg-blue-700 text-white text-xs px-3 py-1 rounded-full shadow">
+                            Destaque
+                        </span>
+                    {% endif %}
+
+                    {% if property.distance_km %}
+                        <span class="absolute top-3 right-3 bg-white text-blue-700 text-xs px-3 py-1 rounded-full shadow">
+                            {{ property.distance_km }} km
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="p-5">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h3 class="font-bold text-lg">{{ property.name }}</h3>
+                            <p class="text-sm text-slate-500">
+                                {{ property.city }}{% if property.neighbourhood %}, {{ property.neighbourhood }}{% endif %}
+                            </p>
+                        </div>
+
+                        {% if property.is_verified %}
+                            <span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">
+                                Verificado
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    {% if property.average_rating %}
+                        <div class="mt-3 text-sm text-amber-600 font-semibold">
+                            ★ {{ property.average_rating|floatformat:1 }} · {{ property.review_count }} avaliação(ões)
+                        </div>
+                    {% else %}
+                        <div class="mt-3 text-sm text-slate-400">
+                            Ainda sem avaliações
+                        </div>
+                    {% endif %}
+
+                    <p class="text-sm text-slate-600 mt-3">{{ property.description|truncatechars:120 }}</p>
+
+                    <div class="mt-4 flex items-center justify-between text-sm">
+                        <span class="text-blue-700 font-semibold">Ver detalhes</span>
+
+                        {% if property.min_price %}
+                            <span class="font-bold text-slate-900">
+                                Desde {{ property.min_price }} MT
+                            </span>
+                        {% else %}
+                            <span class="text-slate-400">Preço a confirmar</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-3 text-xs text-slate-500">
+                        {{ property.available_rooms_count }} quarto(s)/unidade(s) disponível(is)
+                    </div>
+                </div>
+            </a>
+        {% empty %}
+            <div class="md:col-span-3 bg-white rounded-2xl p-8 text-center border border-dashed border-slate-300">
+                <p class="text-slate-600">
+                    Nenhum alojamento encontrado com os filtros seleccionados.
+                </p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+function useMyLocation() {
+    if (!navigator.geolocation) {
+        alert('O seu navegador não suporta localização.');
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            const params = new URLSearchParams(window.location.search);
+            params.set('lat', lat);
+            params.set('lng', lng);
+            params.set('sort', 'distance');
+
+            if (!params.get('radius')) {
+                params.set('radius', '10');
+            }
+
+            window.location.href = `/properties/explorar/?${params.toString()}`;
+        },
+        function(error) {
+            alert('Não foi possível obter a localização. Verifique as permissões do navegador.');
+        }
+    );
+}
+
+const defaultLat = {% if user_lat %}{{ user_lat }}{% else %}-25.9653{% endif %};
+const defaultLng = {% if user_lng %}{{ user_lng }}{% else %}32.5892{% endif %};
+
+const map = L.map('map').setView([defaultLat, defaultLng], 12);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+}).addTo(map);
+
+{% if user_lat and user_lng %}
+L.marker([{{ user_lat }}, {{ user_lng }}])
+    .addTo(map)
+    .bindPopup('A sua localização')
+    .openPopup();
+{% endif %}
+
+{% for property in properties %}
+    {% if property.latitude and property.longitude %}
+        L.marker([{{ property.latitude }}, {{ property.longitude }}])
+            .addTo(map)
+            .bindPopup(`
+                <strong>{{ property.name|escapejs }}</strong><br>
+                {{ property.city|escapejs }}{% if property.neighbourhood %}, {{ property.neighbourhood|escapejs }}{% endif %}<br>
+                {% if property.min_price %}Desde {{ property.min_price }} MT<br>{% endif %}
+                <a href="/properties/{{ property.id }}/">Ver detalhes</a>
+            `);
+    {% endif %}
+{% endfor %}
+</script>
+
+{% endblock %}

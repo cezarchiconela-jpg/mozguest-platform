@@ -1,0 +1,84 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Central - MozGuest{% endblock %}
+
+{% block content %}
+
+<section class="max-w-6xl mx-auto px-4 py-10">
+    <div class="mb-8">
+        <h1 class="text-4xl font-black">Central MozGuest</h1>
+        <p class="text-slate-600 mt-2">
+            Acompanhe notificações, mensagens, actualizações de reservas, pagamentos e suporte.
+        </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5 mb-8">
+        <a href="/notificacoes/" class="bg-white rounded-3xl border border-slate-200 p-6 hover:shadow-lg transition">
+            <h2 class="text-xl font-bold mb-2">Notificações</h2>
+            <p class="text-slate-600 text-sm">
+                Alertas sobre reservas, pagamentos, propriedades, avaliações e suporte.
+            </p>
+        </a>
+
+        <a href="/mensagens/" class="bg-white rounded-3xl border border-slate-200 p-6 hover:shadow-lg transition">
+            <h2 class="text-xl font-bold mb-2">Mensagens</h2>
+            <p class="text-slate-600 text-sm">
+                Conversas entre clientes e proprietários associadas às reservas.
+            </p>
+        </a>
+
+        <a href="/suporte/" class="bg-white rounded-3xl border border-slate-200 p-6 hover:shadow-lg transition">
+            <h2 class="text-xl font-bold mb-2">Suporte</h2>
+            <p class="text-slate-600 text-sm">
+                Reclamações, dúvidas, disputas e acompanhamento administrativo.
+            </p>
+        </a>
+    </div>
+
+    <div class="flex items-center justify-between mb-5">
+        <h2 class="text-2xl font-bold">Últimas notificações</h2>
+
+        <a href="/notificacoes/marcar-todas/" class="bg-slate-900 text-white px-5 py-3 rounded-xl font-semibold hover:bg-slate-800">
+            Marcar todas como lidas
+        </a>
+    </div>
+
+    <div class="space-y-4">
+        {% for notification in notifications %}
+            <a href="/notificacoes/{{ notification.id }}/ler/" class="block bg-white rounded-2xl border border-slate-200 p-5 hover:shadow transition
+                {% if not notification.is_read %}border-blue-300 bg-blue-50{% endif %}">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <h3 class="font-bold text-lg">{{ notification.title }}</h3>
+
+                            {% if not notification.is_read %}
+                                <span class="text-xs bg-blue-700 text-white px-3 py-1 rounded-full">
+                                    Nova
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <p class="text-slate-600">{{ notification.message }}</p>
+
+                        <p class="text-xs text-slate-400 mt-3">
+                            {{ notification.get_notification_type_display }} · {{ notification.created_at }}
+                        </p>
+                    </div>
+
+                    <span class="text-blue-700 font-semibold text-sm whitespace-nowrap">
+                        Abrir
+                    </span>
+                </div>
+            </a>
+        {% empty %}
+            <div class="bg-white rounded-2xl p-8 text-center border border-dashed border-slate-300">
+                <p class="text-slate-600">
+                    Ainda não existem notificações.
+                </p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,132 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Painel Administrativo MozGuest{% endblock %}
+
+{% block content %}
+
+<section class="max-w-7xl mx-auto px-4 py-10">
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold">Painel Administrativo MozGuest</h1>
+        <p class="text-slate-600 mt-2">
+            Controlo geral da plataforma, aprovações, reservas, pagamentos e comissões.
+        </p>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-5 mb-8">
+        <a href="/moz-admin/propriedades/" class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-slate-500">Propriedades pendentes</p>
+            <h3 class="text-3xl font-bold mt-2 text-amber-600">{{ pending_properties }}</h3>
+        </a>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Propriedades aprovadas</p>
+            <h3 class="text-3xl font-bold mt-2 text-emerald-600">{{ approved_properties }}</h3>
+        </div>
+
+        <a href="/moz-admin/avaliacoes/" class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-slate-500">Avaliações pendentes</p>
+            <h3 class="text-3xl font-bold mt-2 text-amber-600">{{ pending_reviews }}</h3>
+        </a>
+
+        <a href="/moz-admin/pagamentos/" class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-slate-500">Pagamentos pendentes</p>
+            <h3 class="text-3xl font-bold mt-2 text-blue-600">{{ submitted_payments }}</h3>
+        </a>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-5 mb-8">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Total de propriedades</p>
+            <h3 class="text-3xl font-bold mt-2">{{ total_properties }}</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Total de quartos</p>
+            <h3 class="text-3xl font-bold mt-2">{{ total_rooms }}</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Reservas totais</p>
+            <h3 class="text-3xl font-bold mt-2">{{ total_bookings }}</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Reservas pendentes</p>
+            <h3 class="text-3xl font-bold mt-2 text-amber-600">{{ pending_bookings }}</h3>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5 mb-10">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Total pago confirmado</p>
+            <h3 class="text-2xl font-bold mt-2">{{ total_paid }} MT</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Comissão MozGuest</p>
+            <h3 class="text-2xl font-bold mt-2 text-blue-700">{{ total_commission }} MT</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Valor dos proprietários</p>
+            <h3 class="text-2xl font-bold mt-2 text-emerald-700">{{ total_owner_amount }} MT</h3>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <h2 class="text-2xl font-bold mb-5">Acções rápidas</h2>
+
+            <div class="grid gap-3">
+                <a href="/moz-admin/propriedades/" class="p-4 rounded-xl bg-slate-50 hover:bg-blue-50 font-semibold">
+                    Aprovar propriedades
+                </a>
+
+                <a href="/moz-admin/avaliacoes/" class="p-4 rounded-xl bg-slate-50 hover:bg-blue-50 font-semibold">
+                    Aprovar avaliações
+                </a>
+
+                <a href="/moz-admin/pagamentos/" class="p-4 rounded-xl bg-slate-50 hover:bg-blue-50 font-semibold">
+                    Confirmar pagamentos
+                </a>
+
+                <a href="/pagamentos/admin/financeiro/" class="p-4 rounded-xl bg-slate-50 hover:bg-blue-50 font-semibold">Relatório financeiro</a><a href="/admin/" class="p-4 rounded-xl bg-slate-50 hover:bg-blue-50 font-semibold">
+                    Abrir admin Django
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <h2 class="text-2xl font-bold mb-5">Resumo operacional</h2>
+
+            <div class="space-y-4 text-sm">
+                <div class="flex justify-between border-b border-slate-100 pb-3">
+                    <span>Reservas aceites</span>
+                    <strong>{{ accepted_bookings }}</strong>
+                </div>
+
+                <div class="flex justify-between border-b border-slate-100 pb-3">
+                    <span>Reservas concluídas</span>
+                    <strong>{{ completed_bookings }}</strong>
+                </div>
+
+                <div class="flex justify-between border-b border-slate-100 pb-3">
+                    <span>Reservas canceladas</span>
+                    <strong>{{ cancelled_bookings }}</strong>
+                </div>
+
+                <div class="flex justify-between border-b border-slate-100 pb-3">
+                    <span>Pagamentos confirmados</span>
+                    <strong>{{ confirmed_payments }}</strong>
+                </div>
+
+                <div class="flex justify-between">
+                    <span>Avaliações aprovadas</span>
+                    <strong>{{ approved_reviews }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

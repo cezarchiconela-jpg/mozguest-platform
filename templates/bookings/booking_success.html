@@ -1,0 +1,57 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Reserva enviada - MozGuest{% endblock %}
+
+{% block content %}
+
+<section class="max-w-3xl mx-auto px-4 py-16">
+    <div class="bg-white rounded-3xl border border-slate-200 p-8 text-center">
+        <div class="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto mb-5 text-3xl">
+            ✓
+        </div>
+
+        <h1 class="text-3xl font-bold mb-3">Pedido de reserva enviado</h1>
+
+        <p class="text-slate-600 mb-8">
+            O seu pedido foi registado com sucesso e está pendente de confirmação pelo proprietário.
+        </p>
+
+        <div class="bg-slate-50 rounded-2xl p-5 text-left mb-8 space-y-2">
+            <p><strong>Cliente:</strong> {{ booking.customer_name }}</p>
+            <p><strong>Alojamento:</strong> {{ booking.property.name }}</p>
+            <p><strong>Quarto/Unidade:</strong> {{ booking.room.name }}</p>
+            <p><strong>Tipo:</strong> {{ booking.get_booking_type_display }}</p>
+            <p><strong>Entrada:</strong> {{ booking.checkin_date }}{% if booking.checkin_time %} às {{ booking.checkin_time }}{% endif %}</p>
+
+            {% if booking.checkout_date %}
+                <p><strong>Saída:</strong> {{ booking.checkout_date }}{% if booking.checkout_time %} às {{ booking.checkout_time }}{% endif %}</p>
+            {% endif %}
+
+            <p><strong>Estado:</strong> {{ booking.get_status_display }}</p>
+
+            {% if booking.unit_price %}
+                <p><strong>Preço unitário:</strong> {{ booking.unit_price }} MT</p>
+            {% endif %}
+
+            <p><strong>Quantidade calculada:</strong> {{ booking.units_count }}</p>
+
+            {% if booking.estimated_amount %}
+                <p><strong>Valor estimado:</strong> {{ booking.estimated_amount }} MT</p>
+            {% endif %}
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-3 justify-center">
+            <a href="/" class="inline-block bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-800">
+                Voltar ao início
+            </a>
+
+            {% if user.is_authenticated %}
+                <a href="/reservas/cliente/minhas-reservas/" class="inline-block border border-slate-300 px-6 py-3 rounded-xl font-semibold hover:bg-slate-100">
+                    Ver minhas reservas
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,72 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Analisar Reclamação #{{ ticket.id }} - MozGuest{% endblock %}
+
+{% block content %}
+
+<section class="max-w-5xl mx-auto px-4 py-10">
+    <div class="mb-8">
+        <a href="/moz-admin/suporte/" class="text-blue-700 font-semibold">← Voltar às reclamações</a>
+        <h1 class="text-4xl font-bold mt-4">Analisar reclamação #{{ ticket.id }}</h1>
+        <p class="text-slate-600 mt-2">{{ ticket.subject }}</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8">
+        <div class="md:col-span-2 bg-white rounded-3xl border border-slate-200 p-6">
+            <h2 class="text-2xl font-bold mb-4">Detalhes</h2>
+
+            <div class="grid md:grid-cols-3 gap-4 text-sm mb-6">
+                <div class="bg-slate-50 p-4 rounded-xl">
+                    <span class="block text-slate-500">Utilizador</span>
+                    <strong>{{ ticket.created_by }}</strong>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl">
+                    <span class="block text-slate-500">Categoria</span>
+                    <strong>{{ ticket.get_category_display }}</strong>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl">
+                    <span class="block text-slate-500">Criado em</span>
+                    <strong>{{ ticket.created_at }}</strong>
+                </div>
+            </div>
+
+            <h3 class="font-bold mb-2">Descrição</h3>
+            <p class="text-slate-700 whitespace-pre-line">{{ ticket.description }}</p>
+
+            {% if ticket.booking %}
+                <div class="mt-6 bg-slate-50 p-4 rounded-xl">
+                    <h3 class="font-bold mb-2">Reserva relacionada</h3>
+                    <p>#{{ ticket.booking.id }} · {{ ticket.booking.property.name }} · {{ ticket.booking.room.name }}</p>
+                    <p>Cliente: {{ ticket.booking.customer_name }}</p>
+                    <p>Estado da reserva: {{ ticket.booking.get_status_display }}</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <aside>
+            <form method="post" class="bg-white rounded-3xl border border-slate-200 p-6 space-y-5">
+                {% csrf_token %}
+
+                <h2 class="text-2xl font-bold">Decisão administrativa</h2>
+
+                {% for field in form %}
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ field.errors|striptags }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button class="w-full bg-blue-700 text-white py-3 rounded-xl font-semibold hover:bg-blue-800">
+                    Guardar decisão
+                </button>
+            </form>
+        </aside>
+    </div>
+</section>
+
+{% endblock %}

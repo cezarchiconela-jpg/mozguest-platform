@@ -1,0 +1,25 @@
+=== BOOKINGS VIEWS ===
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:12:def user_is_owner(user):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:16:def user_can_access_booking(user, booking):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:32:def booking_create(request, room_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:96:def booking_success(request, booking_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:104:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:105:def client_booking_list(request):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:118:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:119:def owner_booking_list(request):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:137:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:138:def owner_booking_accept(request, booking_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:164:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:165:def owner_booking_reject(request, booking_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:179:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:180:def owner_booking_complete(request, booking_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:194:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:195:def client_booking_cancel(request, booking_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:213:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:214:def owner_availability_calendar(request, property_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:243:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:244:def owner_availability_events(request, property_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:297:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:298:def owner_availability_block_create(request, property_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:328:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:329:def owner_availability_block_delete(request, block_id):

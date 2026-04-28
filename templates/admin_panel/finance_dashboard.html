@@ -1,0 +1,176 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Financeiro MozGuest{% endblock %}
+
+{% block content %}
+
+<section class="max-w-7xl mx-auto px-4 py-10">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <a href="/moz-admin/" class="text-blue-700 font-semibold">← Voltar ao MozAdmin</a>
+            <h1 class="text-4xl font-bold mt-4">Financeiro MozGuest</h1>
+            <p class="text-slate-600 mt-2">
+                Relatório geral de pagamentos, comissões e valores dos proprietários.
+            </p>
+        </div>
+
+        <a href="/pagamentos/admin/financeiro/exportar/?status={{ status|default:'' }}&start_date={{ start_date|default:'' }}&end_date={{ end_date|default:'' }}" class="bg-emerald-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-emerald-700">
+            Exportar CSV
+        </a>
+    </div>
+
+    <form method="get" class="bg-white rounded-2xl border border-slate-200 p-5 mb-8">
+        <div class="grid md:grid-cols-4 gap-4">
+            <select name="status" class="px-4 py-3 rounded-xl border border-slate-300">
+                <option value="">Todos os estados</option>
+                <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pendente</option>
+                <option value="submitted" {% if status == 'submitted' %}selected{% endif %}>Comprovativo enviado</option>
+                <option value="confirmed" {% if status == 'confirmed' %}selected{% endif %}>Confirmado</option>
+                <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Rejeitado</option>
+            </select>
+
+            <input type="date" name="start_date" value="{{ start_date|default:'' }}" class="px-4 py-3 rounded-xl border border-slate-300">
+
+            <input type="date" name="end_date" value="{{ end_date|default:'' }}" class="px-4 py-3 rounded-xl border border-slate-300">
+
+            <button class="bg-blue-700 text-white rounded-xl font-semibold hover:bg-blue-800">
+                Filtrar
+            </button>
+        </div>
+    </form>
+
+    <div class="grid md:grid-cols-3 gap-5 mb-8">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Total movimentado</p>
+            <h3 class="text-3xl font-bold mt-2">{{ total_amount }} MT</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Comissão MozGuest</p>
+            <h3 class="text-3xl font-bold mt-2 text-blue-700">{{ total_commission }} MT</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Valor dos proprietários</p>
+            <h3 class="text-3xl font-bold mt-2 text-emerald-700">{{ total_owner_amount }} MT</h3>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-5 mb-10">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Confirmados</p>
+            <h3 class="text-2xl font-bold mt-2 text-emerald-600">{{ confirmed_payments }}</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Comprovativos enviados</p>
+            <h3 class="text-2xl font-bold mt-2 text-blue-600">{{ submitted_payments }}</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Pendentes</p>
+            <h3 class="text-2xl font-bold mt-2 text-amber-600">{{ pending_payments }}</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Rejeitados</p>
+            <h3 class="text-2xl font-bold mt-2 text-red-600">{{ rejected_payments }}</h3>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8 mb-10">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <h2 class="text-2xl font-bold mb-5">Resumo por proprietário</h2>
+
+            <div class="space-y-3">
+                {% for item in owner_summary %}
+                    <div class="border border-slate-200 rounded-xl p-4">
+                        <div class="flex justify-between gap-4">
+                            <div>
+                                <h3 class="font-bold">{{ item.booking__property__owner__username }}</h3>
+                                <p class="text-sm text-slate-500">{{ item.booking__property__owner__email }}</p>
+                                <p class="text-xs text-slate-400">{{ item.total_payments }} pagamento(s)</p>
+                            </div>
+
+                            <div class="text-right">
+                                <p class="font-bold text-blue-700">{{ item.total_commission }} MT</p>
+                                <p class="text-xs text-slate-500">comissão</p>
+                                <p class="font-semibold text-emerald-700 mt-1">{{ item.total_owner }} MT</p>
+                                <p class="text-xs text-slate-500">proprietário</p>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-slate-600">Ainda não há resumo por proprietário.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <h2 class="text-2xl font-bold mb-5">Resumo por propriedade</h2>
+
+            <div class="space-y-3">
+                {% for item in property_summary %}
+                    <div class="border border-slate-200 rounded-xl p-4">
+                        <div class="flex justify-between gap-4">
+                            <div>
+                                <h3 class="font-bold">{{ item.booking__property__name }}</h3>
+                                <p class="text-sm text-slate-500">{{ item.booking__property__city }}</p>
+                                <p class="text-xs text-slate-400">{{ item.total_payments }} pagamento(s)</p>
+                            </div>
+
+                            <div class="text-right">
+                                <p class="font-bold">{{ item.total_paid }} MT</p>
+                                <p class="text-xs text-slate-500">movimentado</p>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-slate-600">Ainda não há resumo por propriedade.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-slate-100">
+                <tr>
+                    <th class="text-left p-4">Pagamento</th>
+                    <th class="text-left p-4">Cliente</th>
+                    <th class="text-left p-4">Proprietário</th>
+                    <th class="text-left p-4">Propriedade</th>
+                    <th class="text-left p-4">Método</th>
+                    <th class="text-left p-4">Valor</th>
+                    <th class="text-left p-4">Comissão</th>
+                    <th class="text-left p-4">Proprietário</th>
+                    <th class="text-left p-4">Estado</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for payment in payments %}
+                    <tr class="border-t border-slate-200">
+                        <td class="p-4">#{{ payment.id }}</td>
+                        <td class="p-4">{{ payment.booking.customer_name }}</td>
+                        <td class="p-4">{{ payment.booking.property.owner.username }}</td>
+                        <td class="p-4">{{ payment.booking.property.name }}</td>
+                        <td class="p-4">{{ payment.get_payment_method_display }}</td>
+                        <td class="p-4">{{ payment.amount }} MT</td>
+                        <td class="p-4 text-blue-700 font-semibold">{{ payment.platform_commission_amount }} MT</td>
+                        <td class="p-4 text-emerald-700 font-semibold">{{ payment.owner_amount }} MT</td>
+                        <td class="p-4">{{ payment.get_status_display }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="9" class="p-8 text-center text-slate-600">
+                            Nenhum pagamento encontrado.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}

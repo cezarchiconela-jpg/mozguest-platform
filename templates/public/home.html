@@ -1,0 +1,170 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}MozGuest - Alojamentos perto de si{% endblock %}
+
+{% block content %}
+
+<section class="relative overflow-hidden bg-gradient-to-br from-blue-950 via-blue-800 to-emerald-600 text-white min-h-[calc(100vh-88px)] flex items-center">
+    <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_left,_white,_transparent_35%)]"></div>
+
+    <div class="relative w-full max-w-7xl mx-auto px-4 py-8 md:py-12 lg:py-14">
+        <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+
+            <div class="max-w-3xl">
+                <span class="inline-block bg-white/15 border border-white/20 px-4 py-2 rounded-full text-xs md:text-sm mb-4">
+                    Alojamento perto de si, rápido e organizado
+                </span>
+
+                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[1.02] tracking-tight mb-5">
+                    Encontre quartos, guest houses e apartamentos próximos da sua localização.
+                </h1>
+
+                <p class="text-base md:text-lg text-blue-50 mb-6 leading-relaxed max-w-2xl">
+                    Compare fotos, preços, avaliações, disponibilidade, localização no mapa e escolha o alojamento ideal para descanso, pernoita ou estadia prolongada.
+                </p>
+
+                <form action="/properties/explorar/" method="get" class="bg-white/90 backdrop-blur p-2 rounded-2xl shadow-2xl flex flex-col sm:flex-row gap-2 max-w-2xl">
+                    <input 
+                        type="text" 
+                        name="q" 
+                        placeholder="Digite cidade, bairro ou nome do alojamento"
+                        class="flex-1 px-4 py-3 rounded-xl text-slate-800 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
+                    >
+
+                    <button class="bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-800 text-sm md:text-base">
+                        Procurar
+                    </button>
+
+                    <button type="button" onclick="useMyLocation()" class="bg-emerald-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-emerald-700 text-sm md:text-base">
+                        Perto de mim
+                    </button>
+                </form>
+
+                <p id="locationMessage" class="text-sm text-blue-100 mt-3"></p>
+
+                <div class="grid grid-cols-3 gap-3 mt-6 max-w-2xl">
+                    <div class="bg-white/10 border border-white/15 rounded-2xl p-3 md:p-4">
+                        <h3 class="text-xl md:text-2xl font-bold">24h</h3>
+                        <p class="text-xs md:text-sm text-blue-100">Pesquisa disponível</p>
+                    </div>
+
+                    <div class="bg-white/10 border border-white/15 rounded-2xl p-3 md:p-4">
+                        <h3 class="text-xl md:text-2xl font-bold">Mapa</h3>
+                        <p class="text-xs md:text-sm text-blue-100">Rota e distância</p>
+                    </div>
+
+                    <div class="bg-white/10 border border-white/15 rounded-2xl p-3 md:p-4">
+                        <h3 class="text-xl md:text-2xl font-bold">Seguro</h3>
+                        <p class="text-xs md:text-sm text-blue-100">Avaliações e suporte</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hidden md:block">
+                <div class="bg-white/10 backdrop-blur rounded-[2rem] p-5 lg:p-6 shadow-2xl border border-white/15 max-w-xl ml-auto">
+                    <div class="bg-white rounded-[1.5rem] p-5 text-slate-900">
+                        <h3 class="font-bold text-xl mb-4">Encontre por categoria</h3>
+
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <a href="/properties/explorar/?type=guest_house" class="p-4 bg-slate-50 rounded-xl hover:bg-blue-50">Guest houses</a>
+                            <a href="/properties/explorar/?type=room" class="p-4 bg-slate-50 rounded-xl hover:bg-blue-50">Quartos</a>
+                            <a href="/properties/explorar/?type=apartment" class="p-4 bg-slate-50 rounded-xl hover:bg-blue-50">Apartamentos</a>
+                            <a href="/properties/explorar/?price_mode=hour" class="p-4 bg-slate-50 rounded-xl hover:bg-blue-50">Por hora</a>
+                            <a href="/properties/explorar/?price_mode=night" class="p-4 bg-slate-50 rounded-xl hover:bg-blue-50">Por noite</a>
+                            <a href="/properties/explorar/?verified=1" class="p-4 bg-slate-50 rounded-xl hover:bg-blue-50">Verificados</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-4 py-10 md:py-12">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h2 class="text-2xl md:text-3xl font-black">Alojamentos em destaque</h2>
+            <p class="text-slate-600 mt-1 text-sm md:text-base">Espaços recomendados e verificados pela MozGuest.</p>
+        </div>
+
+        <a href="/properties/explorar/?sort=featured" class="text-blue-700 font-semibold text-sm md:text-base">
+            Ver todos
+        </a>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+        {% for property in featured_properties %}
+            <a href="/properties/{{ property.id }}/" class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl transition">
+                <div class="h-52 bg-slate-200">
+                    {% if property.photos.first %}
+                        <img src="{{ property.photos.first.image.url }}" loading="lazy" class="w-full h-full object-cover">
+                    {% endif %}
+                </div>
+
+                <div class="p-5">
+                    <h3 class="font-bold text-lg">{{ property.name }}</h3>
+                    <p class="text-sm text-slate-500">{{ property.city }}{% if property.neighbourhood %}, {{ property.neighbourhood }}{% endif %}</p>
+                    <p class="text-sm text-slate-600 mt-3">{{ property.description|truncatechars:120 }}</p>
+
+                    <div class="mt-4 flex justify-between text-sm">
+                        <span class="text-blue-700 font-semibold">Ver detalhes</span>
+                        {% if property.is_verified %}
+                            <span class="text-emerald-700 font-semibold">Verificado</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+        {% empty %}
+            <div class="md:col-span-3 bg-white rounded-2xl p-8 text-center border border-dashed border-slate-300">
+                <p class="text-slate-600">Ainda não existem alojamentos em destaque.</p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="bg-white border-y border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 py-10 md:py-12 grid md:grid-cols-3 gap-6">
+        <div class="bg-slate-50 rounded-3xl p-6">
+            <h3 class="text-xl font-bold mb-3">1. Pesquise</h3>
+            <p class="text-slate-600 text-sm md:text-base">Digite cidade, bairro ou use a sua localização para encontrar opções próximas.</p>
+        </div>
+
+        <div class="bg-slate-50 rounded-3xl p-6">
+            <h3 class="text-xl font-bold mb-3">2. Compare</h3>
+            <p class="text-slate-600 text-sm md:text-base">Veja fotos, preços, comodidades, disponibilidade e avaliações.</p>
+        </div>
+
+        <div class="bg-slate-50 rounded-3xl p-6">
+            <h3 class="text-xl font-bold mb-3">3. Reserve</h3>
+            <p class="text-slate-600 text-sm md:text-base">Solicite reserva, contacte o local ou siga a rota no mapa.</p>
+        </div>
+    </div>
+</section>
+
+<script>
+function useMyLocation() {
+    const message = document.getElementById('locationMessage');
+
+    if (!navigator.geolocation) {
+        message.innerText = 'O seu navegador não suporta localização.';
+        return;
+    }
+
+    message.innerText = 'A obter a sua localização...';
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            window.location.href = `/properties/explorar/?lat=${lat}&lng=${lng}&sort=distance&radius=10`;
+        },
+        function(error) {
+            message.innerText = 'Não foi possível obter a localização. Verifique as permissões do navegador.';
+        }
+    );
+}
+</script>
+
+{% endblock %}

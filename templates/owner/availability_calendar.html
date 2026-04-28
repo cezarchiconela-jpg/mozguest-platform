@@ -1,0 +1,167 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Calendário de Disponibilidade - MozGuest{% endblock %}
+
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+
+<section class="max-w-7xl mx-auto px-4 py-10">
+    <div class="mb-8">
+        <a href="/proprietario/propriedades/" class="text-blue-700 font-semibold">← Voltar às propriedades</a>
+        <h1 class="text-4xl font-black mt-4">Calendário de disponibilidade</h1>
+        <p class="text-slate-600 mt-2">{{ property.name }}</p>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-1">
+            <form method="post" action="/proprietario/propriedades/{{ property.id }}/disponibilidade/bloquear/" class="bg-white rounded-3xl border border-slate-200 p-6 space-y-5 shadow-sm">
+                {% csrf_token %}
+
+                <h2 class="text-2xl font-bold">Bloquear período</h2>
+
+                {% for field in form %}
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">{{ field.label }}</label>
+                        {{ field }}
+
+                        {% if field.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ field.errors|striptags }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button class="w-full bg-blue-700 text-white py-3 rounded-xl font-semibold hover:bg-blue-800">
+                    Criar bloqueio
+                </button>
+            </form>
+
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 mt-6">
+                <h2 class="text-xl font-bold mb-4">Legenda</h2>
+
+                <div class="space-y-3 text-sm">
+                    <div class="flex items-center gap-3">
+                        <span class="w-4 h-4 rounded bg-red-600"></span>
+                        <span>Bloqueio manual/manutenção</span>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <span class="w-4 h-4 rounded bg-blue-600"></span>
+                        <span>Reserva aceite</span>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <span class="w-4 h-4 rounded bg-amber-600"></span>
+                        <span>Reserva pendente</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm mb-8">
+                <div id="calendar"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-3xl border border-slate-200 p-6">
+                    <h2 class="text-2xl font-bold mb-5">Bloqueios activos</h2>
+
+                    <div class="space-y-3">
+                        {% for block in blocks %}
+                            <div class="border border-slate-200 rounded-2xl p-4">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <h3 class="font-bold">{{ block.room.name }}</h3>
+                                        <p class="text-sm text-slate-500">
+                                            {{ block.start_datetime }} até {{ block.end_datetime }}
+                                        </p>
+                                        <p class="text-sm text-slate-600">{{ block.get_reason_display }}</p>
+                                    </div>
+
+                                    <a href="/proprietario/disponibilidade/{{ block.id }}/apagar/" class="text-red-700 font-semibold text-sm">
+                                        Remover
+                                    </a>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <p class="text-slate-600">Não existem bloqueios manuais activos.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-slate-200 p-6">
+                    <h2 class="text-2xl font-bold mb-5">Reservas activas</h2>
+
+                    <div class="space-y-3">
+                        {% for booking in bookings %}
+                            <div class="border border-slate-200 rounded-2xl p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="font-bold">{{ booking.room.name }}</h3>
+                                        <p class="text-sm text-slate-500">
+                                            {{ booking.customer_name }} · {{ booking.get_booking_type_display }}
+                                        </p>
+                                    </div>
+
+                                    <span class="text-xs px-3 py-1 rounded-full
+                                        {% if booking.status == 'accepted' %}bg-emerald-100 text-emerald-700
+                                        {% else %}bg-amber-100 text-amber-700{% endif %}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                </div>
+
+                                <p class="text-sm text-slate-600 mt-2">
+                                    Entrada: {{ booking.checkin_date }}{% if booking.checkin_time %} {{ booking.checkin_time }}{% endif %}
+                                    {% if booking.checkout_date %}
+                                        · Saída: {{ booking.checkout_date }}{% if booking.checkout_time %} {{ booking.checkout_time }}{% endif %}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        {% empty %}
+                            <p class="text-slate-600">Não existem reservas pendentes ou aceites.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        height: 650,
+        locale: 'pt',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+        },
+        events: '/proprietario/propriedades/{{ property.id }}/disponibilidade/events/',
+        eventClick: function(info) {
+            const props = info.event.extendedProps;
+            let message = info.event.title;
+
+            if (props.reason) {
+                message += '\nMotivo: ' + props.reason;
+            }
+
+            if (props.customer) {
+                message += '\nCliente: ' + props.customer;
+            }
+
+            alert(message);
+        }
+    });
+
+    calendar.render();
+});
+</script>
+
+{% endblock %}

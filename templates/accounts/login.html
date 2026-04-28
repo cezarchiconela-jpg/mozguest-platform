@@ -1,0 +1,50 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Entrar - MozGuest{% endblock %}
+
+{% block content %}
+
+<section class="max-w-md mx-auto px-4 py-16">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
+        <h1 class="text-3xl font-bold mb-2">Entrar</h1>
+        <p class="text-slate-600 mb-6">Acesse a sua conta MozGuest.</p>
+
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="bg-red-100 text-red-700 p-3 rounded-xl">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div>
+                    <label class="block text-sm font-semibold mb-2">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <p class="text-red-600 text-sm mt-1">{{ field.errors|striptags }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button class="w-full bg-blue-700 text-white py-3 rounded-xl font-semibold hover:bg-blue-800">
+                Entrar
+            </button>
+        </form>
+
+        <div class="mt-6 border-t border-slate-200 pt-5 space-y-2 text-sm text-slate-600">
+            <p>
+                Ainda não tem conta?
+                <a href="/cadastro/cliente/" class="text-blue-700 font-semibold">Criar conta de cliente</a>
+            </p>
+
+            <p>
+                Quer cadastrar alojamento?
+                <a href="/cadastro/proprietario/" class="text-emerald-700 font-semibold">Criar conta de proprietário</a>
+            </p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
