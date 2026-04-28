@@ -6,8 +6,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'mozguest-dev-key-change-before-production')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ['1', 'true', 'yes', 'on']
 
-_allowed_hosts = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost')
+_allowed_hosts = (
+    os.environ.get('DJANGO_ALLOWED_HOSTS')
+    or os.environ.get('ALLOWED_HOSTS')
+    or '127.0.0.1,localhost'
+)
+
 ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts.split(',') if host.strip()]
+
+_csrf_trusted_origins = (
+    os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS')
+    or os.environ.get('CSRF_TRUSTED_ORIGINS')
+    or ''
+)
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in _csrf_trusted_origins.split(',')
+    if origin.strip()
+]
 
 _csrf_origins = os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '')
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_origins.split(',') if origin.strip()]
