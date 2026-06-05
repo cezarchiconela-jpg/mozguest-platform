@@ -1,4 +1,4 @@
-﻿import csv
+import csv
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Sum, Count
@@ -7,6 +7,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from bookings.models import Booking
 from .forms import PaymentForm
 from .models import Payment
+from monetization.services import get_owner_commission_percentage
 
 
 def is_staff_user(user):
@@ -25,30 +26,41 @@ def submit_payment(request, booking_id):
         messages.error(request, 'Esta reserva não está disponível para pagamento.')
         return redirect('client_booking_list')
 
+    fixed_amount = booking.estimated_amount or 0
+    commission_percentage = get_owner_commission_percentage(booking.property.owner)
+
     payment, created = Payment.objects.get_or_create(
         booking=booking,
         defaults={
             'client': request.user,
-            'amount': booking.estimated_amount or 0,
+            'amount': fixed_amount,
             'payment_method': 'mpesa',
+            'platform_commission_percent': commission_percentage,
             'status': 'pending'
         }
     )
 
+    if payment.amount != fixed_amount or payment.platform_commission_percent != commission_percentage:
+        payment.amount = fixed_amount
+        payment.platform_commission_percent = commission_percentage
+        payment.save()
+
     if request.method == 'POST':
-        form = PaymentForm(request.POST, request.FILES, instance=payment)
+        form = PaymentForm(request.POST, request.FILES, instance=payment, fixed_amount=fixed_amount)
 
         if form.is_valid():
             payment = form.save(commit=False)
             payment.client = request.user
             payment.booking = booking
+            payment.amount = fixed_amount
+            payment.platform_commission_percent = commission_percentage
             payment.status = 'submitted'
             payment.save()
 
             messages.success(request, 'Comprovativo de pagamento enviado com sucesso. Aguarde confirmação.')
             return redirect('client_booking_list')
     else:
-        form = PaymentForm(instance=payment)
+        form = PaymentForm(instance=payment, fixed_amount=fixed_amount)
 
     return render(request, 'payments/payment_form.html', {
         'form': form,

@@ -1,5 +1,6 @@
-﻿from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 from .models import Notification
 
 
@@ -30,6 +31,7 @@ def notification_read(request, notification_id):
 
 
 @login_required
+@require_POST
 def notification_mark_all_read(request):
     Notification.objects.filter(
         recipient=request.user,
