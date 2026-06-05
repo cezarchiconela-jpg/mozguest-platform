@@ -1,12 +1,14 @@
-﻿from django.contrib import messages
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Q, Prefetch
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.http import require_POST
 
 from .forms import PropertyForm, RoomForm, PropertyPhotoForm
 from .models import Property, Room, PropertyPhoto
 from .services import calculate_distance_km
 from .image_utils import optimize_image_field
+from monetization.services import get_owner_limits
 
 
 def is_owner_user(user):
@@ -265,6 +267,16 @@ def owner_property_create(request):
     if not owner_required(request):
         return redirect('home')
 
+    limits = get_owner_limits(request.user)
+    current_properties = Property.objects.filter(owner=request.user).count()
+    if current_properties >= limits['max_properties']:
+        plan_name = limits['plan'].name if limits['plan'] else 'Gratuito'
+        messages.error(
+            request,
+            f'O seu plano actual ({plan_name}) permite no máximo {limits["max_properties"]} propriedade(s). Solicite um plano superior para cadastrar mais alojamentos.'
+        )
+        return redirect('owner_property_list')
+
     if request.method == 'POST':
         form = PropertyForm(request.POST)
 
@@ -342,6 +354,14 @@ def owner_room_create(request, property_id):
             room.save()
 
             photos = request.FILES.getlist('photos')
+            limits = get_owner_limits(request.user)
+            existing_photos = property_obj.photos.count()
+            if existing_photos + len(photos) > limits['max_photos_per_property']:
+                messages.error(
+                    request,
+                    f'O seu plano permite no máximo {limits["max_photos_per_property"]} fotografia(s) por propriedade. Remova fotos antigas ou solicite um plano superior.'
+                )
+                return redirect('owner_room_list', property_id=property_obj.id)
 
             for image in photos:
                 photo = PropertyPhoto.objects.create(
@@ -386,6 +406,14 @@ def owner_room_edit(request, room_id):
             room.save()
 
             photos = request.FILES.getlist('photos')
+            limits = get_owner_limits(request.user)
+            existing_photos = property_obj.photos.count()
+            if existing_photos + len(photos) > limits['max_photos_per_property']:
+                messages.error(
+                    request,
+                    f'O seu plano permite no máximo {limits["max_photos_per_property"]} fotografia(s) por propriedade. Remova fotos antigas ou solicite um plano superior.'
+                )
+                return redirect('owner_room_list', property_id=property_obj.id)
 
             for image in photos:
                 photo = PropertyPhoto.objects.create(
@@ -415,6 +443,7 @@ def owner_room_edit(request, room_id):
 
 
 @login_required
+@require_POST
 def owner_room_toggle(request, room_id):
     if not owner_required(request):
         return redirect('home')
@@ -444,6 +473,14 @@ def owner_photo_create(request, property_id):
         form.fields['room'].queryset = property_obj.rooms.all()
 
         if form.is_valid():
+            limits = get_owner_limits(request.user)
+            if property_obj.photos.count() >= limits['max_photos_per_property']:
+                messages.error(
+                    request,
+                    f'O seu plano permite no máximo {limits["max_photos_per_property"]} fotografia(s) por propriedade. Remova fotos antigas ou solicite um plano superior.'
+                )
+                return redirect('owner_photo_gallery', property_id=property_obj.id)
+
             photo = form.save(commit=False)
             photo.property = property_obj
             photo.save()
@@ -482,6 +519,7 @@ def owner_photo_gallery(request, property_id):
 
 
 @login_required
+@require_POST
 def owner_photo_set_main(request, photo_id):
     if not owner_required(request):
         return redirect('home')
@@ -498,6 +536,7 @@ def owner_photo_set_main(request, photo_id):
 
 
 @login_required
+@require_POST
 def owner_photo_delete(request, photo_id):
     if not owner_required(request):
         return redirect('home')

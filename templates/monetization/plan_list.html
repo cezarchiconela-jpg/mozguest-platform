@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Planos Comerciais - MozGuest{% endblock %}
 
@@ -47,9 +47,12 @@
                 </ul>
 
                 {% if user.is_authenticated and user.owner_profile %}
-                    <a href="/comercial/planos/{{ plan.id }}/solicitar/" class="block text-center bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-800">
-                        Solicitar plano
-                    </a>
+                    <form method="post" action="/comercial/planos/{{ plan.id }}/solicitar/">
+                        {% csrf_token %}
+                        <button class="w-full text-center bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-800">
+                            Solicitar plano
+                        </button>
+                    </form>
                 {% else %}
                     <a href="/cadastro/proprietario/" class="block text-center bg-slate-900 text-white px-5 py-3 rounded-xl font-semibold hover:bg-slate-800">
                         Criar conta de proprietário

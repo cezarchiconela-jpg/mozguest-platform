@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Reservas Recebidas - MozGuest{% endblock %}
 
@@ -86,16 +86,19 @@
 
                         <td class="p-4 text-right"><a href="/mensagens/reserva/{{ booking.id }}/" class="text-emerald-700 font-semibold mr-3">Mensagem</a>
                             {% if booking.status == 'pending' %}
-                                <a href="/reservas/proprietario/reservas/{{ booking.id }}/aceitar/" class="text-emerald-700 font-semibold mr-3">
-                                    Aceitar
-                                </a>
-                                <a href="/reservas/proprietario/reservas/{{ booking.id }}/rejeitar/" class="text-red-700 font-semibold">
-                                    Rejeitar
-                                </a>
+                                <form method="post" action="/reservas/proprietario/reservas/{{ booking.id }}/aceitar/" class="inline mr-3">
+                                    {% csrf_token %}
+                                    <button class="text-emerald-700 font-semibold" onclick="return confirm('Aceitar esta reserva?')">Aceitar</button>
+                                </form>
+                                <form method="post" action="/reservas/proprietario/reservas/{{ booking.id }}/rejeitar/" class="inline">
+                                    {% csrf_token %}
+                                    <button class="text-red-700 font-semibold" onclick="return confirm('Rejeitar esta reserva?')">Rejeitar</button>
+                                </form>
                             {% elif booking.status == 'accepted' %}
-                                <a href="/reservas/proprietario/reservas/{{ booking.id }}/concluir/" class="text-blue-700 font-semibold">
-                                    Concluir
-                                </a>
+                                <form method="post" action="/reservas/proprietario/reservas/{{ booking.id }}/concluir/" class="inline">
+                                    {% csrf_token %}
+                                    <button class="text-blue-700 font-semibold" onclick="return confirm('Marcar esta reserva como concluída?')">Concluir</button>
+                                </form>
                             {% else %}
                                 <span class="text-slate-400">Sem acções</span>
                             {% endif %}

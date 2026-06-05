@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Aprovar Propriedades - MozGuest{% endblock %}
 
@@ -33,12 +33,16 @@
                         <td class="p-4">{{ property.get_property_type_display }}</td>
                         <td class="p-4">{{ property.created_at }}</td>
                         <td class="p-4 text-right">
-                            <a href="/moz-admin/propriedades/{{ property.id }}/aprovar/" class="text-emerald-700 font-semibold mr-3">
-                                Aprovar
-                            </a>
-                            <a href="/moz-admin/propriedades/{{ property.id }}/rejeitar/" class="text-red-700 font-semibold">
-                                Rejeitar
-                            </a>
+                            <div class="flex justify-end gap-2">
+                                <form method="post" action="/moz-admin/propriedades/{{ property.id }}/aprovar/">
+                                    {% csrf_token %}
+                                    <button class="text-emerald-700 font-semibold" onclick="return confirm('Aprovar esta propriedade?')">Aprovar</button>
+                                </form>
+                                <form method="post" action="/moz-admin/propriedades/{{ property.id }}/rejeitar/">
+                                    {% csrf_token %}
+                                    <button class="text-red-700 font-semibold" onclick="return confirm('Rejeitar esta propriedade?')">Rejeitar</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 {% empty %}

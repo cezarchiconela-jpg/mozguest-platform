@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Confirmar Pagamentos - MozGuest{% endblock %}
 
@@ -53,12 +53,16 @@
                         </td>
 
                         <td class="p-4 text-right">
-                            <a href="/moz-admin/pagamentos/{{ payment.id }}/confirmar/" class="text-emerald-700 font-semibold mr-3">
-                                Confirmar
-                            </a>
-                            <a href="/moz-admin/pagamentos/{{ payment.id }}/rejeitar/" class="text-red-700 font-semibold">
-                                Rejeitar
-                            </a>
+                            <div class="flex justify-end gap-2">
+                                <form method="post" action="/moz-admin/pagamentos/{{ payment.id }}/confirmar/">
+                                    {% csrf_token %}
+                                    <button class="text-emerald-700 font-semibold" onclick="return confirm('Confirmar este pagamento?')">Confirmar</button>
+                                </form>
+                                <form method="post" action="/moz-admin/pagamentos/{{ payment.id }}/rejeitar/">
+                                    {% csrf_token %}
+                                    <button class="text-red-700 font-semibold" onclick="return confirm('Rejeitar este pagamento?')">Rejeitar</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 {% empty %}

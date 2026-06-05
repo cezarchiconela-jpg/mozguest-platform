@@ -1,21 +1,21 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Solicitar reserva - MozGuest{% endblock %}
 
 {% block content %}
 
-<section class="max-w-5xl mx-auto px-4 py-10">
+<section class="max-w-6xl mx-auto px-4 py-10">
     <div class="mb-8">
         <a href="/properties/{{ property.id }}/" class="text-blue-700 font-semibold">← Voltar ao alojamento</a>
-        <h1 class="text-4xl font-bold mt-4">Solicitar reserva</h1>
+        <h1 class="text-3xl md:text-5xl font-black mt-4">Solicitar reserva</h1>
         <p class="text-slate-600 mt-2">
             {{ property.name }} · {{ room.name }}
         </p>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-8">
-        <div class="md:col-span-2">
-            <form method="post" class="bg-white rounded-3xl border border-slate-200 p-6 space-y-5">
+    <div class="grid lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2">
+            <form method="post" class="bg-white rounded-3xl border border-slate-200 p-5 md:p-8 space-y-6 shadow-sm">
                 {% csrf_token %}
 
                 {% if form.non_field_errors %}
@@ -24,35 +24,78 @@
                     </div>
                 {% endif %}
 
-                <div class="bg-blue-50 border border-blue-200 text-blue-800 rounded-2xl p-4 text-sm">
-                    Preencha correctamente as datas e horas. O sistema irá validar se o quarto está livre no período escolhido.
+                <div class="bg-blue-50 border border-blue-200 text-blue-900 rounded-2xl p-4 text-sm">
+                    <strong>Reserva em 3 passos:</strong> informe os seus dados, escolha o período e confirme. O valor estimado aparece automaticamente no resumo ao lado.
                 </div>
 
-                {% for field in form %}
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">{{ field.label }}</label>
-                        {{ field }}
-
-                        {% if field.name == 'booking_type' %}
-                            <p class="text-xs text-slate-500 mt-1">
-                                Escolha se pretende reservar por hora, dia, noite ou mês.
-                            </p>
-                        {% endif %}
-
-                        {% if field.name == 'checkout_date' %}
-                            <p class="text-xs text-slate-500 mt-1">
-                                Para reservas por hora no mesmo dia, pode repetir a data de entrada.
-                            </p>
-                        {% endif %}
-
-                        {% if field.errors %}
-                            <p class="text-red-600 text-sm mt-1">{{ field.errors|striptags }}</p>
-                        {% endif %}
+                <div>
+                    <h2 class="text-xl font-bold mb-4">1. Dados do cliente</h2>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.customer_name.label }}</label>
+                            {{ form.customer_name }}
+                            {% if form.customer_name.errors %}<p class="text-red-600 text-sm mt-1">{{ form.customer_name.errors|striptags }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.customer_phone.label }}</label>
+                            {{ form.customer_phone }}
+                            {% if form.customer_phone.errors %}<p class="text-red-600 text-sm mt-1">{{ form.customer_phone.errors|striptags }}</p>{% endif %}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold mb-2">{{ form.customer_email.label }}</label>
+                            {{ form.customer_email }}
+                            {% if form.customer_email.errors %}<p class="text-red-600 text-sm mt-1">{{ form.customer_email.errors|striptags }}</p>{% endif %}
+                        </div>
                     </div>
-                {% endfor %}
+                </div>
 
-                <div class="flex items-center justify-end gap-3 pt-4">
-                    <a href="/properties/{{ property.id }}/" class="px-5 py-3 rounded-xl border border-slate-300">
+                <div class="border-t border-slate-200 pt-6">
+                    <h2 class="text-xl font-bold mb-4">2. Período da reserva</h2>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.booking_type.label }}</label>
+                            {{ form.booking_type }}
+                            <p class="text-xs text-slate-500 mt-1">Escolha hora, dia, noite ou mês conforme o preço disponível.</p>
+                            {% if form.booking_type.errors %}<p class="text-red-600 text-sm mt-1">{{ form.booking_type.errors|striptags }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.number_of_guests.label }}</label>
+                            {{ form.number_of_guests }}
+                            {% if form.number_of_guests.errors %}<p class="text-red-600 text-sm mt-1">{{ form.number_of_guests.errors|striptags }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.checkin_date.label }}</label>
+                            {{ form.checkin_date }}
+                            {% if form.checkin_date.errors %}<p class="text-red-600 text-sm mt-1">{{ form.checkin_date.errors|striptags }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.checkin_time.label }}</label>
+                            {{ form.checkin_time }}
+                            {% if form.checkin_time.errors %}<p class="text-red-600 text-sm mt-1">{{ form.checkin_time.errors|striptags }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.checkout_date.label }}</label>
+                            {{ form.checkout_date }}
+                            <p class="text-xs text-slate-500 mt-1">Para reservas por hora no mesmo dia, pode repetir a data de entrada.</p>
+                            {% if form.checkout_date.errors %}<p class="text-red-600 text-sm mt-1">{{ form.checkout_date.errors|striptags }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.checkout_time.label }}</label>
+                            {{ form.checkout_time }}
+                            {% if form.checkout_time.errors %}<p class="text-red-600 text-sm mt-1">{{ form.checkout_time.errors|striptags }}</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-200 pt-6">
+                    <h2 class="text-xl font-bold mb-4">3. Observações</h2>
+                    <label class="block text-sm font-semibold mb-2">{{ form.client_notes.label }}</label>
+                    {{ form.client_notes }}
+                    {% if form.client_notes.errors %}<p class="text-red-600 text-sm mt-1">{{ form.client_notes.errors|striptags }}</p>{% endif %}
+                </div>
+
+                <div class="flex flex-col md:flex-row md:items-center md:justify-end gap-3 pt-4">
+                    <a href="/properties/{{ property.id }}/" class="px-5 py-3 rounded-xl border border-slate-300 text-center">
                         Cancelar
                     </a>
 
@@ -64,8 +107,8 @@
         </div>
 
         <aside>
-            <div class="bg-white rounded-2xl border border-slate-200 p-6 sticky top-24">
-                <h3 class="text-xl font-bold mb-4">Resumo do quarto</h3>
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 sticky top-28 shadow-sm">
+                <h3 class="text-xl font-black mb-4">Resumo rápido</h3>
 
                 <p class="text-sm text-slate-500">Alojamento</p>
                 <p class="font-semibold mb-4">{{ property.name }}</p>
@@ -75,42 +118,108 @@
 
                 <p class="text-sm text-slate-500 mb-2">Preços disponíveis</p>
 
-                <div class="space-y-3 text-sm">
-                    {% if room.price_hour %}
-                        <div class="flex justify-between bg-slate-50 p-3 rounded-xl">
-                            <span>Hora</span>
-                            <strong>{{ room.price_hour }} MT</strong>
-                        </div>
-                    {% endif %}
-
-                    {% if room.price_day %}
-                        <div class="flex justify-between bg-slate-50 p-3 rounded-xl">
-                            <span>Dia</span>
-                            <strong>{{ room.price_day }} MT</strong>
-                        </div>
-                    {% endif %}
-
-                    {% if room.price_night %}
-                        <div class="flex justify-between bg-slate-50 p-3 rounded-xl">
-                            <span>Noite</span>
-                            <strong>{{ room.price_night }} MT</strong>
-                        </div>
-                    {% endif %}
-
-                    {% if room.price_month %}
-                        <div class="flex justify-between bg-slate-50 p-3 rounded-xl">
-                            <span>Mês</span>
-                            <strong>{{ room.price_month }} MT</strong>
-                        </div>
-                    {% endif %}
+                <div class="space-y-3 text-sm mb-5">
+                    {% if room.price_hour %}<div class="flex justify-between bg-slate-50 p-3 rounded-xl"><span>Hora</span><strong>{{ room.price_hour }} MT</strong></div>{% endif %}
+                    {% if room.price_day %}<div class="flex justify-between bg-slate-50 p-3 rounded-xl"><span>Dia</span><strong>{{ room.price_day }} MT</strong></div>{% endif %}
+                    {% if room.price_night %}<div class="flex justify-between bg-slate-50 p-3 rounded-xl"><span>Noite</span><strong>{{ room.price_night }} MT</strong></div>{% endif %}
+                    {% if room.price_month %}<div class="flex justify-between bg-slate-50 p-3 rounded-xl"><span>Mês</span><strong>{{ room.price_month }} MT</strong></div>{% endif %}
                 </div>
 
-                <div class="mt-6 p-4 bg-amber-50 text-amber-800 rounded-xl text-sm border border-amber-200">
-                    O valor será calculado automaticamente com base no tipo e período solicitado.
+                <div class="rounded-2xl border border-blue-200 bg-blue-50 p-5">
+                    <p class="text-sm text-blue-800 font-semibold">Valor estimado</p>
+                    <p id="estimateAmount" class="text-3xl font-black text-blue-900 mt-1">—</p>
+                    <p id="estimateDetails" class="text-sm text-blue-800 mt-2">Preencha as datas para calcular.</p>
+                </div>
+
+                <div class="mt-5 p-4 bg-amber-50 text-amber-800 rounded-xl text-sm border border-amber-200">
+                    O valor final será confirmado pela plataforma após validação da disponibilidade e do pagamento.
                 </div>
             </div>
         </aside>
     </div>
 </section>
+
+<script>
+(function () {
+    const prices = {
+        hour: Number('{{ room.price_hour|default:"0" }}'.replace(',', '.')),
+        day: Number('{{ room.price_day|default:"0" }}'.replace(',', '.')),
+        night: Number('{{ room.price_night|default:"0" }}'.replace(',', '.')),
+        month: Number('{{ room.price_month|default:"0" }}'.replace(',', '.')),
+    };
+
+    const labels = {hour: 'hora(s)', day: 'dia(s)', night: 'noite(s)', month: 'mês(es)'};
+    const minimumHours = Number('{{ room.minimum_hours|default:"1" }}');
+
+    const bookingType = document.getElementById('id_booking_type');
+    const checkinDate = document.getElementById('id_checkin_date');
+    const checkinTime = document.getElementById('id_checkin_time');
+    const checkoutDate = document.getElementById('id_checkout_date');
+    const checkoutTime = document.getElementById('id_checkout_time');
+    const estimateAmount = document.getElementById('estimateAmount');
+    const estimateDetails = document.getElementById('estimateDetails');
+
+    function parseDateTime(dateInput, timeInput, defaultTime) {
+        if (!dateInput.value) return null;
+        const time = timeInput && timeInput.value ? timeInput.value : defaultTime;
+        return new Date(`${dateInput.value}T${time}`);
+    }
+
+    function ceilPositive(value) {
+        if (!Number.isFinite(value) || value <= 0) return 0;
+        return Math.max(1, Math.ceil(value));
+    }
+
+    function calculateUnits(type, start, end) {
+        if (!start || !end || end <= start) return 0;
+        const diffMs = end - start;
+        const hours = diffMs / (1000 * 60 * 60);
+        const days = diffMs / (1000 * 60 * 60 * 24);
+
+        if (type === 'hour') return Math.max(minimumHours, ceilPositive(hours));
+        if (type === 'day') return ceilPositive(days);
+        if (type === 'night') return ceilPositive(days);
+        if (type === 'month') return ceilPositive(days / 30);
+        return 0;
+    }
+
+    function updateEstimate() {
+        const type = bookingType.value;
+        const price = prices[type] || 0;
+
+        if (!price) {
+            estimateAmount.textContent = '—';
+            estimateDetails.textContent = 'Este tipo de reserva não tem preço definido para esta unidade.';
+            return;
+        }
+
+        const start = parseDateTime(checkinDate, checkinTime, '00:00');
+        let end;
+
+        if (type === 'hour') {
+            end = parseDateTime(checkoutDate.value ? checkoutDate : checkinDate, checkoutTime, '00:00');
+        } else {
+            end = parseDateTime(checkoutDate, checkoutTime, '23:59');
+        }
+
+        const units = calculateUnits(type, start, end);
+        if (!units) {
+            estimateAmount.textContent = '—';
+            estimateDetails.textContent = 'Preencha data/hora de entrada e saída para ver o valor.';
+            return;
+        }
+
+        const total = units * price;
+        estimateAmount.textContent = `${total.toLocaleString('pt-MZ')} MT`;
+        estimateDetails.textContent = `${units} ${labels[type]} × ${price.toLocaleString('pt-MZ')} MT`;
+    }
+
+    [bookingType, checkinDate, checkinTime, checkoutDate, checkoutTime].forEach(function (field) {
+        if (field) field.addEventListener('input', updateEstimate);
+    });
+
+    updateEstimate();
+})();
+</script>
 
 {% endblock %}

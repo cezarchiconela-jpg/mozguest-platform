@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Subscrições Comerciais - MozGuest{% endblock %}
 
@@ -31,12 +31,16 @@
                         <td class="p-4">{{ subscription.get_status_display }}</td>
                         <td class="p-4">{{ subscription.created_at }}</td>
                         <td class="p-4 text-right">
-                            <a href="/comercial/admin/subscricoes/{{ subscription.id }}/activar/" class="text-emerald-700 font-semibold mr-3">
-                                Activar
-                            </a>
-                            <a href="/comercial/admin/subscricoes/{{ subscription.id }}/cancelar/" class="text-red-700 font-semibold">
-                                Cancelar
-                            </a>
+                            <div class="flex justify-end gap-2">
+                                <form method="post" action="/comercial/admin/subscricoes/{{ subscription.id }}/activar/">
+                                    {% csrf_token %}
+                                    <button class="text-emerald-700 font-semibold" onclick="return confirm('Activar esta subscrição?')">Activar</button>
+                                </form>
+                                <form method="post" action="/comercial/admin/subscricoes/{{ subscription.id }}/cancelar/">
+                                    {% csrf_token %}
+                                    <button class="text-red-700 font-semibold" onclick="return confirm('Cancelar esta subscrição?')">Cancelar</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 {% empty %}

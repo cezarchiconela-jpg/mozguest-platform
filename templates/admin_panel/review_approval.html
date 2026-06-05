@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Aprovar Avaliações - MozGuest{% endblock %}
 
@@ -31,12 +31,16 @@
                         <td class="p-4 text-amber-600 font-semibold">★ {{ review.rating }}</td>
                         <td class="p-4">{{ review.comment|truncatechars:140 }}</td>
                         <td class="p-4 text-right">
-                            <a href="/moz-admin/avaliacoes/{{ review.id }}/aprovar/" class="text-emerald-700 font-semibold mr-3">
-                                Aprovar
-                            </a>
-                            <a href="/moz-admin/avaliacoes/{{ review.id }}/rejeitar/" class="text-red-700 font-semibold">
-                                Rejeitar
-                            </a>
+                            <div class="flex justify-end gap-2">
+                                <form method="post" action="/moz-admin/avaliacoes/{{ review.id }}/aprovar/">
+                                    {% csrf_token %}
+                                    <button class="text-emerald-700 font-semibold" onclick="return confirm('Aprovar esta avaliação?')">Aprovar</button>
+                                </form>
+                                <form method="post" action="/moz-admin/avaliacoes/{{ review.id }}/rejeitar/">
+                                    {% csrf_token %}
+                                    <button class="text-red-700 font-semibold" onclick="return confirm('Rejeitar esta avaliação?')">Rejeitar</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 {% empty %}

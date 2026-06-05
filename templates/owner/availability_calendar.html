@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Calendário de Disponibilidade - MozGuest{% endblock %}
 
@@ -79,9 +79,10 @@
                                         <p class="text-sm text-slate-600">{{ block.get_reason_display }}</p>
                                     </div>
 
-                                    <a href="/proprietario/disponibilidade/{{ block.id }}/apagar/" class="text-red-700 font-semibold text-sm">
-                                        Remover
-                                    </a>
+                                    <form method="post" action="/proprietario/disponibilidade/{{ block.id }}/apagar/" class="inline">
+                                        {% csrf_token %}
+                                        <button class="text-red-700 font-semibold text-sm" onclick="return confirm('Remover este bloqueio?')">Remover</button>
+                                    </form>
                                 </div>
                             </div>
                         {% empty %}

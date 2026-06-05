@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Galeria de Fotos - MozGuest{% endblock %}
 
@@ -41,10 +41,16 @@
 
                     <div class="flex justify-end gap-3 text-sm">
                         {% if not photo.is_main %}
-                            <a href="/proprietario/fotos/{{ photo.id }}/principal/" class="text-blue-700 font-semibold">Definir principal</a>
+                            <form method="post" action="/proprietario/fotos/{{ photo.id }}/principal/" class="inline">
+                                {% csrf_token %}
+                                <button class="text-blue-700 font-semibold">Definir principal</button>
+                            </form>
                         {% endif %}
 
-                        <a href="/proprietario/fotos/{{ photo.id }}/apagar/" class="text-red-700 font-semibold">Apagar</a>
+                        <form method="post" action="/proprietario/fotos/{{ photo.id }}/apagar/" class="inline">
+                            {% csrf_token %}
+                            <button class="text-red-700 font-semibold" onclick="return confirm('Apagar esta fotografia?')">Apagar</button>
+                        </form>
                     </div>
                 </div>
             </div>

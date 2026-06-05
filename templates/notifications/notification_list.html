@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Central - MozGuest{% endblock %}
 
@@ -38,9 +38,12 @@
     <div class="flex items-center justify-between mb-5">
         <h2 class="text-2xl font-bold">Últimas notificações</h2>
 
-        <a href="/notificacoes/marcar-todas/" class="bg-slate-900 text-white px-5 py-3 rounded-xl font-semibold hover:bg-slate-800">
-            Marcar todas como lidas
-        </a>
+        <form method="post" action="/notificacoes/marcar-todas/">
+            {% csrf_token %}
+            <button class="bg-slate-900 text-white px-5 py-3 rounded-xl font-semibold hover:bg-slate-800">
+                Marcar todas como lidas
+            </button>
+        </form>
     </div>
 
     <div class="space-y-4">

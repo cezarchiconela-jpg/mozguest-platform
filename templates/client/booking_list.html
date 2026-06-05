@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Minhas Reservas - MozGuest{% endblock %}
 
@@ -85,9 +85,10 @@
                             </a>
 
                             {% if booking.status == 'pending' or booking.status == 'accepted' %}
-                                <a href="/reservas/cliente/minhas-reservas/{{ booking.id }}/cancelar/" class="text-red-700 font-semibold">
-                                    Cancelar
-                                </a>
+                                <form method="post" action="/reservas/cliente/minhas-reservas/{{ booking.id }}/cancelar/" class="inline">
+                                    {% csrf_token %}
+                                    <button class="text-red-700 font-semibold" onclick="return confirm('Cancelar esta reserva?')">Cancelar</button>
+                                </form>
                             {% else %}
                                 <span class="text-slate-400">Sem acções</span>
                             {% endif %}

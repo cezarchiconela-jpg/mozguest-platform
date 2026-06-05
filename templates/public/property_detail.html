@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}{{ property.name }} - MozGuest{% endblock %}
 
@@ -30,13 +30,16 @@
             </div>
 
             {% if user.is_authenticated %}
-                <a href="/reviews/favorito/{{ property.id }}/" class="px-5 py-3 rounded-xl border border-slate-300 font-semibold hover:bg-slate-100">
-                    {% if is_favorite %}
-                        Remover dos favoritos
-                    {% else %}
-                        Guardar favorito
-                    {% endif %}
-                </a>
+                <form method="post" action="/reviews/favorito/{{ property.id }}/">
+                    {% csrf_token %}
+                    <button class="px-5 py-3 rounded-xl border border-slate-300 font-semibold hover:bg-slate-100">
+                        {% if is_favorite %}
+                            Remover dos favoritos
+                        {% else %}
+                            Guardar favorito
+                        {% endif %}
+                    </button>
+                </form>
             {% endif %}
         </div>
     </div>
