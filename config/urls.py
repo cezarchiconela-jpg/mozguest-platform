@@ -1,4 +1,4 @@
-﻿from django.conf import settings
+from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
@@ -80,6 +80,6 @@ urlpatterns = [
     path('moz-admin/suporte/<int:ticket_id>/', support_views.admin_support_ticket_detail, name='admin_support_ticket_detail'),
 ]
 
-if settings.DEBUG:
+if settings.DJANGO_SERVE_MEDIA:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

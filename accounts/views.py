@@ -1,4 +1,4 @@
-﻿from django.contrib import messages
+from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.decorators import login_required
@@ -57,7 +57,7 @@ class CustomLoginView(LoginView):
         user = self.request.user
 
         if user.is_staff:
-            return reverse_lazy('admin:index')
+            return reverse_lazy('mozguest_admin_dashboard')
 
         if hasattr(user, 'owner_profile'):
             return reverse_lazy('owner_dashboard')

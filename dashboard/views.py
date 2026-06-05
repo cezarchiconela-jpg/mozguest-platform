@@ -1,5 +1,6 @@
-﻿from django.contrib import messages
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.http import require_POST
 from django.db.models import Sum
 from django.shortcuts import redirect, render, get_object_or_404
 
@@ -107,6 +108,7 @@ def admin_property_approval(request):
 
 
 @user_passes_test(is_staff_user)
+@require_POST
 def admin_approve_property(request, property_id):
     property_obj = get_object_or_404(Property, id=property_id)
     property_obj.status = 'approved'
@@ -118,6 +120,7 @@ def admin_approve_property(request, property_id):
 
 
 @user_passes_test(is_staff_user)
+@require_POST
 def admin_reject_property(request, property_id):
     property_obj = get_object_or_404(Property, id=property_id)
     property_obj.status = 'rejected'
@@ -137,6 +140,7 @@ def admin_review_approval(request):
 
 
 @user_passes_test(is_staff_user)
+@require_POST
 def admin_approve_review(request, review_id):
     review = get_object_or_404(Review, id=review_id)
     review.status = 'approved'
@@ -147,6 +151,7 @@ def admin_approve_review(request, review_id):
 
 
 @user_passes_test(is_staff_user)
+@require_POST
 def admin_reject_review(request, review_id):
     review = get_object_or_404(Review, id=review_id)
     review.status = 'rejected'
@@ -166,6 +171,7 @@ def admin_payment_approval(request):
 
 
 @user_passes_test(is_staff_user)
+@require_POST
 def admin_confirm_payment(request, payment_id):
     payment = get_object_or_404(Payment, id=payment_id)
     payment.status = 'confirmed'
@@ -176,6 +182,7 @@ def admin_confirm_payment(request, payment_id):
 
 
 @user_passes_test(is_staff_user)
+@require_POST
 def admin_reject_payment(request, payment_id):
     payment = get_object_or_404(Payment, id=payment_id)
     payment.status = 'rejected'

@@ -1,41 +1,55 @@
-﻿import os
+import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+def env_bool(name: str, default: bool = False) -> bool:
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
 # ===============================
 # CORE SETTINGS - MOZGUEST
 # ===============================
 
+DEBUG = env_bool('DJANGO_DEBUG', env_bool('DEBUG', False))
+
 SECRET_KEY = (
     os.environ.get('DJANGO_SECRET_KEY')
     or os.environ.get('SECRET_KEY')
-    or 'mozguest-dev-key-change-before-production'
 )
 
-DEBUG = (
-    os.environ.get('DJANGO_DEBUG')
-    or os.environ.get('DEBUG')
-    or 'True'
-).lower() in ['1', 'true', 'yes', 'on']
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = 'mozguest-local-dev-key-only'
+    else:
+        raise ImproperlyConfigured(
+            'DJANGO_SECRET_KEY/SECRET_KEY deve estar definido quando DEBUG=False.'
+        )
 
 
 # ===============================
 # HOSTS / CSRF - RENDER READY
 # ===============================
 
+_default_hosts = '127.0.0.1,localhost' if DEBUG else ''
 _allowed_hosts = (
     os.environ.get('DJANGO_ALLOWED_HOSTS')
     or os.environ.get('ALLOWED_HOSTS')
-    or '127.0.0.1,localhost'
+    or _default_hosts
 )
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in _allowed_hosts.split(',')
-    if host.strip()
-]
+ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts.split(',') if host.strip()]
+
+if not DEBUG and not ALLOWED_HOSTS:
+    raise ImproperlyConfigured(
+        'DJANGO_ALLOWED_HOSTS/ALLOWED_HOSTS deve estar definido quando DEBUG=False.'
+    )
 
 _csrf_trusted_origins = (
     os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS')
@@ -48,6 +62,11 @@ CSRF_TRUSTED_ORIGINS = [
     for origin in _csrf_trusted_origins.split(',')
     if origin.strip()
 ]
+
+# Ajuda em produção: se o programador só definir ALLOWED_HOSTS, criamos origens HTTPS.
+if not DEBUG and not CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS if '*' not in host]
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -109,11 +128,11 @@ if DATABASE_URL:
             'default': dj_database_url.parse(
                 DATABASE_URL,
                 conn_max_age=600,
-                ssl_require=os.environ.get('DB_SSL_REQUIRE', 'False').lower() in ['1', 'true', 'yes', 'on']
+                ssl_require=env_bool('DB_SSL_REQUIRE', False)
             )
         }
-    except ImportError:
-        raise ImportError('Instale dj-database-url para usar DATABASE_URL em produÃ§Ã£o.')
+    except ImportError as exc:
+        raise ImportError('Instale dj-database-url para usar DATABASE_URL em produção.') from exc
 else:
     DATABASES = {
         'default': {
@@ -139,8 +158,9 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static'] if (BASE_DIR / 'static').exists() else []
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = os.environ.get('DJANGO_MEDIA_URL', '/media/')
+MEDIA_ROOT = Path(os.environ.get('DJANGO_MEDIA_ROOT', BASE_DIR / 'media'))
+DJANGO_SERVE_MEDIA = env_bool('DJANGO_SERVE_MEDIA', DEBUG)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -156,14 +176,16 @@ EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.conso
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'MozGuest <no-reply@mozguest.co.mz>')
 EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() in ['1', 'true', 'yes', 'on']
+EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', True)
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
-SECURE_SSL_REDIRECT = os.environ.get('DJANGO_SECURE_SSL_REDIRECT', 'False').lower() in ['1', 'true', 'yes', 'on']
+SESSION_COOKIE_SECURE = env_bool('SESSION_COOKIE_SECURE', not DEBUG)
+CSRF_COOKIE_SECURE = env_bool('CSRF_COOKIE_SECURE', not DEBUG)
+SECURE_SSL_REDIRECT = env_bool('DJANGO_SECURE_SSL_REDIRECT', not DEBUG)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '0' if DEBUG else '31536000'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool('SECURE_HSTS_INCLUDE_SUBDOMAINS', not DEBUG)
+SECURE_HSTS_PRELOAD = env_bool('SECURE_HSTS_PRELOAD', False)
+SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
-
-

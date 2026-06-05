@@ -1,7 +1,8 @@
-﻿from django.contrib import messages
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
 from properties.models import Property, Room
 from .forms import BookingForm, AvailabilityBlockForm
@@ -52,6 +53,14 @@ def booking_create(request, room_id):
                 checkout_date=booking.checkout_date,
                 checkout_time=booking.checkout_time
             )
+
+            if unit_price is None:
+                messages.error(request, 'Este tipo de reserva ainda não tem preço definido para esta unidade.')
+                return render(request, 'bookings/booking_form.html', {
+                    'form': form,
+                    'room': room,
+                    'property': property_obj,
+                })
 
             if not start or not end:
                 messages.error(request, 'Não foi possível calcular o período da reserva. Verifique as datas e horas.')
@@ -135,12 +144,17 @@ def owner_booking_list(request):
 
 
 @login_required
+@require_POST
 def owner_booking_accept(request, booking_id):
     booking = get_object_or_404(
         Booking,
         pk=booking_id,
         property__owner=request.user
     )
+
+    if booking.status != 'pending':
+        messages.error(request, 'Apenas reservas pendentes podem ser aceites.')
+        return redirect('owner_booking_list')
 
     start, end = get_booking_period(
         booking.booking_type,
@@ -162,12 +176,17 @@ def owner_booking_accept(request, booking_id):
 
 
 @login_required
+@require_POST
 def owner_booking_reject(request, booking_id):
     booking = get_object_or_404(
         Booking,
         pk=booking_id,
         property__owner=request.user
     )
+
+    if booking.status != 'pending':
+        messages.error(request, 'Apenas reservas pendentes podem ser rejeitadas.')
+        return redirect('owner_booking_list')
 
     booking.status = 'rejected'
     booking.save()
@@ -177,12 +196,17 @@ def owner_booking_reject(request, booking_id):
 
 
 @login_required
+@require_POST
 def owner_booking_complete(request, booking_id):
     booking = get_object_or_404(
         Booking,
         pk=booking_id,
         property__owner=request.user
     )
+
+    if booking.status != 'accepted':
+        messages.error(request, 'Apenas reservas aceites podem ser marcadas como concluídas.')
+        return redirect('owner_booking_list')
 
     booking.status = 'completed'
     booking.save()
@@ -192,6 +216,7 @@ def owner_booking_complete(request, booking_id):
 
 
 @login_required
+@require_POST
 def client_booking_cancel(request, booking_id):
     booking = get_object_or_404(
         Booking,
@@ -326,6 +351,7 @@ def owner_availability_block_create(request, property_id):
 
 
 @login_required
+@require_POST
 def owner_availability_block_delete(request, block_id):
     if not user_is_owner(request.user):
         messages.error(request, 'Apenas proprietários podem aceder a esta área.')
