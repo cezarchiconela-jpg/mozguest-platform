@@ -1,6 +1,6 @@
 ﻿{% extends 'base.html' %}
 
-{% block title %}Financeiro do Proprietário - MozGuest{% endblock %}
+{% block title %}Financeiro do Proprietário - +258 Guest{% endblock %}
 
 {% block content %}
 
@@ -13,9 +13,14 @@
             </p>
         </div>
 
-        <a href="/pagamentos/proprietario/financeiro/exportar/?status={{ status|default:'' }}&start_date={{ start_date|default:'' }}&end_date={{ end_date|default:'' }}" class="bg-emerald-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-emerald-700">
-            Exportar CSV
-        </a>
+        <div class="flex flex-wrap gap-3">
+            <a href="/pagamentos/proprietario/liquidacoes/" class="bg-slate-900 text-white px-5 py-3 rounded-xl font-semibold hover:bg-slate-800">
+                Ver liquidações
+            </a>
+            <a href="/pagamentos/proprietario/financeiro/exportar/?status={{ status|default:'' }}&start_date={{ start_date|default:'' }}&end_date={{ end_date|default:'' }}" class="bg-emerald-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-emerald-700">
+                Exportar CSV
+            </a>
+        </div>
     </div>
 
     <form method="get" class="bg-white rounded-2xl border border-slate-200 p-5 mb-8">
@@ -45,7 +50,7 @@
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200 p-6">
-            <p class="text-sm text-slate-500">Comissão MozGuest</p>
+            <p class="text-sm text-slate-500">Comissão +258 Guest</p>
             <h3 class="text-3xl font-bold mt-2 text-blue-700">{{ total_commission }} MT</h3>
         </div>
 
@@ -53,6 +58,26 @@
             <p class="text-sm text-slate-500">Valor líquido do proprietário</p>
             <h3 class="text-3xl font-bold mt-2 text-emerald-700">{{ total_owner_amount }} MT</h3>
         </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5 mb-8">
+        <a href="/pagamentos/proprietario/liquidacoes/?status=pending" class="bg-amber-50 rounded-2xl border border-amber-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-amber-700">A receber da +258 Guest</p>
+            <h3 class="text-3xl font-bold mt-2 text-amber-700">{{ payout_pending_total }} MT</h3>
+            <p class="text-xs text-amber-700 mt-2">{{ payout_pending_count }} liquidação(ões) pendente(s)</p>
+        </a>
+
+        <a href="/pagamentos/proprietario/liquidacoes/?status=paid" class="bg-emerald-50 rounded-2xl border border-emerald-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-emerald-700">Já recebido</p>
+            <h3 class="text-3xl font-bold mt-2 text-emerald-700">{{ payout_paid_total }} MT</h3>
+            <p class="text-xs text-emerald-700 mt-2">{{ payout_paid_count }} liquidação(ões) pagas</p>
+        </a>
+
+        <a href="/pagamentos/proprietario/liquidacoes/?status=held" class="bg-red-50 rounded-2xl border border-red-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-red-700">Em retenção</p>
+            <h3 class="text-3xl font-bold mt-2 text-red-700">{{ payout_held_total }} MT</h3>
+            <p class="text-xs text-red-700 mt-2">{{ payout_held_count }} item(ns) em análise</p>
+        </a>
     </div>
 
     <div class="grid md:grid-cols-3 gap-5 mb-10">

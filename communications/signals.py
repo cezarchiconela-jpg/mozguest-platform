@@ -1,4 +1,4 @@
-﻿from django.db.models.signals import post_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from notifications.models import Notification
@@ -19,20 +19,20 @@ def notification_email_sender(sender, instance, created, **kwargs):
     if not recipient or not recipient.email:
         return
 
-    subject = f'MozGuest - {instance.title}'
+    subject = f'+258 Guest - {instance.title}'
 
     message = f"""
 Olá {recipient.get_full_name() or recipient.username},
 
 {instance.message}
 
-Pode aceder à plataforma MozGuest para ver mais detalhes.
+Pode aceder à plataforma +258 Guest para ver mais detalhes.
 
 Link interno:
 {instance.link or '/notificacoes/'}
 
 Obrigado,
-Equipa MozGuest
+Equipa +258 Guest
 """
 
     send_system_email(

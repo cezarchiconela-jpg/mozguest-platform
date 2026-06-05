@@ -1,39 +1,100 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}{{ title }} - MozGuest{% endblock %}
+{% block title %}{{ title }} - +258 Guest{% endblock %}
 
 {% block content %}
 
-<section class="max-w-4xl mx-auto px-4 py-10">
+<section class="max-w-5xl mx-auto px-4 py-10">
     <div class="mb-8">
-        <a href="/proprietario/propriedades/" class="text-blue-700 font-semibold">← Voltar</a>
-        <h1 class="text-4xl font-bold mt-4">{{ title }}</h1>
+        <a href="/proprietario/propriedades/{{ property.id }}/fotos/" class="text-blue-700 font-semibold">← Voltar à galeria</a>
+        <h1 class="text-4xl md:text-5xl font-black mt-4">{{ title }}</h1>
         <p class="text-slate-600 mt-2">Propriedade: {{ property.name }}</p>
     </div>
 
-    <form method="post" enctype="multipart/form-data" class="bg-white rounded-3xl border border-slate-200 p-6 space-y-5">
-        {% csrf_token %}
+    <div class="grid lg:grid-cols-3 gap-8 items-start">
+        <form method="post" enctype="multipart/form-data" class="lg:col-span-2 bg-white rounded-3xl border border-slate-200 p-6 md:p-8 space-y-6 shadow-sm">
+            {% csrf_token %}
 
-        {% for field in form %}
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl text-sm">{{ form.non_field_errors|striptags }}</div>
+            {% endif %}
+
             <div>
-                <label class="block text-sm font-semibold mb-2">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                    <p class="text-red-600 text-sm mt-1">{{ field.errors|striptags }}</p>
-                {% endif %}
+                <label class="block text-sm font-semibold mb-2">{{ form.room.label }}</label>
+                {{ form.room }}
+                <p class="text-xs text-slate-500 mt-1">Opcional. Use quando as fotos pertencem a um quarto/unidade específico.</p>
+                {% if form.room.errors %}<p class="text-red-600 text-sm mt-1">{{ form.room.errors|striptags }}</p>{% endif %}
             </div>
-        {% endfor %}
 
-        <div class="flex items-center justify-end gap-3 pt-4">
-            <a href="/proprietario/propriedades/" class="px-5 py-3 rounded-xl border border-slate-300">
-                Cancelar
-            </a>
+            <div>
+                <label class="block text-sm font-semibold mb-2">{{ form.images.label }}</label>
+                {{ form.images }}
+                <div class="mt-3 bg-blue-50 border border-blue-200 text-blue-900 rounded-2xl p-4 text-sm">
+                    Pode carregar várias fotografias de uma só vez. Cada imagem deve ter no máximo 5MB. Priorize fotos horizontais, nítidas e bem iluminadas.
+                </div>
+                {% if form.images.errors %}<p class="text-red-600 text-sm mt-1">{{ form.images.errors|striptags }}</p>{% endif %}
+            </div>
 
-            <button class="bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-800">
-                Guardar fotografia
-            </button>
-        </div>
-    </form>
+            <div>
+                <label class="block text-sm font-semibold mb-2">{{ form.caption.label }}</label>
+                {{ form.caption }}
+                <p class="text-xs text-slate-500 mt-1">Exemplo: Fachada principal, Quarto executivo, Casa de banho privativa, Área comum.</p>
+                {% if form.caption.errors %}<p class="text-red-600 text-sm mt-1">{{ form.caption.errors|striptags }}</p>{% endif %}
+            </div>
+
+            <label class="flex items-center gap-3 bg-emerald-50 text-emerald-800 rounded-2xl p-4 font-semibold">
+                {{ form.set_first_as_main }} {{ form.set_first_as_main.label }}
+            </label>
+
+            <div id="photoPreview" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+
+            <div class="flex flex-col md:flex-row md:items-center md:justify-end gap-3 pt-4">
+                <a href="/proprietario/propriedades/{{ property.id }}/fotos/" class="px-5 py-3 rounded-xl border border-slate-300 text-center">Cancelar</a>
+                <button class="bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-800">Carregar fotografias</button>
+            </div>
+        </form>
+
+        <aside class="space-y-6 lg:sticky lg:top-28">
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="text-xl font-black mb-4">Limite actual</h3>
+                <p class="text-sm text-slate-600">Fotos actuais nesta propriedade:</p>
+                <p class="text-3xl font-black mt-1">{{ current_photo_count }}</p>
+                <p class="text-sm text-slate-600 mt-4">Máximo permitido pelo plano:</p>
+                <p class="text-3xl font-black mt-1 text-blue-700">{{ limits.max_photos_per_property }}</p>
+            </div>
+
+            <div class="bg-blue-900 text-white rounded-3xl p-6 shadow-sm">
+                <h3 class="text-xl font-black mb-3">Fotos que vendem melhor</h3>
+                <div class="space-y-3 text-sm text-blue-50">
+                    <p>1. Fachada ou entrada do alojamento.</p>
+                    <p>2. Quarto visto de forma ampla.</p>
+                    <p>3. Casa de banho limpa e iluminada.</p>
+                    <p>4. Área comum, estacionamento ou recepção.</p>
+                    <p>5. Detalhes que mostrem higiene, conforto e segurança.</p>
+                </div>
+            </div>
+        </aside>
+    </div>
 </section>
+
+<script>
+const input = document.getElementById('id_images');
+const preview = document.getElementById('photoPreview');
+if (input && preview) {
+    input.addEventListener('change', function () {
+        preview.innerHTML = '';
+        Array.from(input.files).slice(0, 12).forEach(function (file, index) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'rounded-2xl overflow-hidden border border-slate-200 bg-slate-50';
+                wrapper.innerHTML = `<div class="h-36 bg-slate-100"><img src="${event.target.result}" class="w-full h-full object-cover"></div><div class="p-3 text-xs text-slate-600">Foto ${index + 1}</div>`;
+                preview.appendChild(wrapper);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+}
+</script>
 
 {% endblock %}

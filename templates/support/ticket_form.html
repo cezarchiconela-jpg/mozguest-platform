@@ -1,40 +1,56 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}{{ title }} - MozGuest{% endblock %}
+{% block title %}{{ title }} - +258 Guest{% endblock %}
 
 {% block content %}
-
-<section class="max-w-4xl mx-auto px-4 py-10">
+<section class="max-w-5xl mx-auto px-4 py-10">
     <div class="mb-8">
-        <a href="/suporte/" class="text-blue-700 font-semibold">← Voltar ao suporte</a>
-        <h1 class="text-4xl font-bold mt-4">{{ title }}</h1>
-        <p class="text-slate-600 mt-2">Explique o problema com clareza para a administração poder analisar.</p>
+        <a href="/suporte/" class="text-blue-700 font-bold">← Voltar ao suporte</a>
+        <h1 class="text-4xl md:text-5xl font-black mt-4 tracking-tight">{{ title }}</h1>
+        <p class="text-slate-600 mt-2 max-w-2xl">Explique o problema com objectividade. Quanto mais claro for o pedido, mais rápida será a análise.</p>
     </div>
 
-    <form method="post" class="bg-white rounded-3xl border border-slate-200 p-6 space-y-5">
-        {% csrf_token %}
+    <div class="grid lg:grid-cols-[1fr_320px] gap-6">
+        <form method="post" class="bg-white rounded-3xl border border-slate-200 p-6 space-y-5">
+            {% csrf_token %}
 
-        {% for field in form %}
-            <div>
-                <label class="block text-sm font-semibold mb-2">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                    <p class="text-red-600 text-sm mt-1">{{ field.errors|striptags }}</p>
+            {% for field in form %}
+                <div>
+                    <label class="block text-sm font-bold mb-2">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}<p class="text-xs text-slate-500 mt-1">{{ field.help_text }}</p>{% endif %}
+                    {% if field.errors %}<p class="text-red-600 text-sm mt-1">{{ field.errors|striptags }}</p>{% endif %}
+                </div>
+            {% endfor %}
+
+            <div class="bg-blue-50 border border-blue-200 text-blue-900 rounded-2xl p-4 text-sm">
+                Depois do envio, a +258 Guest irá analisar, mudar o estado do pedido e responder nesta mesma página. Se o e-mail estiver configurado, também será enviado um aviso automático.
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:justify-end gap-3">
+                <a href="/suporte/" class="px-5 py-3 rounded-2xl border border-slate-300 text-center font-semibold">Cancelar</a>
+                <button class="bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold hover:bg-blue-800">Enviar pedido</button>
+            </div>
+        </form>
+
+        <aside class="space-y-4">
+            <div class="bg-slate-900 text-white rounded-3xl p-6">
+                <h2 class="text-xl font-black mb-3">Como escrever melhor</h2>
+                <ul class="text-sm text-slate-300 space-y-2">
+                    <li>• Indique número da reserva, se existir.</li>
+                    <li>• Descreva datas, valores e pessoas envolvidas.</li>
+                    <li>• Explique o impacto do problema.</li>
+                    <li>• Use prioridade urgente apenas para casos graves.</li>
+                </ul>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-3xl p-6">
+                <h3 class="font-black mb-2">Canais registados</h3>
+                <p class="text-sm text-slate-600 mb-4">A decisão administrativa fica registada para consulta futura e apoio à resolução de conflitos.</p>
+                {% if support_whatsapp_url %}
+                    <a href="{{ support_whatsapp_url }}" target="_blank" class="inline-block bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-bold">Falar por WhatsApp</a>
                 {% endif %}
             </div>
-        {% endfor %}
-
-        <div class="bg-blue-50 border border-blue-200 text-blue-800 rounded-2xl p-4 text-sm">
-            Após o envio, a MozGuest irá analisar a reclamação e actualizar o estado do pedido.
-        </div>
-
-        <div class="flex justify-end gap-3">
-            <a href="/suporte/" class="px-5 py-3 rounded-xl border border-slate-300">Cancelar</a>
-            <button class="bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-800">
-                Enviar reclamação
-            </button>
-        </div>
-    </form>
+        </aside>
+    </div>
 </section>
-
 {% endblock %}

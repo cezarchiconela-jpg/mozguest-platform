@@ -1,4 +1,4 @@
-﻿from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
 
 icons_dir = Path("static/icons")
@@ -30,7 +30,7 @@ def create_icon(size, filename):
     th = bbox[3] - bbox[1]
     draw.text(((size - tw) / 2, size * 0.40), text, font=font_big, fill="white")
 
-    text2 = "MozGuest"
+    text2 = "+258 Guest"
     bbox2 = draw.textbbox((0, 0), text2, font=font_small)
     tw2 = bbox2[2] - bbox2[0]
     draw.text(((size - tw2) / 2, size * 0.68), text2, font=font_small, fill="#dbeafe")

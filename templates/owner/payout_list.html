@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Liquidações +258 Guest - Proprietário{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-4 py-10">
+    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 mb-8">
+        <div>
+            <span class="inline-flex bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-bold mb-4">
+                Controlo de recebimentos
+            </span>
+            <h1 class="text-4xl font-black">Liquidações ao Proprietário</h1>
+            <p class="text-slate-600 mt-2 max-w-3xl">
+                Aqui vê os valores que a +258 Guest já confirmou junto do cliente, a comissão descontada e o valor líquido que será transferido para si.
+            </p>
+        </div>
+        <a href="/pagamentos/proprietario/financeiro/" class="bg-slate-900 text-white px-5 py-3 rounded-xl font-bold hover:bg-slate-800 text-center">
+            Ver relatório financeiro
+        </a>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-5 mb-8">
+        <div class="bg-white rounded-3xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Total líquido confirmado</p>
+            <h3 class="text-3xl font-black mt-2">{{ confirmed_payment_total }} MT</h3>
+            <p class="text-xs text-slate-500 mt-2">Valor dos pagamentos confirmados pela +258 Guest.</p>
+        </div>
+        <div class="bg-white rounded-3xl border border-amber-200 p-6">
+            <p class="text-sm text-slate-500">A receber</p>
+            <h3 class="text-3xl font-black mt-2 text-amber-600">{{ pending_total }} MT</h3>
+            <p class="text-xs text-slate-500 mt-2">{{ pending_count }} pendente(s) · {{ scheduled_count }} agendada(s)</p>
+        </div>
+        <div class="bg-white rounded-3xl border border-emerald-200 p-6">
+            <p class="text-sm text-slate-500">Já liquidado</p>
+            <h3 class="text-3xl font-black mt-2 text-emerald-700">{{ paid_total }} MT</h3>
+            <p class="text-xs text-slate-500 mt-2">{{ paid_count }} liquidação(ões) paga(s)</p>
+        </div>
+        <div class="bg-white rounded-3xl border border-red-200 p-6">
+            <p class="text-sm text-slate-500">Em retenção</p>
+            <h3 class="text-3xl font-black mt-2 text-red-600">{{ held_total }} MT</h3>
+            <p class="text-xs text-slate-500 mt-2">{{ held_count }} em análise</p>
+        </div>
+    </div>
+
+    <div class="bg-blue-50 border border-blue-100 rounded-3xl p-6 mb-8">
+        <h2 class="text-xl font-black text-blue-900 mb-2">Como funciona a segurança do pagamento?</h2>
+        <p class="text-blue-900/80">
+            O cliente paga primeiro à +258 Guest. Depois de o pagamento ser confirmado, a +258 Guest separa automaticamente a comissão da plataforma e cria a liquidação do valor líquido para o proprietário. Isto aumenta a confiança do cliente e permite controlo claro dos valores.
+        </p>
+    </div>
+
+    <form method="get" class="bg-white rounded-2xl border border-slate-200 p-5 mb-8">
+        <div class="grid md:grid-cols-3 gap-4">
+            <select name="status" class="px-4 py-3 rounded-xl border border-slate-300">
+                <option value="">Todos os estados</option>
+                {% for value,label in status_choices %}
+                    <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button class="bg-blue-700 text-white rounded-xl font-bold hover:bg-blue-800">Filtrar</button>
+            <a href="/pagamentos/proprietario/liquidacoes/" class="bg-slate-100 text-slate-800 rounded-xl font-bold hover:bg-slate-200 text-center py-3">Limpar</a>
+        </div>
+    </form>
+
+    <div class="grid gap-5">
+        {% for payout in payouts %}
+            <article class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5">
+                    <div>
+                        <div class="flex flex-wrap items-center gap-3 mb-3">
+                            <h2 class="text-2xl font-black">Liquidação #{{ payout.id }}</h2>
+                            <span class="text-xs px-3 py-1 rounded-full font-bold
+                                {% if payout.status == 'paid' %}bg-emerald-100 text-emerald-700
+                                {% elif payout.status == 'pending' or payout.status == 'scheduled' %}bg-amber-100 text-amber-700
+                                {% elif payout.status == 'held' %}bg-red-100 text-red-700
+                                {% else %}bg-slate-100 text-slate-700{% endif %}">
+                                {{ payout.get_status_display }}
+                            </span>
+                        </div>
+                        <p class="text-slate-600">
+                            Reserva #{{ payout.payment.booking.id }} · {{ payout.payment.booking.property.name }} · Cliente: {{ payout.payment.booking.customer_name }}
+                        </p>
+                        <p class="text-sm text-slate-500 mt-1">
+                            Criada em {{ payout.created_at|date:"d/m/Y H:i" }}{% if payout.paid_at %} · liquidada em {{ payout.paid_at|date:"d/m/Y H:i" }}{% endif %}
+                        </p>
+                    </div>
+                    <div class="text-left lg:text-right">
+                        <p class="text-sm text-slate-500">Valor líquido a receber</p>
+                        <p class="text-3xl font-black text-emerald-700">{{ payout.payout_amount }} MT</p>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-4 mt-6">
+                    <div class="bg-slate-50 rounded-2xl p-4">
+                        <p class="text-xs text-slate-500">Valor pago pelo cliente</p>
+                        <strong>{{ payout.gross_amount }} MT</strong>
+                    </div>
+                    <div class="bg-slate-50 rounded-2xl p-4">
+                        <p class="text-xs text-slate-500">Comissão +258 Guest</p>
+                        <strong>{{ payout.commission_amount }} MT</strong>
+                    </div>
+                    <div class="bg-slate-50 rounded-2xl p-4">
+                        <p class="text-xs text-slate-500">Método / referência</p>
+                        <strong>{{ payout.get_method_display|default:"A definir" }}</strong>
+                        {% if payout.payout_reference %}<p class="text-xs text-slate-500 mt-1">{{ payout.payout_reference }}</p>{% endif %}
+                    </div>
+                </div>
+
+                {% if payout.status == 'paid' %}
+                    <div class="mt-5">
+                        <a href="{% url 'payout_receipt' payout.id %}" class="inline-flex bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-bold">Ver comprovativo de liquidação</a>
+                    </div>
+                {% endif %}
+
+                {% if payout.admin_notes %}
+                    <div class="mt-5 bg-amber-50 border border-amber-100 rounded-2xl p-4 text-sm text-amber-900">
+                        <strong>Nota +258 Guest:</strong> {{ payout.admin_notes }}
+                    </div>
+                {% endif %}
+            </article>
+        {% empty %}
+            <div class="bg-white rounded-3xl border border-slate-200 p-10 text-center">
+                <h2 class="text-2xl font-black mb-2">Ainda não existem liquidações</h2>
+                <p class="text-slate-600">As liquidações aparecem aqui depois de um cliente pagar uma reserva e a +258 Guest confirmar o pagamento.</p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

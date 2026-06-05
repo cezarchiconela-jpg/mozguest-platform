@@ -1,66 +1,141 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}Minhas Propriedades - MozGuest{% endblock %}
+{% block title %}Minhas Propriedades - +258 Guest{% endblock %}
 
 {% block content %}
 
 <section class="max-w-7xl mx-auto px-4 py-10">
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-8">
         <div>
-            <h1 class="text-4xl font-bold">Minhas propriedades</h1>
-            <p class="text-slate-600 mt-2">Gerencie alojamentos, quartos, fotos e disponibilidade.</p>
+            <span class="inline-block bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                Gestão de alojamentos
+            </span>
+            <h1 class="text-4xl md:text-5xl font-black">Minhas propriedades</h1>
+            <p class="text-slate-600 mt-2 max-w-2xl">Gerencie alojamentos, quartos, fotos, preços, disponibilidade e prontidão comercial de cada propriedade.</p>
         </div>
 
-        <a href="/proprietario/propriedades/nova/" class="bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-800">
+        <a href="/proprietario/propriedades/nova/" class="bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-800 text-center">
             Nova propriedade
         </a>
     </div>
 
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto">
-        <table class="w-full text-sm">
-            <thead class="bg-slate-100">
-                <tr>
-                    <th class="text-left p-4">Nome</th>
-                    <th class="text-left p-4">Cidade</th>
-                    <th class="text-left p-4">Estado</th>
-                    <th class="text-left p-4">Quartos</th>
-                    <th class="text-right p-4">Acções</th>
-                </tr>
-            </thead>
+    <div class="grid md:grid-cols-3 gap-5 mb-8">
+        <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm">
+            <p class="text-sm text-slate-500">Total de propriedades</p>
+            <h3 class="text-3xl font-black mt-2">{{ total_properties }}</h3>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm">
+            <p class="text-sm text-slate-500">Prontas/aprovadas</p>
+            <h3 class="text-3xl font-black mt-2 text-emerald-600">{{ ready_properties }}</h3>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm">
+            <p class="text-sm text-slate-500">Precisam atenção</p>
+            <h3 class="text-3xl font-black mt-2 text-amber-600">{{ needs_attention }}</h3>
+        </div>
+    </div>
 
-            <tbody>
-                {% for property in properties %}
-                    <tr class="border-t border-slate-200 align-top">
-                        <td class="p-4 font-semibold">{{ property.name }}</td>
-                        <td class="p-4">{{ property.city }}</td>
-                        <td class="p-4">
-                            <span class="text-xs px-3 py-1 rounded-full
-                                {% if property.status == 'approved' %}bg-emerald-100 text-emerald-700
-                                {% elif property.status == 'pending' %}bg-amber-100 text-amber-700
-                                {% elif property.status == 'rejected' %}bg-red-100 text-red-700
-                                {% else %}bg-slate-100 text-slate-700{% endif %}">
-                                {{ property.get_status_display }}
-                            </span>
-                        </td>
-                        <td class="p-4">{{ property.rooms.count }}</td>
-                        <td class="p-4 text-right">
-                            <div class="flex flex-wrap justify-end gap-3">
-                                <a href="/proprietario/propriedades/{{ property.id }}/editar/" class="text-blue-700 font-semibold">Editar</a>
-                                <a href="/proprietario/propriedades/{{ property.id }}/quartos/" class="text-emerald-700 font-semibold">Quartos</a>
-                                <a href="/proprietario/propriedades/{{ property.id }}/fotos/" class="text-purple-700 font-semibold">Fotos</a>
-                                <a href="/proprietario/propriedades/{{ property.id }}/disponibilidade/" class="text-amber-700 font-semibold">Disponibilidade</a>
-                            </div>
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="5" class="p-8 text-center text-slate-600">
-                            Ainda não existem propriedades cadastradas.
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="bg-blue-50 border border-blue-200 text-blue-900 rounded-3xl p-5 mb-8">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h2 class="text-xl font-black">Novo assistente de preparação</h2>
+                <p class="text-sm mt-1">Cada alojamento agora tem um checklist próprio para ajudar o proprietário a completar dados, fotos, preços e aprovação.</p>
+            </div>
+            <span class="text-sm bg-white/80 px-4 py-2 rounded-xl font-semibold">Versão v1.6</span>
+        </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+        {% for property in properties %}
+            <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+                <div class="h-56 bg-slate-200 relative">
+                    {% if property.main_photo %}
+                        <img src="{{ property.main_photo.image.url }}" class="w-full h-full object-cover" loading="lazy">
+                    {% elif property.photos.first %}
+                        <img src="{{ property.photos.first.image.url }}" class="w-full h-full object-cover" loading="lazy">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-slate-500">Sem fotografia</div>
+                    {% endif %}
+
+                    <span class="absolute top-3 left-3 text-xs px-3 py-1 rounded-full shadow
+                        {% if property.status == 'approved' %}bg-emerald-600 text-white
+                        {% elif property.status == 'pending' %}bg-amber-500 text-white
+                        {% elif property.status == 'rejected' %}bg-red-600 text-white
+                        {% else %}bg-slate-700 text-white{% endif %}">
+                        {{ property.get_status_display }}
+                    </span>
+
+                    <span class="absolute top-3 right-3 text-xs px-3 py-1 rounded-full shadow
+                        {% if property.setup.score >= 85 %}bg-emerald-600 text-white
+                        {% elif property.setup.score >= 65 %}bg-blue-600 text-white
+                        {% elif property.setup.score >= 40 %}bg-amber-500 text-white
+                        {% else %}bg-red-600 text-white{% endif %}">
+                        {{ property.setup.score }}% preparado
+                    </span>
+                </div>
+
+                <div class="p-5">
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div>
+                            <h2 class="text-2xl font-black leading-tight">{{ property.name }}</h2>
+                            <p class="text-sm text-slate-500 mt-1">{{ property.city }}{% if property.neighbourhood %}, {{ property.neighbourhood }}{% endif %}</p>
+                        </div>
+                        {% if property.is_verified %}
+                            <span class="bg-emerald-100 text-emerald-700 text-xs px-3 py-1 rounded-full whitespace-nowrap">Verificado</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-5">
+                        <div class="flex items-center justify-between text-xs text-slate-500 mb-2">
+                            <span>{{ property.setup.readiness_label }}</span>
+                            <span>{{ property.setup.done_count }}/{{ property.setup.total_count }}</span>
+                        </div>
+                        <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-3 rounded-full {% if property.setup.score >= 85 %}bg-emerald-600{% elif property.setup.score >= 65 %}bg-blue-600{% elif property.setup.score >= 40 %}bg-amber-500{% else %}bg-red-500{% endif %}" style="width: {{ property.setup.score }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3 text-sm mb-5">
+                        <div class="bg-slate-50 rounded-2xl p-3">
+                            <span class="block text-xs text-slate-500">Quartos</span>
+                            <strong>{{ property.setup.rooms_count }}</strong>
+                        </div>
+                        <div class="bg-slate-50 rounded-2xl p-3">
+                            <span class="block text-xs text-slate-500">Fotos</span>
+                            <strong>{{ property.setup.photos_count }}</strong>
+                        </div>
+                        <div class="bg-slate-50 rounded-2xl p-3">
+                            <span class="block text-xs text-slate-500">Preços</span>
+                            <strong>{% if property.setup.has_price %}Sim{% else %}Não{% endif %}</strong>
+                        </div>
+                    </div>
+
+                    {% if property.setup.next_item %}
+                        <div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl p-4 text-sm mb-5">
+                            <strong>Próxima acção:</strong> {{ property.setup.next_item.label }}.
+                            <a href="{{ property.setup.next_item.href }}" class="font-semibold underline">{{ property.setup.next_item.action }}</a>
+                        </div>
+                    {% elif property.status == 'approved' %}
+                        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl p-4 text-sm mb-5">
+                            Este alojamento está bem preparado e aprovado para receber clientes.
+                        </div>
+                    {% endif %}
+
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 text-sm font-semibold">
+                        <a href="/proprietario/propriedades/{{ property.id }}/preparar/" class="text-center bg-blue-700 text-white px-4 py-3 rounded-xl hover:bg-blue-800 lg:col-span-2">Preparar</a>
+                        <a href="/proprietario/propriedades/{{ property.id }}/editar/" class="text-center bg-slate-100 text-slate-800 px-4 py-3 rounded-xl hover:bg-slate-200">Editar</a>
+                        <a href="/proprietario/propriedades/{{ property.id }}/quartos/" class="text-center bg-emerald-50 text-emerald-700 px-4 py-3 rounded-xl hover:bg-emerald-100">Quartos</a>
+                        <a href="/proprietario/propriedades/{{ property.id }}/fotos/" class="text-center bg-purple-50 text-purple-700 px-4 py-3 rounded-xl hover:bg-purple-100">Fotos</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="lg:col-span-2 bg-white rounded-3xl p-10 text-center border border-dashed border-slate-300">
+                <div class="w-16 h-16 rounded-3xl bg-blue-100 text-blue-700 flex items-center justify-center font-black text-2xl mx-auto mb-5">+</div>
+                <h2 class="text-2xl font-black mb-2">Ainda não existem propriedades cadastradas</h2>
+                <p class="text-slate-600 mb-6 max-w-2xl mx-auto">Comece por cadastrar o seu alojamento. Depois o assistente irá guiar a criação de quartos, preços, fotografias e aprovação.</p>
+                <a href="/proprietario/propriedades/nova/" class="inline-block bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-800">Cadastrar primeira propriedade</a>
+            </div>
+        {% endfor %}
     </div>
 </section>
 

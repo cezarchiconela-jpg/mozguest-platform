@@ -1,10 +1,33 @@
-﻿venv/
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+
+# Django/local data
+*.sqlite3
 db.sqlite3
 media/
 staticfiles/
+logs/
+backups/
 .env
-*.log
+.env.*.local
+
+# OS/editor
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
+
+# Test/cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build artifacts
+*.zip

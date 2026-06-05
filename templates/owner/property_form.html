@@ -1,56 +1,377 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}{{ title }} - MozGuest{% endblock %}
+{% block title %}{{ title }} - +258 Guest{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+    #propertyLocationMap { min-height: 360px; }
+    .leaflet-container { border-radius: 1.5rem; }
+</style>
+{% endblock %}
 
 {% block content %}
 
-<section class="max-w-4xl mx-auto px-4 py-10">
+<section class="max-w-5xl mx-auto px-4 py-10">
     <div class="mb-8">
-        <a href="/proprietario/propriedades/" class="text-blue-700 font-semibold">← Voltar</a>
-        <h1 class="text-4xl font-bold mt-4">{{ title }}</h1>
-        <p class="text-slate-600 mt-2">Preencha os dados principais do alojamento.</p>
+        <a href="/proprietario/propriedades/" class="text-blue-700 font-semibold">← Voltar às propriedades</a>
+        <h1 class="text-4xl md:text-5xl font-black mt-4">{{ title }}</h1>
+        <p class="text-slate-600 mt-2">Preencha os dados principais do alojamento com o máximo de clareza possível.</p>
     </div>
 
-    <div class="bg-blue-50 border border-blue-200 text-blue-800 rounded-2xl p-5 mb-6">
-        <h3 class="font-bold mb-2">Dica sobre localização</h3>
-        <p class="text-sm">
-            Para o alojamento aparecer correctamente no mapa e nos resultados por proximidade,
-            preencha a latitude e longitude. Pode obter estes dados no Google Maps clicando no ponto exacto do local.
-        </p>
-    </div>
+    <div class="grid lg:grid-cols-3 gap-8 items-start">
+        <div class="lg:col-span-2">
+            <form method="post" class="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 space-y-7 shadow-sm">
+                {% csrf_token %}
 
-    <form method="post" class="bg-white rounded-3xl border border-slate-200 p-6 space-y-5">
-        {% csrf_token %}
-
-        {% for field in form %}
-            <div>
-                <label class="block text-sm font-semibold mb-2">{{ field.label }}</label>
-                {{ field }}
-
-                {% if field.name == 'latitude' %}
-                    <p class="text-xs text-slate-500 mt-1">Exemplo Maputo: -25.9653</p>
+                {% if form.non_field_errors %}
+                    <div class="bg-red-100 text-red-700 p-4 rounded-xl">
+                        {{ form.non_field_errors }}
+                    </div>
                 {% endif %}
 
-                {% if field.name == 'longitude' %}
-                    <p class="text-xs text-slate-500 mt-1">Exemplo Maputo: 32.5892</p>
-                {% endif %}
+                <div>
+                    <h2 class="text-xl font-black mb-4">1. Identificação do alojamento</h2>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold mb-2">{{ form.name.label }}</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}<p class="text-red-600 text-sm mt-1">{{ form.name.errors|striptags }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.property_type.label }}</label>
+                            {{ form.property_type }}
+                            {% if form.property_type.errors %}<p class="text-red-600 text-sm mt-1">{{ form.property_type.errors|striptags }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.email.label }}</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}<p class="text-red-600 text-sm mt-1">{{ form.email.errors|striptags }}</p>{% endif %}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold mb-2">{{ form.description.label }}</label>
+                            {{ form.description }}
+                            <p class="text-xs text-slate-500 mt-1">Descreva o tipo de espaço, ambiente, segurança, acessos, comodidades e regras principais.</p>
+                            {% if form.description.errors %}<p class="text-red-600 text-sm mt-1">{{ form.description.errors|striptags }}</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
 
-                {% if field.errors %}
-                    <p class="text-red-600 text-sm mt-1">{{ field.errors|striptags }}</p>
-                {% endif %}
-            </div>
-        {% endfor %}
+                <div class="border-t border-slate-200 pt-7">
+                    <h2 class="text-xl font-black mb-4">2. Localização simples</h2>
+                    <div class="bg-blue-50 border border-blue-200 text-blue-900 rounded-2xl p-4 mb-5 text-sm">
+                        Já não precisa escrever latitude e longitude manualmente. Use a sua localização actual, pesquise o endereço no mapa ou cole um link/coordenadas do Google Maps. O sistema preenche os campos automaticamente.
+                    </div>
 
-        <div class="flex items-center justify-end gap-3 pt-4">
-            <a href="/proprietario/propriedades/" class="px-5 py-3 rounded-xl border border-slate-300">
-                Cancelar
-            </a>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.province.label }}</label>
+                            {{ form.province }}
+                            {% if form.province.errors %}<p class="text-red-600 text-sm mt-1">{{ form.province.errors|striptags }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.city.label }}</label>
+                            {{ form.city }}
+                            {% if form.city.errors %}<p class="text-red-600 text-sm mt-1">{{ form.city.errors|striptags }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.district.label }}</label>
+                            {{ form.district }}
+                            {% if form.district.errors %}<p class="text-red-600 text-sm mt-1">{{ form.district.errors|striptags }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.neighbourhood.label }}</label>
+                            {{ form.neighbourhood }}
+                            {% if form.neighbourhood.errors %}<p class="text-red-600 text-sm mt-1">{{ form.neighbourhood.errors|striptags }}</p>{% endif %}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold mb-2">{{ form.address_reference.label }}</label>
+                            {{ form.address_reference }}
+                            {% if form.address_reference.errors %}<p class="text-red-600 text-sm mt-1">{{ form.address_reference.errors|striptags }}</p>{% endif %}
+                        </div>
+                    </div>
 
-            <button class="bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-800">
-                Guardar
-            </button>
+                    <div class="mt-6 grid gap-4">
+                        <div class="grid md:grid-cols-[1fr_auto] gap-3 items-end">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Pesquisar no mapa</label>
+                                <input id="mapSearchQuery" type="text" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Ex: Polana, Maputo ou nome do alojamento">
+                                <p class="text-xs text-slate-500 mt-1">Pode escrever cidade, bairro, rua ou ponto de referência.</p>
+                            </div>
+                            <button type="button" onclick="searchLocationOnMap()" class="bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-800">
+                                Pesquisar
+                            </button>
+                        </div>
+
+                        <div class="grid md:grid-cols-[1fr_auto] gap-3 items-end">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Colar link ou coordenadas do Google Maps</label>
+                                <input id="googleMapsInput" type="text" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Cole aqui link do Google Maps ou coordenadas: -25.9653, 32.5892">
+                                <p class="text-xs text-slate-500 mt-1">Funciona com coordenadas, links com @latitude,longitude ou !3d...!4d...</p>
+                            </div>
+                            <button type="button" onclick="applyGoogleMapsLocation()" class="bg-slate-900 text-white px-5 py-3 rounded-xl font-semibold hover:bg-slate-800">
+                                Usar este ponto
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row gap-3">
+                            <button type="button" onclick="fillCurrentLocation()" class="bg-emerald-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-emerald-700">
+                                Usar minha localização actual
+                            </button>
+                            <button type="button" onclick="openGoogleMapsSearch()" class="bg-white border border-slate-300 text-slate-800 px-5 py-3 rounded-xl font-semibold hover:bg-slate-50">
+                                Abrir pesquisa no Google Maps
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-3">
+                        <div id="propertyLocationMap" class="w-full rounded-3xl bg-slate-200 flex items-center justify-center text-slate-500 text-sm">
+                            A carregar mapa...
+                        </div>
+                        <p class="text-xs text-slate-500 mt-3">Também pode clicar directamente no mapa para marcar o ponto exacto do alojamento.</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-5 mt-5">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.latitude.label }}</label>
+                            {{ form.latitude }}
+                            <p class="text-xs text-slate-500 mt-1">Preenchido automaticamente pelo mapa.</p>
+                            {% if form.latitude.errors %}<p class="text-red-600 text-sm mt-1">{{ form.latitude.errors|striptags }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.longitude.label }}</label>
+                            {{ form.longitude }}
+                            <p class="text-xs text-slate-500 mt-1">Preenchido automaticamente pelo mapa.</p>
+                            {% if form.longitude.errors %}<p class="text-red-600 text-sm mt-1">{{ form.longitude.errors|striptags }}</p>{% endif %}
+                        </div>
+                    </div>
+
+                    <p id="locationStatus" class="text-sm text-slate-500 mt-3"></p>
+                </div>
+
+                <div class="border-t border-slate-200 pt-7">
+                    <h2 class="text-xl font-black mb-4">3. Contactos do alojamento</h2>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.phone.label }}</label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}<p class="text-red-600 text-sm mt-1">{{ form.phone.errors|striptags }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">{{ form.whatsapp.label }}</label>
+                            {{ form.whatsapp }}
+                            <p class="text-xs text-slate-500 mt-1">Use o formato internacional sempre que possível. Ex: 258840000000.</p>
+                            {% if form.whatsapp.errors %}<p class="text-red-600 text-sm mt-1">{{ form.whatsapp.errors|striptags }}</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row md:items-center md:justify-end gap-3 pt-4">
+                    <a href="/proprietario/propriedades/" class="px-5 py-3 rounded-xl border border-slate-300 text-center">Cancelar</a>
+                    <button class="bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-800">Guardar e enviar para aprovação</button>
+                </div>
+            </form>
         </div>
-    </form>
+
+        <aside class="lg:sticky lg:top-28">
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="text-xl font-black mb-4">Boas práticas</h3>
+                <div class="space-y-4 text-sm text-slate-600">
+                    <div class="flex gap-3"><span class="font-black text-emerald-600">✓</span><p>Use o nome comercial real do alojamento.</p></div>
+                    <div class="flex gap-3"><span class="font-black text-emerald-600">✓</span><p>Escreva uma descrição clara e honesta.</p></div>
+                    <div class="flex gap-3"><span class="font-black text-emerald-600">✓</span><p>Marque a localização pelo botão, pesquisa ou clique no mapa.</p></div>
+                    <div class="flex gap-3"><span class="font-black text-emerald-600">✓</span><p>Depois de guardar, adicione quartos, preços e fotos.</p></div>
+                </div>
+            </div>
+        </aside>
+    </div>
 </section>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+let propertyMap = null;
+let propertyMarker = null;
+
+function getEl(id) {
+    return document.getElementById(id);
+}
+
+function setLocationStatus(message, tone = 'neutral') {
+    const status = getEl('locationStatus');
+    if (!status) return;
+    status.textContent = message;
+    status.className = 'text-sm mt-3 ' + (tone === 'success' ? 'text-emerald-700' : tone === 'error' ? 'text-red-700' : 'text-slate-500');
+}
+
+function currentCoordinates() {
+    const lat = parseFloat(getEl('id_latitude')?.value || '');
+    const lng = parseFloat(getEl('id_longitude')?.value || '');
+    if (Number.isFinite(lat) && Number.isFinite(lng)) return [lat, lng];
+    return [-25.9653, 32.5892];
+}
+
+function setCoordinates(lat, lng, message) {
+    const latInput = getEl('id_latitude');
+    const lngInput = getEl('id_longitude');
+    if (!latInput || !lngInput) return;
+
+    latInput.value = Number(lat).toFixed(7);
+    lngInput.value = Number(lng).toFixed(7);
+
+    if (propertyMap && window.L) {
+        const point = [Number(lat), Number(lng)];
+        if (!propertyMarker) {
+            propertyMarker = L.marker(point, { draggable: true }).addTo(propertyMap);
+            propertyMarker.on('dragend', function(e) {
+                const pos = e.target.getLatLng();
+                setCoordinates(pos.lat, pos.lng, 'Ponto ajustado pelo marcador.');
+            });
+        } else {
+            propertyMarker.setLatLng(point);
+        }
+        propertyMap.setView(point, Math.max(propertyMap.getZoom() || 15, 15));
+    }
+
+    if (message) setLocationStatus(message, 'success');
+}
+
+function initPropertyMap() {
+    const mapDiv = getEl('propertyLocationMap');
+    if (!mapDiv) return;
+
+    if (!window.L) {
+        mapDiv.textContent = 'Mapa visual indisponível neste momento. Pode usar a localização actual ou colar coordenadas do Google Maps.';
+        setLocationStatus('Se o mapa não carregar, verifique a internet ou use o botão “Usar minha localização actual”.');
+        return;
+    }
+
+    const coords = currentCoordinates();
+    propertyMap = L.map('propertyLocationMap').setView(coords, 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(propertyMap);
+
+    if (getEl('id_latitude')?.value && getEl('id_longitude')?.value) {
+        setCoordinates(coords[0], coords[1], 'Localização actual do formulário carregada no mapa.');
+    }
+
+    propertyMap.on('click', function(e) {
+        setCoordinates(e.latlng.lat, e.latlng.lng, 'Ponto seleccionado no mapa. Confirme e guarde o alojamento.');
+    });
+}
+
+function buildAddressQuery() {
+    const parts = [
+        getEl('id_address_reference')?.value,
+        getEl('id_neighbourhood')?.value,
+        getEl('id_district')?.value,
+        getEl('id_city')?.value,
+        getEl('id_province')?.value,
+        'Moçambique'
+    ].filter(Boolean);
+    return parts.join(', ');
+}
+
+function openGoogleMapsSearch() {
+    const manual = getEl('mapSearchQuery')?.value?.trim();
+    const query = manual || buildAddressQuery();
+    if (!query) {
+        setLocationStatus('Escreva uma localidade ou preencha cidade/bairro antes de abrir o Google Maps.', 'error');
+        return;
+    }
+    window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query), '_blank', 'noopener');
+}
+
+function parseCoordinatesFromText(value) {
+    if (!value) return null;
+    const text = String(value).trim();
+
+    const patterns = [
+        /@(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/,
+        /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/,
+        /[?&](?:q|query|ll)=(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/,
+        /(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/
+    ];
+
+    for (const pattern of patterns) {
+        const match = text.match(pattern);
+        if (match) {
+            const lat = parseFloat(match[1]);
+            const lng = parseFloat(match[2]);
+            if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+                return [lat, lng];
+            }
+        }
+    }
+    return null;
+}
+
+function applyGoogleMapsLocation() {
+    const input = getEl('googleMapsInput');
+    const coords = parseCoordinatesFromText(input?.value || '');
+    if (!coords) {
+        setLocationStatus('Não consegui encontrar coordenadas no texto. No Google Maps, copie as coordenadas ou um link que contenha @latitude,longitude.', 'error');
+        return;
+    }
+    setCoordinates(coords[0], coords[1], 'Coordenadas importadas do Google Maps/link colado.');
+}
+
+async function searchLocationOnMap() {
+    const input = getEl('mapSearchQuery');
+    const query = (input?.value || '').trim() || buildAddressQuery();
+    if (!query) {
+        setLocationStatus('Escreva uma localidade, rua, bairro ou ponto de referência para pesquisar.', 'error');
+        return;
+    }
+
+    setLocationStatus('A pesquisar localização no mapa...');
+    try {
+        const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=mz&q=' + encodeURIComponent(query);
+        const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        const results = await response.json();
+        if (!results.length) {
+            setLocationStatus('Não encontrei esse local. Tente escrever bairro + cidade, ou abra o Google Maps e cole as coordenadas.', 'error');
+            return;
+        }
+        const result = results[0];
+        setCoordinates(parseFloat(result.lat), parseFloat(result.lon), 'Local encontrado. Ajuste clicando no mapa se necessário.');
+    } catch (error) {
+        setLocationStatus('Não foi possível pesquisar online. Pode usar “Usar minha localização actual” ou colar coordenadas do Google Maps.', 'error');
+    }
+}
+
+function fillCurrentLocation() {
+    if (!navigator.geolocation) {
+        setLocationStatus('O navegador não suporta localização. Use o Google Maps para copiar coordenadas.', 'error');
+        return;
+    }
+
+    setLocationStatus('A obter localização actual do dispositivo...');
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            setCoordinates(position.coords.latitude, position.coords.longitude, 'Localização actual preenchida com sucesso. Confirme se está no ponto exacto do alojamento.');
+        },
+        function() {
+            setLocationStatus('Não foi possível obter a localização. Verifique as permissões do navegador ou use a pesquisa no mapa.', 'error');
+        },
+        { enableHighAccuracy: true, timeout: 15000 }
+    );
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initPropertyMap();
+    const searchInput = getEl('mapSearchQuery');
+    if (searchInput) {
+        searchInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                searchLocationOnMap();
+            }
+        });
+    }
+});
+</script>
 
 {% endblock %}

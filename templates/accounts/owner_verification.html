@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Verificação do Proprietário - +258 Guest{% endblock %}
+{% block content %}
+<section class="max-w-6xl mx-auto px-4 py-8">
+  <div class="bg-gradient-to-r from-blue-700 to-slate-950 text-white rounded-3xl p-8 mb-6">
+    <p class="uppercase tracking-widest text-xs text-blue-100 font-bold">Confiança +258 Guest</p>
+    <h1 class="text-3xl font-black mt-2">Verificação do proprietário</h1>
+    <p class="mt-3 text-blue-100 max-w-3xl">Complete os dados de identificação e liquidação. Isto aumenta a confiança dos clientes e permite que a +258 Guest liquide os valores de forma segura.</p>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-6">
+    <aside class="bg-white rounded-3xl border border-slate-200 p-6 h-fit">
+      <p class="text-sm text-slate-500 font-bold">Estado actual</p>
+      <div class="mt-3 text-2xl font-black text-slate-900">{{ profile.get_verification_status_display }}</div>
+      <div class="mt-5 bg-slate-100 rounded-full h-3 overflow-hidden">
+        <div class="bg-emerald-600 h-3" style="width: {{ profile.kyc_completion_percent }}%"></div>
+      </div>
+      <p class="mt-2 text-sm text-slate-600">{{ profile.kyc_completion_percent }}% de dados preenchidos.</p>
+      {% if profile.verification_notes %}
+        <div class="mt-5 bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-900">
+          <b>Notas da +258 Guest:</b><br>{{ profile.verification_notes }}
+        </div>
+      {% endif %}
+    </aside>
+
+    <form method="post" enctype="multipart/form-data" class="lg:col-span-2 bg-white rounded-3xl border border-slate-200 p-6 space-y-6">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="bg-red-50 text-red-700 p-4 rounded-2xl">{{ form.non_field_errors }}</div>{% endif %}
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <label class="grid gap-2 text-sm font-bold">{{ form.first_name.label }}{{ form.first_name }}</label>
+        <label class="grid gap-2 text-sm font-bold">{{ form.last_name.label }}{{ form.last_name }}</label>
+        <label class="grid gap-2 text-sm font-bold md:col-span-2">{{ form.email.label }}{{ form.email }}</label>
+      </div>
+
+      <div class="border-t pt-6">
+        <h2 class="font-black text-xl mb-4">Dados do proprietário</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+          <label class="grid gap-2 text-sm font-bold">{{ form.business_name.label }}{{ form.business_name }}</label>
+          <label class="grid gap-2 text-sm font-bold">{{ form.nuit.label }}{{ form.nuit }}</label>
+          <label class="grid gap-2 text-sm font-bold">{{ form.document_type.label }}{{ form.document_type }}</label>
+          <label class="grid gap-2 text-sm font-bold">{{ form.document_number.label }}{{ form.document_number }}</label>
+        </div>
+      </div>
+
+      <div class="border-t pt-6">
+        <h2 class="font-black text-xl mb-4">Dados de liquidação</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+          <label class="grid gap-2 text-sm font-bold">{{ form.payment_phone.label }}{{ form.payment_phone }}</label>
+          <label class="grid gap-2 text-sm font-bold">{{ form.payout_mpesa_phone.label }}{{ form.payout_mpesa_phone }}</label>
+          <label class="grid gap-2 text-sm font-bold">{{ form.payout_emola_phone.label }}{{ form.payout_emola_phone }}</label>
+          <label class="grid gap-2 text-sm font-bold md:col-span-2">{{ form.payout_bank_details.label }}{{ form.payout_bank_details }}</label>
+        </div>
+      </div>
+
+      <div class="border-t pt-6">
+        <h2 class="font-black text-xl mb-4">Documentos</h2>
+        <div class="grid md:grid-cols-3 gap-4">
+          <label class="grid gap-2 text-sm font-bold">{{ form.identity_document.label }}{{ form.identity_document }}{% if profile.identity_document %}<a class="text-blue-700" href="{{ profile.identity_document.url }}" target="_blank">Ver actual</a>{% endif %}</label>
+          <label class="grid gap-2 text-sm font-bold">{{ form.nuit_document.label }}{{ form.nuit_document }}{% if profile.nuit_document %}<a class="text-blue-700" href="{{ profile.nuit_document.url }}" target="_blank">Ver actual</a>{% endif %}</label>
+          <label class="grid gap-2 text-sm font-bold">{{ form.ownership_proof.label }}{{ form.ownership_proof }}{% if profile.ownership_proof %}<a class="text-blue-700" href="{{ profile.ownership_proof.url }}" target="_blank">Ver actual</a>{% endif %}</label>
+        </div>
+      </div>
+
+      <button class="w-full bg-blue-700 hover:bg-blue-800 text-white rounded-2xl py-4 font-black">Enviar para análise</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

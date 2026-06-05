@@ -1,92 +1,155 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}{{ title }} - MozGuest{% endblock %}
+{% block title %}{{ title }} - +258 Guest{% endblock %}
 
 {% block content %}
 
-<section class="max-w-5xl mx-auto px-4 py-10">
+<section class="max-w-6xl mx-auto px-4 py-10">
     <div class="mb-8">
         <a href="/proprietario/propriedades/{{ property.id }}/quartos/" class="text-blue-700 font-semibold">← Voltar aos quartos</a>
-        <h1 class="text-4xl font-bold mt-4">{{ title }}</h1>
+        <h1 class="text-4xl md:text-5xl font-black mt-4">{{ title }}</h1>
         <p class="text-slate-600 mt-2">Propriedade: {{ property.name }}</p>
     </div>
 
-    <form method="post" enctype="multipart/form-data" class="bg-white rounded-3xl border border-slate-200 p-6 space-y-5">
-        {% csrf_token %}
+    <div class="grid lg:grid-cols-3 gap-8 items-start">
+        <form method="post" enctype="multipart/form-data" class="lg:col-span-2 bg-white rounded-3xl border border-slate-200 p-6 md:p-8 space-y-7 shadow-sm">
+            {% csrf_token %}
+            {{ form.property }}
 
-        {% for field in form %}
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl text-sm">
+                    {{ form.non_field_errors|striptags }}
+                </div>
+            {% endif %}
+
             <div>
-                <label class="block text-sm font-semibold mb-2">{{ field.label }}</label>
-
-                {% if field.name == 'photos' %}
-                    <input 
-                        type="file" 
-                        name="photos" 
-                        multiple 
-                        accept="image/*"
-                        class="w-full px-4 py-3 rounded-xl border border-slate-300"
-                    >
-
-                    <div class="mt-2 bg-blue-50 border border-blue-200 text-blue-800 rounded-xl p-3 text-sm">
-                        Pode seleccionar várias fotografias ao mesmo tempo.  
-                        No Windows, clique em <strong>Choose Files</strong> e seleccione várias imagens mantendo pressionado <strong>CTRL</strong> ou <strong>SHIFT</strong>.
+                <h2 class="text-xl font-black mb-4">1. Identificação da unidade</h2>
+                <div class="grid md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">{{ form.name.label }}</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}<p class="text-red-600 text-sm mt-1">{{ form.name.errors|striptags }}</p>{% endif %}
                     </div>
-                {% else %}
-                    {{ field }}
-                {% endif %}
-
-                {% if field.errors %}
-                    <p class="text-red-600 text-sm mt-1">{{ field.errors|striptags }}</p>
-                {% endif %}
-            </div>
-        {% endfor %}
-
-        {% if room_photos %}
-            <div class="border-t border-slate-200 pt-6">
-                <h2 class="text-2xl font-bold mb-4">Fotos actuais deste quarto</h2>
-
-                <div class="grid md:grid-cols-3 gap-4">
-                    {% for photo in room_photos %}
-                        <div class="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50">
-                            <div class="h-44 bg-slate-200">
-                                <img src="{{ photo.image.url }}" class="w-full h-full object-cover">
-                            </div>
-
-                            <div class="p-4">
-                                <p class="text-sm text-slate-600 mb-3">
-                                    {{ photo.caption|default:'Sem legenda' }}
-                                </p>
-
-                                <div class="flex justify-between text-sm">
-                                    {% if not photo.is_main %}
-                                        <a href="/proprietario/fotos/{{ photo.id }}/principal/" class="text-blue-700 font-semibold">
-                                            Definir principal
-                                        </a>
-                                    {% else %}
-                                        <span class="text-emerald-700 font-semibold">Principal</span>
-                                    {% endif %}
-
-                                    <a href="/proprietario/fotos/{{ photo.id }}/apagar/" class="text-red-700 font-semibold">
-                                        Apagar
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">{{ form.room_type.label }}</label>
+                        {{ form.room_type }}
+                        {% if form.room_type.errors %}<p class="text-red-600 text-sm mt-1">{{ form.room_type.errors|striptags }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">{{ form.capacity.label }}</label>
+                        {{ form.capacity }}
+                        {% if form.capacity.errors %}<p class="text-red-600 text-sm mt-1">{{ form.capacity.errors|striptags }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">{{ form.minimum_hours.label }}</label>
+                        {{ form.minimum_hours }}
+                        {% if form.minimum_hours.errors %}<p class="text-red-600 text-sm mt-1">{{ form.minimum_hours.errors|striptags }}</p>{% endif %}
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold mb-2">{{ form.description.label }}</label>
+                        {{ form.description }}
+                        <p class="text-xs text-slate-500 mt-1">Explique o que esta unidade oferece: cama, wc, privacidade, vista, conforto, regras e condições.</p>
+                        {% if form.description.errors %}<p class="text-red-600 text-sm mt-1">{{ form.description.errors|striptags }}</p>{% endif %}
+                    </div>
                 </div>
             </div>
-        {% endif %}
 
-        <div class="flex items-center justify-end gap-3 pt-4">
-            <a href="/proprietario/propriedades/{{ property.id }}/quartos/" class="px-5 py-3 rounded-xl border border-slate-300">
-                Cancelar
-            </a>
+            <div class="border-t border-slate-200 pt-7">
+                <h2 class="text-xl font-black mb-4">2. Preços disponíveis</h2>
+                <div class="bg-blue-50 border border-blue-200 text-blue-900 rounded-2xl p-4 mb-5 text-sm">
+                    Defina pelo menos um preço. Quanto mais claro for o preço, menos dúvidas o cliente terá antes de reservar.
+                </div>
+                <div class="grid md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">{{ form.price_hour.label }}</label>
+                        {{ form.price_hour }}
+                        {% if form.price_hour.errors %}<p class="text-red-600 text-sm mt-1">{{ form.price_hour.errors|striptags }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">{{ form.price_day.label }}</label>
+                        {{ form.price_day }}
+                        {% if form.price_day.errors %}<p class="text-red-600 text-sm mt-1">{{ form.price_day.errors|striptags }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">{{ form.price_night.label }}</label>
+                        {{ form.price_night }}
+                        {% if form.price_night.errors %}<p class="text-red-600 text-sm mt-1">{{ form.price_night.errors|striptags }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">{{ form.price_month.label }}</label>
+                        {{ form.price_month }}
+                        {% if form.price_month.errors %}<p class="text-red-600 text-sm mt-1">{{ form.price_month.errors|striptags }}</p>{% endif %}
+                    </div>
+                </div>
+            </div>
 
-            <button class="bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-800">
-                Guardar quarto
-            </button>
-        </div>
-    </form>
+            <div class="border-t border-slate-200 pt-7">
+                <h2 class="text-xl font-black mb-4">3. Comodidades e estado</h2>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <label class="flex items-center gap-3 bg-slate-50 rounded-2xl p-4 font-semibold">{{ form.has_private_bathroom }} Casa de banho privativa</label>
+                    <label class="flex items-center gap-3 bg-slate-50 rounded-2xl p-4 font-semibold">{{ form.has_ac }} Ar condicionado</label>
+                    <label class="flex items-center gap-3 bg-slate-50 rounded-2xl p-4 font-semibold">{{ form.has_wifi }} Wi-Fi</label>
+                    <label class="flex items-center gap-3 bg-slate-50 rounded-2xl p-4 font-semibold">{{ form.has_parking }} Estacionamento</label>
+                    <label class="md:col-span-2 flex items-center gap-3 bg-emerald-50 text-emerald-800 rounded-2xl p-4 font-semibold">{{ form.is_available }} Disponível para reservas</label>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-200 pt-7">
+                <h2 class="text-xl font-black mb-4">4. Fotografias desta unidade</h2>
+                <input type="file" name="photos" multiple accept="image/*" class="w-full px-4 py-3 rounded-xl border border-slate-300">
+                <div class="mt-3 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-600">
+                    Pode seleccionar várias imagens ao mesmo tempo. No Windows, use CTRL ou SHIFT para escolher várias fotos.
+                </div>
+                {% if form.photos.errors %}<p class="text-red-600 text-sm mt-1">{{ form.photos.errors|striptags }}</p>{% endif %}
+            </div>
+
+            {% if room_photos %}
+                <div class="border-t border-slate-200 pt-7">
+                    <h2 class="text-2xl font-black mb-4">Fotos actuais desta unidade</h2>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        {% for photo in room_photos %}
+                            <div class="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50">
+                                <div class="h-44 bg-slate-200"><img src="{{ photo.image.url }}" class="w-full h-full object-cover"></div>
+                                <div class="p-4">
+                                    <p class="text-sm text-slate-600 mb-3">{{ photo.caption|default:'Sem legenda' }}</p>
+                                    <div class="flex justify-between text-sm">
+                                        {% if not photo.is_main %}
+                                            <form method="post" action="/proprietario/fotos/{{ photo.id }}/principal/" class="inline">{% csrf_token %}<button class="text-blue-700 font-semibold">Definir principal</button></form>
+                                        {% else %}
+                                            <span class="text-emerald-700 font-semibold">Principal</span>
+                                        {% endif %}
+                                        <form method="post" action="/proprietario/fotos/{{ photo.id }}/apagar/" class="inline">{% csrf_token %}<button class="text-red-700 font-semibold" onclick="return confirm('Apagar esta fotografia?')">Apagar</button></form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="flex flex-col md:flex-row md:items-center md:justify-end gap-3 pt-4">
+                <a href="/proprietario/propriedades/{{ property.id }}/quartos/" class="px-5 py-3 rounded-xl border border-slate-300 text-center">Cancelar</a>
+                <button class="bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-800">Guardar unidade</button>
+            </div>
+        </form>
+
+        <aside class="space-y-6 lg:sticky lg:top-28">
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="text-xl font-black mb-4">Como preencher bem</h3>
+                <div class="space-y-4 text-sm text-slate-600">
+                    <div class="flex gap-3"><span class="font-black text-emerald-600">✓</span><p>Use nomes simples: “Quarto Casal 01”, “Suíte Familiar”, “Apartamento T1”.</p></div>
+                    <div class="flex gap-3"><span class="font-black text-emerald-600">✓</span><p>Coloque preços reais e actualizados.</p></div>
+                    <div class="flex gap-3"><span class="font-black text-emerald-600">✓</span><p>Marque apenas comodidades que existem de verdade.</p></div>
+                    <div class="flex gap-3"><span class="font-black text-emerald-600">✓</span><p>Adicione fotos claras desta unidade para reduzir dúvidas do cliente.</p></div>
+                </div>
+            </div>
+
+            <div class="bg-blue-900 text-white rounded-3xl p-6 shadow-sm">
+                <h3 class="text-xl font-black mb-3">Sugestão</h3>
+                <p class="text-sm text-blue-50">Depois de guardar uma unidade, volte ao assistente do alojamento para ver o progresso geral de preparação.</p>
+            </div>
+        </aside>
+    </div>
 </section>
 
 {% endblock %}

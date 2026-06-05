@@ -4,6 +4,30 @@ from .models import Booking, AvailabilityBlock
 
 
 class BookingForm(forms.ModelForm):
+    def __init__(self, *args, room=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.room = room
+
+        if room is not None:
+            price_fields = {
+                'hour': 'price_hour',
+                'day': 'price_day',
+                'night': 'price_night',
+                'month': 'price_month',
+            }
+            available_choices = []
+
+            for value, label in Booking.BOOKING_TYPES:
+                price_field = price_fields.get(value)
+                price = getattr(room, price_field, None) if price_field else None
+                if price:
+                    available_choices.append((value, label))
+
+            self.fields['booking_type'].choices = available_choices
+
+            if available_choices and not self.initial.get('booking_type'):
+                self.initial['booking_type'] = available_choices[0][0]
+
     class Meta:
         model = Booking
         fields = [

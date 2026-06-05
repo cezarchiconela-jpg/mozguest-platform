@@ -1,17 +1,20 @@
-﻿<!DOCTYPE html>
+{% load static %}
+<!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}MozGuest{% endblock %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}+258 Guest{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#1d4ed8">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="MozGuest">
+    <meta name="apple-mobile-web-app-title" content="+258 Guest">
+    <meta name="description" content="+258 Guest ajuda clientes a encontrar alojamentos, quartos, guest houses e apartamentos em Moçambique, com reservas simples e contacto directo.">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/guest258-ui.css' %}">
 
     <style>
         img { image-rendering: auto; }
@@ -20,6 +23,7 @@
             backdrop-filter: blur(16px);
         }
     </style>
+    {% block extra_head %}{% endblock %}
 </head>
 
 <body class="bg-slate-50 text-slate-900">
@@ -27,7 +31,7 @@
 <header class="bg-white/95 backdrop-blur border-b border-slate-200 sticky top-0 z-50">
     <div class="max-w-[1500px] mx-auto px-4 py-3 flex items-center justify-between gap-4">
         <a href="/" class="text-xl md:text-2xl font-black tracking-tight text-blue-700 whitespace-nowrap">
-            Moz<span class="text-emerald-600">Guest</span>
+            <span class="text-emerald-600">+258</span> <span class="text-blue-700">Guest</span>
         </a>
 
         <nav class="hidden xl:flex items-center gap-4 text-[13px] font-semibold">
@@ -50,6 +54,7 @@
 
                 {% if user.owner_profile %}
                     <a href="/proprietario/dashboard/" class="hover:text-blue-700">Painel</a>
+                    <a href="/proprietario/verificacao/" class="hover:text-blue-700">Verificação</a>
                     <a href="/proprietario/propriedades/nova/" class="bg-blue-700 text-white px-4 py-2 rounded-xl hover:bg-blue-800">
                         Nova propriedade
                     </a>
@@ -60,7 +65,8 @@
                 <a href="/suporte/" class="hover:text-blue-700">Suporte</a>
 
                 {% if user.is_staff %}
-                    <a href="/moz-admin/" class="hover:text-blue-700">MozAdmin</a>
+                    <a href="/258-admin/" class="hover:text-blue-700">+258 Admin</a>
+                    <a href="/258-admin/reservas/" class="hover:text-blue-700">Reservas Admin</a>
                 {% endif %}
 
                 <a href="/logout/" class="bg-slate-900 text-white px-4 py-2 rounded-xl hover:bg-slate-800">
@@ -76,7 +82,7 @@
             {% endif %}
         </nav>
 
-        <button onclick="toggleMobileMenu()" class="xl:hidden bg-slate-100 px-4 py-2 rounded-xl font-semibold">
+        <button id="mobileMenuButton" onclick="toggleMobileMenu()" aria-controls="mobileMenu" aria-expanded="false" class="xl:hidden bg-slate-100 px-4 py-2 rounded-xl font-semibold mg-touch-target">
             Menu
         </button>
     </div>
@@ -102,9 +108,11 @@
 
                 {% if user.owner_profile %}
                     <a href="/proprietario/dashboard/" class="p-3 rounded-xl hover:bg-slate-100">Painel do proprietário</a>
+                    <a href="/proprietario/verificacao/" class="p-3 rounded-xl hover:bg-slate-100">Verificação/KYC</a>
                     <a href="/proprietario/propriedades/" class="p-3 rounded-xl hover:bg-slate-100">Minhas propriedades</a>
                     <a href="/reservas/proprietario/reservas/" class="p-3 rounded-xl hover:bg-slate-100">Reservas recebidas</a>
                     <a href="/pagamentos/proprietario/financeiro/" class="p-3 rounded-xl hover:bg-slate-100">Financeiro</a>
+                    <a href="/pagamentos/proprietario/liquidacoes/" class="p-3 rounded-xl hover:bg-slate-100">Liquidações</a>
                     <a href="/comercial/proprietario/subscricoes/" class="p-3 rounded-xl hover:bg-slate-100">Meu plano</a>
                     <a href="/proprietario/propriedades/nova/" class="p-3 rounded-xl bg-blue-700 text-white">Nova propriedade</a>
                 {% else %}
@@ -114,8 +122,15 @@
                 <a href="/suporte/" class="p-3 rounded-xl hover:bg-slate-100">Suporte</a>
 
                 {% if user.is_staff %}
-                    <a href="/moz-admin/" class="p-3 rounded-xl hover:bg-slate-100">MozAdmin</a>
+                    <a href="/258-admin/" class="p-3 rounded-xl hover:bg-slate-100">+258 Admin</a>
+                    <a href="/258-admin/reservas/" class="p-3 rounded-xl hover:bg-slate-100">Reservas Admin</a>
                     <a href="/pagamentos/admin/financeiro/" class="p-3 rounded-xl hover:bg-slate-100">Financeiro Admin</a>
+                    <a href="/pagamentos/admin/transaccoes/" class="p-3 rounded-xl hover:bg-slate-100">Transacções</a>
+                    <a href="/pagamentos/admin/liquidacoes/" class="p-3 rounded-xl hover:bg-slate-100">Liquidações</a>
+                    <a href="/pagamentos/admin/relatorio-diario/" class="p-3 rounded-xl hover:bg-slate-100">Relatório diário</a>
+                    <a href="/pagamentos/admin/cancelamentos-reembolsos/" class="p-3 rounded-xl hover:bg-slate-100">Cancelamentos</a>
+                    <a href="/258-admin/proprietarios/" class="p-3 rounded-xl hover:bg-slate-100">Proprietários</a>
+                    <a href="/258-admin/auditoria/" class="p-3 rounded-xl hover:bg-slate-100">Auditoria</a>
                     <a href="/admin/" class="p-3 rounded-xl hover:bg-slate-100">Django Admin</a>
                 {% endif %}
 
@@ -139,6 +154,10 @@
             Painel
         </a>
 
+        <a href="/proprietario/verificacao/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+            Verificação
+        </a>
+
         <a href="/proprietario/propriedades/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
             Propriedades
         </a>
@@ -149,6 +168,10 @@
 
         <a href="/pagamentos/proprietario/financeiro/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
             Financeiro
+        </a>
+
+        <a href="/pagamentos/proprietario/liquidacoes/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+            Liquidações
         </a>
 
         <a href="/comercial/proprietario/subscricoes/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
@@ -162,16 +185,32 @@
         {% if user.is_staff %}
             <span class="text-slate-300 mx-2">|</span>
 
-            <a href="/moz-admin/" class="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800">
-                MozAdmin
+            <a href="/258-admin/" class="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800">
+                +258 Admin
+            </a>
+
+            <a href="/258-admin/reservas/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+                Reservas Admin
             </a>
 
             <a href="/pagamentos/admin/financeiro/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
                 Financeiro Admin
             </a>
 
+            <a href="/pagamentos/admin/liquidacoes/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+                Liquidações
+            </a>
+
             <a href="/comercial/admin/subscricoes/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
                 Subscrições
+            </a>
+
+            <a href="/258-admin/proprietarios/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+                Proprietários
+            </a>
+
+            <a href="/258-admin/auditoria/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+                Auditoria
             </a>
 
             <a href="/admin/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
@@ -185,12 +224,20 @@
     <div class="max-w-[1500px] mx-auto px-4 py-3 flex flex-wrap items-center gap-3 text-sm font-semibold">
         <span class="text-slate-500 mr-2">Admin:</span>
 
-        <a href="/moz-admin/" class="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800">
-            MozAdmin
+        <a href="/258-admin/" class="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800">
+            +258 Admin
+        </a>
+
+        <a href="/258-admin/reservas/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+            Reservas Admin
         </a>
 
         <a href="/pagamentos/admin/financeiro/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
             Financeiro Admin
+        </a>
+
+        <a href="/pagamentos/admin/liquidacoes/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
+            Liquidações
         </a>
 
         <a href="/comercial/admin/subscricoes/" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800">
@@ -207,21 +254,87 @@
 {% if messages %}
     <div class="max-w-7xl mx-auto px-4 mt-4">
         {% for message in messages %}
-            <div class="p-4 rounded-xl mb-3 {% if message.tags == 'success' %}bg-emerald-100 text-emerald-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+            <div data-mg-message="true" class="p-4 rounded-xl mb-3 {% if message.tags == 'success' %}bg-emerald-100 text-emerald-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">
                 {{ message }}
             </div>
         {% endfor %}
     </div>
 {% endif %}
 
+
+<div id="networkStatus" class="mg-offline-badge fixed top-0 left-0 right-0 z-[70] bg-amber-500 text-white text-center text-sm font-bold py-2">
+    Está offline. Algumas páginas podem abrir em modo limitado.
+</div>
+
+<div id="installAppFloating" class="hidden fixed left-4 right-4 bottom-24 z-[65] bg-slate-950 text-white rounded-3xl shadow-2xl border border-white/10 p-4 md:left-auto md:right-6 md:bottom-6 md:w-96">
+    <div class="flex items-start justify-between gap-4">
+        <div>
+            <p class="font-black">Instalar +258 Guest</p>
+            <p class="text-sm text-slate-300 mt-1">Aceda mais rápido no telemóvel, como uma aplicação.</p>
+        </div>
+        <button type="button" onclick="dismissInstallBanner()" class="text-slate-300 hover:text-white text-xl leading-none">×</button>
+    </div>
+    <button id="installAppBtnFloating" type="button" class="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-2xl text-sm font-bold">
+        Instalar agora
+    </button>
+</div>
+
 <main>
     {% block content %}{% endblock %}
 </main>
 
+<nav class="mg-mobile-bottom-nav" aria-label="Navegação rápida mobile">
+    <a href="/">
+        <span>⌂</span>
+        <span>Início</span>
+    </a>
+    <a href="/properties/explorar/" class="is-primary">
+        <span>⌕</span>
+        <span>Explorar</span>
+    </a>
+    {% if user.is_authenticated %}
+        {% if user.owner_profile %}
+            <a href="/proprietario/dashboard/">
+                <span>▣</span>
+                <span>Painel</span>
+            </a>
+        {% else %}
+            <a href="/reservas/cliente/minhas-reservas/">
+                <span>◷</span>
+                <span>Reservas</span>
+            </a>
+        {% endif %}
+        <a href="/notificacoes/" class="relative">
+            <span>◉</span>
+            <span>Central</span>
+            {% if unread_notifications_count %}
+                <span class="absolute top-1 right-5 bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded-full">{{ unread_notifications_count }}</span>
+            {% endif %}
+        </a>
+        <button type="button" onclick="toggleMobileMenu()">
+            <span>☰</span>
+            <span>Menu</span>
+        </button>
+    {% else %}
+        <a href="/cadastro/cliente/">
+            <span>＋</span>
+            <span>Conta</span>
+        </a>
+        <a href="/login/">
+            <span>↗</span>
+            <span>Entrar</span>
+        </a>
+        <button type="button" onclick="toggleMobileMenu()">
+            <span>☰</span>
+            <span>Menu</span>
+        </button>
+    {% endif %}
+</nav>
+
 <footer class="bg-slate-950 text-white mt-16">
     <div class="max-w-7xl mx-auto px-4 py-12 grid md:grid-cols-4 gap-8">
         <div>
-            <h3 class="text-2xl font-black mb-3">Moz<span class="text-emerald-500">Guest</span></h3>
+            <h3 class="text-2xl font-black mb-3"><span class="text-emerald-400">+258</span> Guest</h3>
             <p class="text-slate-300 text-sm">
                 Plataforma para encontrar guest houses, quartos, apartamentos e residências próximas de si.
             </p>
@@ -268,15 +381,46 @@
     </div>
 
     <div class="border-t border-slate-800 py-4 text-center text-sm text-slate-400">
-        © 2026 MozGuest. Todos os direitos reservados.
+        © 2026 +258 Guest. Todos os direitos reservados.
     </div>
 </footer>
 
 <script>
-function toggleMobileMenu() {
+function toggleMobileMenu(forceState) {
     const menu = document.getElementById('mobileMenu');
-    menu.classList.toggle('hidden');
+    const button = document.getElementById('mobileMenuButton');
+    if (!menu) return;
+
+    const shouldOpen = typeof forceState === 'boolean' ? forceState : menu.classList.contains('hidden');
+    menu.classList.toggle('hidden', !shouldOpen);
+    if (button) button.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
 }
+
+window.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') toggleMobileMenu(false);
+});
+
+document.querySelectorAll('#mobileMenu a').forEach(function (link) {
+    link.addEventListener('click', function () { toggleMobileMenu(false); });
+});
+
+setTimeout(function () {
+    document.querySelectorAll('[data-mg-message="true"]').forEach(function (alertBox) {
+        alertBox.style.transition = 'opacity 250ms ease';
+        alertBox.style.opacity = '0';
+        setTimeout(function () { alertBox.remove(); }, 300);
+    });
+}, 7000);
+
+function updateNetworkStatus() {
+    const badge = document.getElementById('networkStatus');
+    if (!badge) return;
+    badge.classList.toggle('is-visible', !navigator.onLine);
+}
+
+window.addEventListener('online', updateNetworkStatus);
+window.addEventListener('offline', updateNetworkStatus);
+updateNetworkStatus();
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", function() {
@@ -288,43 +432,47 @@ if ("serviceWorker" in navigator) {
 
 (function () {
     let mozGuestInstallPrompt = null;
-    const installBtn = document.getElementById("installAppBtn");
+    const installButtons = [
+        document.getElementById("installAppBtn"),
+        document.getElementById("installAppBtnFloating")
+    ].filter(Boolean);
+    const installBanner = document.getElementById("installAppFloating");
 
-    if (installBtn) {
-        installBtn.style.display = "inline-block";
-        installBtn.innerText = "Instalar App";
-    }
+    window.dismissInstallBanner = function () {
+        if (installBanner) installBanner.classList.add('hidden');
+        localStorage.setItem('guest258_install_dismissed', '1');
+    };
 
     window.addEventListener("beforeinstallprompt", function (event) {
         event.preventDefault();
         mozGuestInstallPrompt = event;
 
-        if (installBtn) {
-            installBtn.style.display = "inline-block";
+        if (installBanner && localStorage.getItem('guest258_install_dismissed') !== '1') {
+            installBanner.classList.remove('hidden');
         }
     });
 
-    if (installBtn) {
-        installBtn.addEventListener("click", async function () {
+    installButtons.forEach(function (btn) {
+        btn.addEventListener("click", async function () {
             if (mozGuestInstallPrompt) {
                 mozGuestInstallPrompt.prompt();
                 await mozGuestInstallPrompt.userChoice;
                 mozGuestInstallPrompt = null;
+                if (installBanner) installBanner.classList.add('hidden');
                 return;
             }
 
             alert(
-                "Para instalar a MozGuest como app:\n\n" +
+                "Para instalar a +258 Guest como app:\n\n" +
                 "No Chrome: clique nos 3 pontos do navegador e escolha 'Instalar app' ou 'Adicionar ao ecrã inicial'.\n\n" +
                 "Nota: em produção, a instalação funciona melhor com domínio próprio e HTTPS."
             );
         });
-    }
+    });
 
     window.addEventListener("appinstalled", function () {
-        if (installBtn) {
-            installBtn.style.display = "none";
-        }
+        if (installBanner) installBanner.classList.add('hidden');
+        installButtons.forEach(function (btn) { btn.style.display = "none"; });
     });
 })();
 </script>

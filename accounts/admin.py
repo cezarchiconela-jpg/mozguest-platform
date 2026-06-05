@@ -1,4 +1,4 @@
-﻿from django.contrib import admin
+from django.contrib import admin
 from .models import OwnerProfile, ClientProfile
 
 
@@ -8,14 +8,18 @@ class OwnerProfileAdmin(admin.ModelAdmin):
         'user',
         'business_name',
         'nuit',
+        'document_number',
         'payment_phone',
+        'kyc_completion_percent',
         'verification_status',
         'created_at',
+        'verified_at',
     )
 
     list_filter = (
         'verification_status',
         'created_at',
+        'verified_at',
     )
 
     search_fields = (
@@ -23,7 +27,10 @@ class OwnerProfileAdmin(admin.ModelAdmin):
         'user__email',
         'business_name',
         'nuit',
+        'document_number',
     )
+
+    readonly_fields = ('kyc_completion_percent', 'verified_at')
 
 
 @admin.register(ClientProfile)

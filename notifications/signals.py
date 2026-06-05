@@ -1,4 +1,4 @@
-﻿from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 
 from bookings.models import Booking
@@ -86,13 +86,13 @@ def property_post_save(sender, instance, created, **kwargs):
             title='Nova propriedade pendente',
             message=f'A propriedade {property_obj.name} foi cadastrada e aguarda aprovação.',
             notification_type='property',
-            link='/moz-admin/propriedades/'
+            link='/258-admin/propriedades/'
         )
 
         create_notification(
             recipient=property_obj.owner,
             title='Propriedade enviada para aprovação',
-            message=f'A sua propriedade {property_obj.name} foi cadastrada e aguarda aprovação da MozGuest.',
+            message=f'A sua propriedade {property_obj.name} foi cadastrada e aguarda aprovação da +258 Guest.',
             notification_type='property',
             link='/proprietario/propriedades/'
         )
@@ -125,7 +125,7 @@ def review_post_save(sender, instance, created, **kwargs):
             title='Nova avaliação pendente',
             message=f'Nova avaliação para {review.property.name} aguarda aprovação.',
             notification_type='review',
-            link='/moz-admin/avaliacoes/'
+            link='/258-admin/avaliacoes/'
         )
 
         create_notification(
@@ -171,7 +171,7 @@ def payment_post_save(sender, instance, created, **kwargs):
                 title='Pagamento pendente de confirmação',
                 message=f'O cliente enviou comprovativo para a reserva #{payment.booking.id}.',
                 notification_type='payment',
-                link='/moz-admin/pagamentos/'
+                link='/258-admin/pagamentos/'
             )
 
             create_notification(

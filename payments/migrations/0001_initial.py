@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('payment_method', models.CharField(choices=[('mpesa', 'M-Pesa'), ('emola', 'e-Mola'), ('bank_transfer', 'Transferência bancária'), ('cash', 'Pagamento no local'), ('other', 'Outro')], max_length=30, verbose_name='Método de pagamento')),
                 ('amount', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='Valor pago')),
                 ('platform_commission_percent', models.DecimalField(decimal_places=2, default=10, max_digits=5, verbose_name='Comissão da plataforma (%)')),
-                ('platform_commission_amount', models.DecimalField(decimal_places=2, default=0, max_digits=10, verbose_name='Comissão MozGuest')),
+                ('platform_commission_amount', models.DecimalField(decimal_places=2, default=0, max_digits=10, verbose_name='Comissão +258 Guest')),
                 ('owner_amount', models.DecimalField(decimal_places=2, default=0, max_digits=10, verbose_name='Valor do proprietário')),
                 ('transaction_reference', models.CharField(blank=True, max_length=150, verbose_name='Referência da transacção')),
                 ('proof', models.ImageField(blank=True, null=True, upload_to='payments/', verbose_name='Comprovativo')),

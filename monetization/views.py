@@ -1,6 +1,7 @@
-﻿from django.contrib import messages
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
 from notifications.services import notify_staff
 from .models import CommercialPlan, OwnerSubscription
@@ -19,12 +20,23 @@ def public_plan_list(request):
 
 
 @login_required
+@require_POST
 def request_plan(request, plan_id):
     if not hasattr(request.user, 'owner_profile'):
         messages.error(request, 'Apenas proprietários podem solicitar planos comerciais.')
         return redirect('home')
 
     plan = get_object_or_404(CommercialPlan, pk=plan_id, is_active=True)
+
+    existing = OwnerSubscription.objects.filter(
+        owner=request.user,
+        plan=plan,
+        status__in=['pending', 'active']
+    ).first()
+
+    if existing:
+        messages.info(request, 'Já existe uma solicitação ou subscrição activa para este plano.')
+        return redirect('owner_subscription_list')
 
     OwnerSubscription.objects.create(
         owner=request.user,
@@ -39,7 +51,7 @@ def request_plan(request, plan_id):
         link='/comercial/admin/subscricoes/'
     )
 
-    messages.success(request, 'Pedido de plano enviado com sucesso. A MozGuest irá analisar.')
+    messages.success(request, 'Pedido de plano enviado com sucesso. A +258 Guest irá analisar.')
     return redirect('public_plan_list')
 
 
@@ -66,8 +78,10 @@ def admin_subscription_list(request):
 
 
 @user_passes_test(is_staff_user)
+@require_POST
 def admin_activate_subscription(request, subscription_id):
     subscription = get_object_or_404(OwnerSubscription, pk=subscription_id)
+    OwnerSubscription.objects.filter(owner=subscription.owner, status='active').exclude(pk=subscription.pk).update(status='cancelled')
     subscription.status = 'active'
     subscription.save()
 
@@ -76,6 +90,7 @@ def admin_activate_subscription(request, subscription_id):
 
 
 @user_passes_test(is_staff_user)
+@require_POST
 def admin_cancel_subscription(request, subscription_id):
     subscription = get_object_or_404(OwnerSubscription, pk=subscription_id)
     subscription.status = 'cancelled'

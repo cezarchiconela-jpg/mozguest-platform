@@ -1,75 +1,151 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}Confirmar Pagamentos - MozGuest{% endblock %}
+{% block title %}Pagamentos Admin - +258 Guest{% endblock %}
 
 {% block content %}
 
 <section class="max-w-7xl mx-auto px-4 py-10">
-    <div class="mb-8">
-        <a href="/moz-admin/" class="text-blue-700 font-semibold">← Voltar ao painel</a>
-        <h1 class="text-4xl font-bold mt-4">Pagamentos pendentes</h1>
-        <p class="text-slate-600 mt-2">Confirme ou rejeite comprovativos enviados pelos clientes.</p>
+    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 mb-8">
+        <div>
+            <a href="/258-admin/" class="text-blue-700 font-semibold">← Voltar ao painel</a>
+            <h1 class="text-4xl font-black mt-4">Gestão de pagamentos</h1>
+            <p class="text-slate-600 mt-2">Confirme comprovativos, acompanhe valores, comissões e pagamentos rejeitados.</p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3">
+            <a href="/pagamentos/admin/financeiro/" class="bg-emerald-600 text-white px-5 py-3 rounded-2xl font-semibold hover:bg-emerald-700 text-center">Relatório financeiro</a>
+            <a href="/pagamentos/admin/liquidacoes/" class="bg-blue-700 text-white px-5 py-3 rounded-2xl font-semibold hover:bg-blue-800 text-center">Liquidações</a>
+            <a href="/admin/payments/payment/" class="bg-slate-900 text-white px-5 py-3 rounded-2xl font-semibold hover:bg-slate-800 text-center">Django Admin</a>
+        </div>
     </div>
 
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto">
-        <table class="w-full text-sm">
-            <thead class="bg-slate-100">
-                <tr>
-                    <th class="text-left p-4">Reserva</th>
-                    <th class="text-left p-4">Cliente</th>
-                    <th class="text-left p-4">Método</th>
-                    <th class="text-left p-4">Valor</th>
-                    <th class="text-left p-4">Comissão</th>
-                    <th class="text-left p-4">Proprietário</th>
-                    <th class="text-left p-4">Referência</th>
-                    <th class="text-left p-4">Comprovativo</th>
-                    <th class="text-right p-4">Acções</th>
-                </tr>
-            </thead>
+    <div class="grid md:grid-cols-4 gap-4 mb-6">
+        <a href="?status=pending" class="bg-white rounded-3xl border border-slate-200 p-5 hover:shadow-md">
+            <p class="text-sm text-slate-500">Pendentes</p>
+            <p class="text-3xl font-black text-amber-600 mt-1">{{ pending_count }}</p>
+        </a>
+        <a href="?status=submitted" class="bg-white rounded-3xl border border-slate-200 p-5 hover:shadow-md">
+            <p class="text-sm text-slate-500">Comprovativos enviados</p>
+            <p class="text-3xl font-black text-blue-600 mt-1">{{ submitted_count }}</p>
+        </a>
+        <a href="?status=confirmed" class="bg-white rounded-3xl border border-slate-200 p-5 hover:shadow-md">
+            <p class="text-sm text-slate-500">Confirmados</p>
+            <p class="text-3xl font-black text-emerald-600 mt-1">{{ confirmed_count }}</p>
+        </a>
+        <a href="?status=rejected" class="bg-white rounded-3xl border border-slate-200 p-5 hover:shadow-md">
+            <p class="text-sm text-slate-500">Rejeitados</p>
+            <p class="text-3xl font-black text-red-600 mt-1">{{ rejected_count }}</p>
+        </a>
+    </div>
 
-            <tbody>
-                {% for payment in payments %}
-                    <tr class="border-t border-slate-200 align-top">
-                        <td class="p-4">
-                            #{{ payment.booking.id }}<br>
-                            <span class="text-slate-500">{{ payment.booking.property.name }}</span>
-                        </td>
+    <form method="get" class="bg-white rounded-3xl border border-slate-200 p-5 mb-6 shadow-sm">
+        <div class="grid md:grid-cols-4 gap-4">
+            <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Cliente, referência, propriedade..." class="md:col-span-2 px-4 py-3 rounded-xl border border-slate-300">
+            <select name="status" class="px-4 py-3 rounded-xl border border-slate-300">
+                <option value="all" {% if status == 'all' %}selected{% endif %}>Todos os estados</option>
+                <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pendente</option>
+                <option value="submitted" {% if status == 'submitted' %}selected{% endif %}>Comprovativo enviado</option>
+                <option value="confirmed" {% if status == 'confirmed' %}selected{% endif %}>Confirmado</option>
+                <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Rejeitado</option>
+            </select>
+            <button class="bg-blue-700 text-white rounded-xl font-semibold hover:bg-blue-800 px-5 py-3">Filtrar</button>
+        </div>
+    </form>
 
-                        <td class="p-4">{{ payment.booking.customer_name }}</td>
-                        <td class="p-4">{{ payment.get_payment_method_display }}</td>
-                        <td class="p-4">{{ payment.amount }} MT</td>
-                        <td class="p-4">{{ payment.platform_commission_amount }} MT</td>
-                        <td class="p-4">{{ payment.owner_amount }} MT</td>
-                        <td class="p-4">{{ payment.transaction_reference }}</td>
+    <div class="flex flex-wrap gap-3 mb-6">
+        <a href="/258-admin/pagamentos/?status=submitted" class="px-4 py-2 rounded-xl border border-slate-300 {% if status == 'submitted' %}bg-blue-700 text-white{% else %}bg-white{% endif %}">Comprovativos</a>
+        <a href="/258-admin/pagamentos/?status=pending" class="px-4 py-2 rounded-xl border border-slate-300 {% if status == 'pending' %}bg-blue-700 text-white{% else %}bg-white{% endif %}">Pendentes</a>
+        <a href="/258-admin/pagamentos/?status=confirmed" class="px-4 py-2 rounded-xl border border-slate-300 {% if status == 'confirmed' %}bg-blue-700 text-white{% else %}bg-white{% endif %}">Confirmados</a>
+        <a href="/258-admin/pagamentos/?status=rejected" class="px-4 py-2 rounded-xl border border-slate-300 {% if status == 'rejected' %}bg-blue-700 text-white{% else %}bg-white{% endif %}">Rejeitados</a>
+        <a href="/258-admin/pagamentos/?status=all" class="px-4 py-2 rounded-xl border border-slate-300 {% if status == 'all' %}bg-blue-700 text-white{% else %}bg-white{% endif %}">Todos</a>
+    </div>
 
-                        <td class="p-4">
-                            {% if payment.proof %}
-                                <a href="{{ payment.proof.url }}" target="_blank" class="text-blue-700 font-semibold">
-                                    Ver
-                                </a>
-                            {% else %}
-                                Sem ficheiro
-                            {% endif %}
-                        </td>
+    <div class="grid gap-5">
+        {% for payment in payments %}
+            <article class="bg-white rounded-3xl border border-slate-200 p-5 md:p-6 shadow-sm">
+                <div class="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-6">
+                    <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 mb-3">
+                            <span class="text-xs px-3 py-1 rounded-full font-semibold
+                                {% if payment.status == 'confirmed' %}bg-emerald-100 text-emerald-700
+                                {% elif payment.status == 'submitted' %}bg-blue-100 text-blue-700
+                                {% elif payment.status == 'rejected' %}bg-red-100 text-red-700
+                                {% else %}bg-amber-100 text-amber-700{% endif %}">
+                                {{ payment.get_status_display }}
+                            </span>
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-700 font-semibold">{{ payment.get_payment_method_display }}</span>
+                        </div>
 
-                        <td class="p-4 text-right">
-                            <a href="/moz-admin/pagamentos/{{ payment.id }}/confirmar/" class="text-emerald-700 font-semibold mr-3">
-                                Confirmar
-                            </a>
-                            <a href="/moz-admin/pagamentos/{{ payment.id }}/rejeitar/" class="text-red-700 font-semibold">
-                                Rejeitar
-                            </a>
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="9" class="p-8 text-center text-slate-600">
-                            Não existem pagamentos pendentes.
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        <h2 class="text-2xl font-black">Pagamento #{{ payment.id }} · Reserva #{{ payment.booking.id }}</h2>
+                        <p class="text-slate-600 mt-1">{{ payment.booking.customer_name }} · {{ payment.booking.property.name }}</p>
+                        <p class="text-sm text-slate-500 mt-1">Proprietário: {{ payment.booking.property.owner.username }}{% if payment.booking.property.owner.email %} · {{ payment.booking.property.owner.email }}{% endif %}</p>
+
+                        <div class="grid md:grid-cols-5 gap-3 mt-5 text-sm">
+                            <div class="bg-slate-50 rounded-2xl p-4">
+                                <p class="text-slate-500">Valor pago</p>
+                                <p class="font-black text-lg mt-1">{{ payment.amount }} MT</p>
+                            </div>
+                            <div class="bg-slate-50 rounded-2xl p-4">
+                                <p class="text-slate-500">Comissão</p>
+                                <p class="font-black text-blue-700 text-lg mt-1">{{ payment.platform_commission_amount }} MT</p>
+                                <p class="text-xs text-slate-500">{{ payment.platform_commission_percent }}%</p>
+                            </div>
+                            <div class="bg-slate-50 rounded-2xl p-4">
+                                <p class="text-slate-500">Proprietário</p>
+                                <p class="font-black text-emerald-700 text-lg mt-1">{{ payment.owner_amount }} MT</p>
+                            </div>
+                            <div class="bg-slate-50 rounded-2xl p-4">
+                                <p class="text-slate-500">Referência</p>
+                                <p class="font-semibold mt-1">{% if payment.transaction_reference %}{{ payment.transaction_reference }}{% else %}Não informada{% endif %}</p>
+                            </div>
+                            <div class="bg-slate-50 rounded-2xl p-4">
+                                <p class="text-slate-500">Enviado em</p>
+                                <p class="font-semibold mt-1">{{ payment.created_at|date:"d/m/Y H:i" }}</p>
+                            </div>
+                        </div>
+
+                        {% if payment.admin_notes %}
+                            <div class="mt-4 bg-amber-50 border border-amber-100 rounded-2xl p-4 text-sm text-amber-900">
+                                <strong>Notas administrativas:</strong> {{ payment.admin_notes }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="xl:w-72 grid gap-3">
+                        {% if payment.proof %}
+                            <a href="{{ payment.proof.url }}" target="_blank" class="px-5 py-3 rounded-2xl border border-blue-200 text-blue-700 font-semibold text-center hover:bg-blue-50">Ver comprovativo</a>
+                        {% else %}
+                            <div class="px-5 py-3 rounded-2xl bg-slate-100 text-slate-500 font-semibold text-center">Sem comprovativo</div>
+                        {% endif %}
+
+                        {% if payment.status != 'confirmed' %}
+                            <form method="post" action="/258-admin/pagamentos/{{ payment.id }}/confirmar/">
+                                {% csrf_token %}
+                                <button class="w-full bg-emerald-600 text-white px-5 py-3 rounded-2xl font-semibold hover:bg-emerald-700" onclick="return confirm('Confirmar este pagamento? Será criada a liquidação do valor líquido ao proprietário.')">Confirmar</button>
+                            </form>
+                        {% endif %}
+
+                        {% if payment.status != 'rejected' %}
+                            <form method="post" action="/258-admin/pagamentos/{{ payment.id }}/rejeitar/">
+                                {% csrf_token %}
+                                <button class="w-full border border-red-200 text-red-700 px-5 py-3 rounded-2xl font-semibold hover:bg-red-50" onclick="return confirm('Rejeitar este pagamento?')">Rejeitar</button>
+                            </form>
+                        {% endif %}
+
+                        <a href="/258-admin/reservas/?q={{ payment.booking.customer_phone }}" class="px-5 py-3 rounded-2xl bg-slate-100 text-slate-800 font-semibold text-center hover:bg-slate-200">Ver reserva</a>
+                        {% if payment.status == 'confirmed' %}
+                            <a href="/pagamentos/admin/liquidacoes/?q={{ payment.booking.property.owner.username }}" class="px-5 py-3 rounded-2xl bg-emerald-50 text-emerald-700 font-semibold text-center hover:bg-emerald-100">Ver liquidação</a>
+                        {% endif %}
+                        <a href="/admin/payments/payment/{{ payment.id }}/change/" class="px-5 py-3 rounded-2xl bg-slate-100 text-slate-800 font-semibold text-center hover:bg-slate-200">Editar avançado</a>
+                    </div>
+                </div>
+            </article>
+        {% empty %}
+            <div class="bg-white rounded-3xl border border-dashed border-slate-300 p-10 text-center">
+                <h2 class="text-2xl font-black mb-2">Nenhum pagamento encontrado.</h2>
+                <p class="text-slate-600 mb-5">Altere os filtros ou limpe a pesquisa.</p>
+                <a href="/258-admin/pagamentos/?status=all" class="inline-flex bg-blue-700 text-white px-6 py-3 rounded-2xl font-semibold hover:bg-blue-800">Ver todos</a>
+            </div>
+        {% endfor %}
     </div>
 </section>
 

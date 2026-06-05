@@ -1,12 +1,12 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}Planos Comerciais - MozGuest{% endblock %}
+{% block title %}Planos Comerciais - +258 Guest{% endblock %}
 
 {% block content %}
 
 <section class="bg-gradient-to-br from-blue-950 via-blue-800 to-emerald-600 text-white">
     <div class="max-w-7xl mx-auto px-4 py-16">
-        <h1 class="text-4xl md:text-5xl font-black mb-4">Planos comerciais MozGuest</h1>
+        <h1 class="text-4xl md:text-5xl font-black mb-4">Planos comerciais +258 Guest</h1>
         <p class="text-blue-50 max-w-3xl">
             Escolha o plano adequado para publicar e promover os seus alojamentos na plataforma.
         </p>
@@ -47,9 +47,12 @@
                 </ul>
 
                 {% if user.is_authenticated and user.owner_profile %}
-                    <a href="/comercial/planos/{{ plan.id }}/solicitar/" class="block text-center bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-800">
-                        Solicitar plano
-                    </a>
+                    <form method="post" action="/comercial/planos/{{ plan.id }}/solicitar/">
+                        {% csrf_token %}
+                        <button class="w-full text-center bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-800">
+                            Solicitar plano
+                        </button>
+                    </form>
                 {% else %}
                     <a href="/cadastro/proprietario/" class="block text-center bg-slate-900 text-white px-5 py-3 rounded-xl font-semibold hover:bg-slate-800">
                         Criar conta de proprietário

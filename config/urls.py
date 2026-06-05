@@ -1,4 +1,4 @@
-﻿from django.conf import settings
+from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
@@ -6,7 +6,7 @@ from django.urls import path, include
 from dashboard.views import (
     home,
     owner_dashboard,
-    mozguest_admin_dashboard,
+    guest258_admin_dashboard,
     admin_property_approval,
     admin_approve_property,
     admin_reject_property,
@@ -14,17 +14,23 @@ from dashboard.views import (
     admin_approve_review,
     admin_reject_review,
     admin_payment_approval,
+    admin_booking_list,
+    admin_toggle_featured_property,
     admin_confirm_payment,
     admin_reject_payment,
+    admin_audit_log_list,
 )
 
 from properties import views as property_views
 from bookings import views as booking_views
 from support import views as support_views
 from pages import pwa_views
+from pages.health import healthz, readyz
 
 urlpatterns = [
     path('service-worker.js', pwa_views.service_worker, name='service_worker'),
+    path('healthz/', healthz, name='healthz'),
+    path('readyz/', readyz, name='readyz'),
     path('admin/', admin.site.urls),
 
     path('', home, name='home'),
@@ -46,11 +52,13 @@ urlpatterns = [
     path('proprietario/propriedades/', property_views.owner_property_list, name='owner_property_list'),
     path('proprietario/propriedades/nova/', property_views.owner_property_create, name='owner_property_create'),
     path('proprietario/propriedades/<int:pk>/editar/', property_views.owner_property_edit, name='owner_property_edit'),
+    path('proprietario/propriedades/<int:property_id>/preparar/', property_views.owner_property_setup, name='owner_property_setup'),
 
     path('proprietario/propriedades/<int:property_id>/quartos/', property_views.owner_room_list, name='owner_room_list'),
     path('proprietario/propriedades/<int:property_id>/quartos/novo/', property_views.owner_room_create, name='owner_room_create'),
     path('proprietario/quartos/<int:room_id>/editar/', property_views.owner_room_edit, name='owner_room_edit'),
     path('proprietario/quartos/<int:room_id>/alternar/', property_views.owner_room_toggle, name='owner_room_toggle'),
+    path('proprietario/quartos/<int:room_id>/duplicar/', property_views.owner_room_duplicate, name='owner_room_duplicate'),
 
     path('proprietario/propriedades/<int:property_id>/fotos/', property_views.owner_photo_gallery, name='owner_photo_gallery'),
     path('proprietario/propriedades/<int:property_id>/fotos/nova/', property_views.owner_photo_create, name='owner_photo_create'),
@@ -62,24 +70,29 @@ urlpatterns = [
     path('proprietario/propriedades/<int:property_id>/disponibilidade/bloquear/', booking_views.owner_availability_block_create, name='owner_availability_block_create'),
     path('proprietario/disponibilidade/<int:block_id>/apagar/', booking_views.owner_availability_block_delete, name='owner_availability_block_delete'),
 
-    path('moz-admin/', mozguest_admin_dashboard, name='mozguest_admin_dashboard'),
+    path('258-admin/', guest258_admin_dashboard, name='guest258_admin_dashboard'),
 
-    path('moz-admin/propriedades/', admin_property_approval, name='mozguest_admin_properties'),
-    path('moz-admin/propriedades/<int:property_id>/aprovar/', admin_approve_property, name='mozguest_admin_approve_property'),
-    path('moz-admin/propriedades/<int:property_id>/rejeitar/', admin_reject_property, name='mozguest_admin_reject_property'),
+    path('258-admin/propriedades/', admin_property_approval, name='guest258_admin_properties'),
+    path('258-admin/propriedades/<int:property_id>/aprovar/', admin_approve_property, name='guest258_admin_approve_property'),
+    path('258-admin/propriedades/<int:property_id>/rejeitar/', admin_reject_property, name='guest258_admin_reject_property'),
+    path('258-admin/propriedades/<int:property_id>/destaque/', admin_toggle_featured_property, name='guest258_admin_toggle_featured_property'),
 
-    path('moz-admin/avaliacoes/', admin_review_approval, name='mozguest_admin_reviews'),
-    path('moz-admin/avaliacoes/<int:review_id>/aprovar/', admin_approve_review, name='mozguest_admin_approve_review'),
-    path('moz-admin/avaliacoes/<int:review_id>/rejeitar/', admin_reject_review, name='mozguest_admin_reject_review'),
+    path('258-admin/reservas/', admin_booking_list, name='guest258_admin_bookings'),
 
-    path('moz-admin/pagamentos/', admin_payment_approval, name='mozguest_admin_payments'),
-    path('moz-admin/pagamentos/<int:payment_id>/confirmar/', admin_confirm_payment, name='mozguest_admin_confirm_payment'),
-    path('moz-admin/pagamentos/<int:payment_id>/rejeitar/', admin_reject_payment, name='mozguest_admin_reject_payment'),
+    path('258-admin/avaliacoes/', admin_review_approval, name='guest258_admin_reviews'),
+    path('258-admin/avaliacoes/<int:review_id>/aprovar/', admin_approve_review, name='guest258_admin_approve_review'),
+    path('258-admin/avaliacoes/<int:review_id>/rejeitar/', admin_reject_review, name='guest258_admin_reject_review'),
 
-    path('moz-admin/suporte/', support_views.admin_support_ticket_list, name='admin_support_ticket_list'),
-    path('moz-admin/suporte/<int:ticket_id>/', support_views.admin_support_ticket_detail, name='admin_support_ticket_detail'),
+    path('258-admin/pagamentos/', admin_payment_approval, name='guest258_admin_payments'),
+    path('258-admin/pagamentos/<int:payment_id>/confirmar/', admin_confirm_payment, name='guest258_admin_confirm_payment'),
+    path('258-admin/pagamentos/<int:payment_id>/rejeitar/', admin_reject_payment, name='guest258_admin_reject_payment'),
+
+    path('258-admin/auditoria/', admin_audit_log_list, name='admin_audit_log_list'),
+
+    path('258-admin/suporte/', support_views.admin_support_ticket_list, name='admin_support_ticket_list'),
+    path('258-admin/suporte/<int:ticket_id>/', support_views.admin_support_ticket_detail, name='admin_support_ticket_detail'),
 ]
 
-if settings.DEBUG:
+if settings.DJANGO_SERVE_MEDIA:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

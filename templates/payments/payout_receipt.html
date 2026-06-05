@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Comprovativo de Liquidação - +258 Guest{% endblock %}
+{% block content %}
+<section class="max-w-4xl mx-auto px-4 py-8">
+  <div class="bg-white border border-slate-200 rounded-3xl p-8">
+    <div class="flex justify-between gap-4 border-b pb-6 mb-6">
+      <div>
+        <h1 class="text-3xl font-black text-blue-700">+258 Guest</h1>
+        <p class="text-slate-600">Comprovativo de liquidação ao proprietário</p>
+      </div>
+      <div class="text-right text-sm">
+        <p class="font-black text-xl">Liquidação #{{ payout.id }}</p>
+        <p>{{ payout.paid_at|date:'d/m/Y H:i' }}</p>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 text-sm">
+      <div class="bg-slate-50 rounded-2xl p-5">
+        <p class="uppercase text-xs font-bold text-slate-500">Proprietário</p>
+        <p class="text-lg font-black mt-1">{{ payout.owner.get_full_name|default:payout.owner.username }}</p>
+        <p>{{ payout.owner.email }}</p>
+      </div>
+      <div class="bg-slate-50 rounded-2xl p-5">
+        <p class="uppercase text-xs font-bold text-slate-500">Reserva</p>
+        <p class="text-lg font-black mt-1">#{{ booking.id }} · {{ booking.property.name }}</p>
+        <p>{{ booking.room.name }}</p>
+      </div>
+    </div>
+
+    <div class="mt-6 overflow-hidden rounded-2xl border">
+      <table class="w-full text-sm">
+        <tr class="bg-slate-100"><td class="p-4 font-bold">Valor pago pelo cliente</td><td class="p-4 text-right">{{ payout.gross_amount }} MZN</td></tr>
+        <tr><td class="p-4 font-bold">Comissão +258 Guest</td><td class="p-4 text-right">{{ payout.commission_amount }} MZN</td></tr>
+        <tr class="bg-emerald-50"><td class="p-4 font-black">Valor líquido pago ao proprietário</td><td class="p-4 text-right font-black text-emerald-700">{{ payout.payout_amount }} MZN</td></tr>
+        <tr><td class="p-4 font-bold">Método</td><td class="p-4 text-right">{{ payout.get_method_display|default:'—' }}</td></tr>
+        <tr class="bg-slate-50"><td class="p-4 font-bold">Referência</td><td class="p-4 text-right">{{ payout.payout_reference|default:'—' }}</td></tr>
+      </table>
+    </div>
+
+    <div class="mt-6 flex gap-3 print:hidden">
+      <button onclick="window.print()" class="bg-slate-900 text-white px-5 py-3 rounded-xl font-bold">Imprimir / Guardar PDF</button>
+      <a href="/pagamentos/proprietario/liquidacoes/" class="bg-slate-100 px-5 py-3 rounded-xl font-bold">Voltar</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

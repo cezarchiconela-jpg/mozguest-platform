@@ -1,6 +1,6 @@
 ﻿{% extends 'base.html' %}
 
-{% block title %}Criar conta - MozGuest{% endblock %}
+{% block title %}Criar conta - +258 Guest{% endblock %}
 
 {% block content %}
 
@@ -16,7 +16,7 @@
             </h1>
 
             <p class="text-slate-600 leading-relaxed mb-6">
-                Com uma conta MozGuest, poderá guardar favoritos, acompanhar reservas,
+                Com uma conta +258 Guest, poderá guardar favoritos, acompanhar reservas,
                 cancelar pedidos e ter o seu histórico sempre disponível.
             </p>
 
@@ -33,7 +33,8 @@
         </div>
 
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
-            <h2 class="text-2xl font-bold mb-6">Criar conta de cliente</h2>
+            <h2 class="text-2xl font-bold mb-2">Criar conta de cliente</h2>
+            <p class="text-sm text-slate-600 mb-6">Cadastro simplificado: basta nome, e-mail e uma palavra-passe com mínimo de 4 caracteres.</p>
 
             <form method="post" class="space-y-4">
                 {% csrf_token %}
@@ -48,6 +49,9 @@
                     <div>
                         <label class="block text-sm font-semibold mb-2">{{ field.label }}</label>
                         {{ field }}
+                        {% if field.help_text %}
+                            <p class="text-xs text-slate-500 mt-1">{{ field.help_text }}</p>
+                        {% endif %}
                         {% if field.errors %}
                             <p class="text-red-600 text-sm mt-1">{{ field.errors|striptags }}</p>
                         {% endif %}

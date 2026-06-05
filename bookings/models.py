@@ -1,5 +1,6 @@
-﻿from django.db import models
+from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 from properties.models import Property, Room
 
 
@@ -17,6 +18,22 @@ class Booking(models.Model):
         ('rejected', 'Rejeitada'),
         ('cancelled', 'Cancelada'),
         ('completed', 'Concluída'),
+    ]
+
+    REFUND_STATUS_CHOICES = [
+        ('not_applicable', 'Não aplicável'),
+        ('pending_review', 'Em análise'),
+        ('no_refund', 'Sem reembolso'),
+        ('partial_refund', 'Reembolso parcial'),
+        ('full_refund', 'Reembolso total'),
+        ('refunded', 'Reembolsado'),
+    ]
+
+    CANCELLED_BY_CHOICES = [
+        ('client', 'Cliente'),
+        ('owner', 'Proprietário'),
+        ('admin', '+258 Guest'),
+        ('system', 'Sistema'),
     ]
 
     client = models.ForeignKey(
@@ -88,6 +105,16 @@ class Booking(models.Model):
     client_notes = models.TextField('Observações do cliente', blank=True)
     owner_notes = models.TextField('Observações do proprietário', blank=True)
 
+    cancelled_by = models.CharField('Cancelada por', max_length=20, choices=CANCELLED_BY_CHOICES, blank=True)
+    cancellation_reason = models.TextField('Motivo do cancelamento', blank=True)
+    cancelled_at = models.DateTimeField('Cancelada em', null=True, blank=True)
+    refund_status = models.CharField('Estado de reembolso', max_length=30, choices=REFUND_STATUS_CHOICES, default='not_applicable')
+    refund_amount = models.DecimalField('Valor de reembolso', max_digits=10, decimal_places=2, null=True, blank=True)
+    refund_reference = models.CharField('Referência de reembolso', max_length=150, blank=True)
+    refund_notes = models.TextField('Notas sobre reembolso/cancelamento', blank=True)
+    refund_reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_booking_refunds', verbose_name='Reembolso revisto por')
+    refund_reviewed_at = models.DateTimeField('Reembolso revisto em', null=True, blank=True)
+
     created_at = models.DateTimeField('Criado em', auto_now_add=True)
     updated_at = models.DateTimeField('Actualizado em', auto_now=True)
 
@@ -95,6 +122,17 @@ class Booking(models.Model):
         verbose_name = 'Reserva'
         verbose_name_plural = 'Reservas'
         ordering = ['-created_at']
+
+    def mark_cancelled(self, cancelled_by='', reason=''):
+        self.status = 'cancelled'
+        self.cancelled_by = cancelled_by or self.cancelled_by
+        self.cancellation_reason = reason or self.cancellation_reason
+        self.cancelled_at = timezone.now()
+        if hasattr(self, 'payment') and self.payment and self.payment.status == 'confirmed':
+            self.refund_status = 'pending_review'
+        elif self.refund_status == 'not_applicable':
+            self.refund_status = 'no_refund'
+        self.save()
 
     def __str__(self):
         return f'{self.customer_name} - {self.property.name} - {self.get_status_display()}'
