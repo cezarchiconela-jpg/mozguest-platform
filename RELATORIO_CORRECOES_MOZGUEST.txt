@@ -1,0 +1,56 @@
+RELATORIO TECNICO - MOZGUEST PRONTO PARA ONLINE
+
+Correcções aplicadas:
+1. config/settings.py refeito para produção e desenvolvimento:
+   - SECRET_KEY por variável DJANGO_SECRET_KEY;
+   - DEBUG por variável DJANGO_DEBUG;
+   - ALLOWED_HOSTS por DJANGO_ALLOWED_HOSTS;
+   - CSRF_TRUSTED_ORIGINS por DJANGO_CSRF_TRUSTED_ORIGINS;
+   - WhiteNoise configurado para ficheiros estáticos;
+   - PostgreSQL por DATABASE_URL com dj-database-url;
+   - SMTP por variáveis de ambiente;
+   - cookies seguros quando DEBUG=False;
+   - apenas um backend de autenticação.
+
+2. Login/cadastro estabilizados:
+   - backend accounts.backends.EmailOrUsernameBackend consolidado;
+   - login por username ou e-mail;
+   - password hashing normal do Django mantido;
+   - sem hasher rápido de desenvolvimento.
+
+3. Rotas corrigidas:
+   - properties/urls.py removeu namespace que podia causar NoReverseMatch em property_detail;
+   - nomes globais property_list e property_detail disponíveis.
+
+4. Disponibilidade/calendário:
+   - bookings/forms.py limpo;
+   - removida duplicação da classe AvailabilityBlockForm.
+
+5. PWA:
+   - service-worker.js ajustado para não interferir com login/cadastro/admin;
+   - pages/pwa_views.py adiciona Service-Worker-Allowed e no-cache.
+
+6. Monetização:
+   - link interno da notificação de pedido de plano corrigido para /comercial/admin/subscricoes/.
+
+7. Deploy:
+   - requirements.txt actualizado com gunicorn, whitenoise, dj-database-url e psycopg;
+   - Procfile criado;
+   - runtime.txt criado;
+   - .env.example criado;
+   - README_DEPLOY_MOZGUEST.txt criado.
+
+Testes estáticos realizados:
+- Verificação sintáctica por AST: sem erros de sintaxe nos ficheiros Python extraídos.
+
+Comandos de teste após substituir ficheiros:
+1. venv\Scripts\activate
+2. pip install -r requirements.txt
+3. python manage.py check
+4. python manage.py makemigrations --check --dry-run
+5. python manage.py migrate
+6. python manage.py collectstatic --noinput
+7. python manage.py runserver
+
+Observação:
+- Este pacote não inclui venv nem db.sqlite3. Substitua apenas os ficheiros de código no projecto existente para preservar a base de dados local.

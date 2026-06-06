@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Relatório Financeiro Diário - +258 Guest{% endblock %}
+{% block content %}
+<section class="max-w-[1500px] mx-auto px-4 py-8">
+  <h1 class="text-3xl font-black mb-2">Relatório financeiro diário</h1>
+  <p class="text-slate-600 mb-6">Visão diária dos valores recebidos dos clientes, comissões e liquidações aos proprietários.</p>
+
+  <form class="bg-white border rounded-3xl p-4 mb-6 flex flex-wrap gap-3">
+    <input type="date" name="start_date" value="{{ start_date }}" class="px-4 py-3 rounded-xl border">
+    <input type="date" name="end_date" value="{{ end_date }}" class="px-4 py-3 rounded-xl border">
+    <button class="bg-slate-900 text-white px-5 py-3 rounded-xl font-bold">Filtrar</button>
+  </form>
+
+  <div class="grid md:grid-cols-6 gap-3 mb-6 text-sm">
+    <div class="bg-white border rounded-2xl p-4"><p class="text-slate-500">Recebido</p><b>{{ total_received }} MZN</b></div>
+    <div class="bg-white border rounded-2xl p-4"><p class="text-slate-500">Comissão</p><b>{{ total_commission }} MZN</b></div>
+    <div class="bg-white border rounded-2xl p-4"><p class="text-slate-500">Proprietários</p><b>{{ total_owner_amount }} MZN</b></div>
+    <div class="bg-white border rounded-2xl p-4"><p class="text-slate-500">Liquidado</p><b>{{ total_payout_paid }} MZN</b></div>
+    <div class="bg-white border rounded-2xl p-4"><p class="text-slate-500">Pendente</p><b>{{ total_payout_pending }} MZN</b></div>
+    <div class="bg-white border rounded-2xl p-4"><p class="text-slate-500">Retido</p><b>{{ total_payout_held }} MZN</b></div>
+  </div>
+
+  <div class="bg-white border rounded-3xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-100"><tr><th class="p-3 text-left">Data</th><th class="p-3 text-right">Pagamentos</th><th class="p-3 text-right">Recebido</th><th class="p-3 text-right">Comissão</th><th class="p-3 text-right">Prop.</th><th class="p-3 text-right">Liquidado</th></tr></thead>
+      <tbody>
+      {% for row in daily_rows %}<tr class="border-t"><td class="p-3">{{ row.date }}</td><td class="p-3 text-right">{{ row.payments }}</td><td class="p-3 text-right">{{ row.received }}</td><td class="p-3 text-right">{{ row.commission }}</td><td class="p-3 text-right">{{ row.owner_amount }}</td><td class="p-3 text-right">{{ row.payout_paid }}</td></tr>{% empty %}<tr><td colspan="6" class="p-8 text-center text-slate-500">Sem movimentos no período.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

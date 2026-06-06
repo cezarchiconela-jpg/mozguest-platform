@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Estado do Pagamento - +258 Guest{% endblock %}
+
+{% block content %}
+<section class="max-w-5xl mx-auto px-4 py-10">
+    <a href="/reservas/cliente/minhas-reservas/" class="text-blue-700 font-semibold">← Voltar às reservas</a>
+
+    <div class="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-sm mt-6">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+            <div>
+                <p class="text-sm font-black uppercase tracking-wide text-blue-700">Transacção de pagamento</p>
+                <h1 class="text-3xl md:text-5xl font-black mt-2">{{ transaction.get_gateway_display }}</h1>
+                <p class="text-slate-600 mt-2">Referência +258 Guest: <strong>{{ transaction.local_reference }}</strong></p>
+            </div>
+            <span class="inline-flex px-4 py-2 rounded-full text-sm font-black
+                {% if transaction.status == 'paid' %}bg-emerald-100 text-emerald-700
+                {% elif transaction.status == 'failed' or transaction.status == 'cancelled' or transaction.status == 'expired' %}bg-red-100 text-red-700
+                {% else %}bg-amber-100 text-amber-700{% endif %}">
+                {{ transaction.get_status_display }}
+            </span>
+        </div>
+
+        <div class="grid md:grid-cols-4 gap-4 mt-8">
+            <div class="bg-slate-50 rounded-2xl p-4">
+                <p class="text-slate-500 text-sm">Reserva</p>
+                <p class="font-black mt-1">#{{ booking.id }}</p>
+            </div>
+            <div class="bg-slate-50 rounded-2xl p-4">
+                <p class="text-slate-500 text-sm">Valor</p>
+                <p class="font-black text-blue-700 mt-1">{{ transaction.amount }} MT</p>
+            </div>
+            <div class="bg-slate-50 rounded-2xl p-4">
+                <p class="text-slate-500 text-sm">Telefone</p>
+                <p class="font-black mt-1">{{ transaction.phone_number }}</p>
+            </div>
+            <div class="bg-slate-50 rounded-2xl p-4">
+                <p class="text-slate-500 text-sm">Provedor</p>
+                <p class="font-black mt-1">{% if transaction.external_reference %}{{ transaction.external_reference }}{% else %}Aguardando{% endif %}</p>
+            </div>
+        </div>
+
+        {% if transaction.checkout_url %}
+            <div class="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-4">
+                <p class="text-blue-800 font-semibold">O provedor devolveu um link de checkout.</p>
+                <a href="{{ transaction.checkout_url }}" target="_blank" class="inline-block mt-3 bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold">Abrir checkout</a>
+            </div>
+        {% endif %}
+
+        {% if transaction.error_message %}
+            <div class="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700 text-sm">
+                <strong>Erro:</strong> {{ transaction.error_message }}
+            </div>
+        {% endif %}
+
+        <div class="mt-8 flex flex-col md:flex-row gap-3 md:justify-end">
+            {% if transaction.status != 'paid' %}
+                <form method="post" action="/pagamentos/transaccao/{{ transaction.id }}/consultar/">
+                    {% csrf_token %}
+                    <button class="w-full md:w-auto px-5 py-3 rounded-xl border border-blue-200 text-blue-700 font-semibold hover:bg-blue-50">Consultar estado</button>
+                </form>
+                {% if can_simulate %}
+                    <form method="post" action="/pagamentos/transaccao/{{ transaction.id }}/simular-sucesso/">
+                        {% csrf_token %}
+                        <button class="w-full md:w-auto px-5 py-3 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700" onclick="return confirm('Simular pagamento confirmado?')">Simular confirmação</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+            <a href="/pagamentos/reserva/{{ booking.id }}/pagar/" class="px-5 py-3 rounded-xl border border-slate-300 text-center">Outros métodos</a>
+            <a href="/reservas/cliente/minhas-reservas/" class="px-5 py-3 rounded-xl bg-slate-900 text-white font-semibold text-center">Minhas reservas</a>
+        </div>
+    </div>
+
+    <div class="bg-slate-50 rounded-3xl border border-slate-200 p-6 mt-6 text-sm text-slate-600">
+        <strong>Nota operacional:</strong> em modo live, o estado deve ser actualizado automaticamente pelo webhook do provedor. Quando o pagamento fica confirmado, a +258 Guest cria a liquidação ao proprietário descontando a comissão. Em modo sandbox/local, use “Simular confirmação” apenas para testar o ciclo completo.
+    </div>
+</section>
+{% endblock %}

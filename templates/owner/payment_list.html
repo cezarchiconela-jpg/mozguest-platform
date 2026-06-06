@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Pagamentos Recebidos - +258 Guest{% endblock %}
+
+{% block content %}
+
+<section class="max-w-7xl mx-auto px-4 py-10">
+    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 mb-8">
+        <div>
+            <p class="text-sm font-semibold text-blue-700 mb-2">Financeiro</p>
+            <h1 class="text-3xl md:text-5xl font-black">Pagamentos recebidos</h1>
+            <p class="text-slate-600 mt-2 max-w-2xl">Consulte comprovativos, valores, comissões e estado de validação dos pagamentos das suas reservas.</p>
+        </div>
+        <a href="/pagamentos/proprietario/financeiro/" class="px-5 py-3 rounded-2xl bg-slate-900 text-white font-semibold text-center hover:bg-slate-800">Dashboard financeiro</a>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4 mb-7">
+        <div class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm">
+            <p class="text-sm text-slate-500">Comprovativos por validar</p>
+            <p class="text-3xl font-black text-blue-600 mt-1">{{ submitted_count }}</p>
+        </div>
+        <div class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm">
+            <p class="text-sm text-slate-500">Pagamentos confirmados</p>
+            <p class="text-3xl font-black text-emerald-600 mt-1">{{ confirmed_count }}</p>
+        </div>
+    </div>
+
+    <div class="flex flex-wrap gap-3 mb-6">
+        <a href="/pagamentos/proprietario/pagamentos/" class="px-4 py-2 rounded-xl border border-slate-300 {% if not status %}bg-blue-700 text-white{% else %}bg-white{% endif %}">Todos</a>
+        <a href="/pagamentos/proprietario/pagamentos/?status=submitted" class="px-4 py-2 rounded-xl border border-slate-300 {% if status == 'submitted' %}bg-blue-700 text-white{% else %}bg-white{% endif %}">Enviados</a>
+        <a href="/pagamentos/proprietario/pagamentos/?status=confirmed" class="px-4 py-2 rounded-xl border border-slate-300 {% if status == 'confirmed' %}bg-blue-700 text-white{% else %}bg-white{% endif %}">Confirmados</a>
+        <a href="/pagamentos/proprietario/pagamentos/?status=rejected" class="px-4 py-2 rounded-xl border border-slate-300 {% if status == 'rejected' %}bg-blue-700 text-white{% else %}bg-white{% endif %}">Rejeitados</a>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-slate-100">
+                <tr>
+                    <th class="text-left p-4">Reserva</th>
+                    <th class="text-left p-4">Cliente</th>
+                    <th class="text-left p-4">Método</th>
+                    <th class="text-left p-4">Referência</th>
+                    <th class="text-left p-4">Valor pago</th>
+                    <th class="text-left p-4">Comissão</th>
+                    <th class="text-left p-4">Valor proprietário</th>
+                    <th class="text-left p-4">Estado</th>
+                    <th class="text-right p-4">Comprovativo</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for payment in payments %}
+                    <tr class="border-t border-slate-200 align-top">
+                        <td class="p-4">
+                            <strong>#{{ payment.booking.id }}</strong><br>
+                            <span class="text-slate-500">{{ payment.booking.property.name }}</span><br>
+                            <span class="text-slate-500">{{ payment.booking.room.name }}</span>
+                        </td>
+                        <td class="p-4">{{ payment.booking.customer_name }}</td>
+                        <td class="p-4">{{ payment.get_payment_method_display }}</td>
+                        <td class="p-4">{% if payment.transaction_reference %}{{ payment.transaction_reference }}{% else %}<span class="text-slate-400">Não informada</span>{% endif %}</td>
+                        <td class="p-4">{{ payment.amount }} MT</td>
+                        <td class="p-4">{{ payment.platform_commission_amount }} MT</td>
+                        <td class="p-4 font-semibold">{{ payment.owner_amount }} MT</td>
+                        <td class="p-4">
+                            <span class="text-xs px-3 py-1 rounded-full font-semibold
+                                {% if payment.status == 'confirmed' %}bg-emerald-100 text-emerald-700
+                                {% elif payment.status == 'submitted' %}bg-blue-100 text-blue-700
+                                {% elif payment.status == 'rejected' %}bg-red-100 text-red-700
+                                {% else %}bg-slate-100 text-slate-700{% endif %}">
+                                {{ payment.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="p-4 text-right">
+                            {% if payment.proof %}
+                                <a href="{{ payment.proof.url }}" target="_blank" class="text-blue-700 font-semibold">Abrir</a>
+                            {% else %}
+                                <span class="text-slate-400">Sem anexo</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="9" class="p-8 text-center text-slate-600">
+                            Ainda não existem pagamentos registados.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}Liquidações aos Proprietários - +258 Guest{% endblock %}
+
+{% block content %}
+<section class="bg-gradient-to-br from-slate-950 via-emerald-950 to-blue-900 text-white">
+    <div class="max-w-7xl mx-auto px-4 py-10 md:py-14">
+        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div>
+                <span class="inline-flex bg-white/10 border border-white/15 px-4 py-2 rounded-full text-sm font-bold mb-4">
+                    Tesouraria +258 Guest
+                </span>
+                <h1 class="text-4xl md:text-5xl font-black leading-tight">Liquidações aos Proprietários</h1>
+                <p class="text-emerald-100 mt-3 max-w-3xl">
+                    Controle os valores que entraram na conta/carteira +258 Guest, a comissão retida e o saldo que deve ser pago a cada proprietário.
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <form method="post" action="/pagamentos/admin/liquidacoes/sincronizar/">
+                    {% csrf_token %}
+                    <button class="bg-white text-slate-900 px-5 py-3 rounded-xl font-bold hover:bg-slate-100">
+                        Sincronizar liquidações
+                    </button>
+                </form>
+                <a href="/pagamentos/admin/liquidacoes/exportar/?status={{ status }}" class="bg-emerald-500 text-white px-5 py-3 rounded-xl font-bold hover:bg-emerald-600">
+                    Exportar CSV
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-4 py-8">
+    <div class="grid md:grid-cols-4 gap-5 mb-8">
+        <a href="/pagamentos/admin/liquidacoes/?status=pending" class="bg-white rounded-3xl border border-amber-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-slate-500">Pendentes</p>
+            <h3 class="text-4xl font-black mt-2 text-amber-600">{{ pending_count }}</h3>
+            <p class="text-xs text-slate-500 mt-2">{{ pending_total }} MT a liquidar</p>
+        </a>
+        <a href="/pagamentos/admin/liquidacoes/?status=scheduled" class="bg-white rounded-3xl border border-blue-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-slate-500">Agendadas</p>
+            <h3 class="text-4xl font-black mt-2 text-blue-600">{{ scheduled_count }}</h3>
+            <p class="text-xs text-slate-500 mt-2">Incluídas no total pendente</p>
+        </a>
+        <a href="/pagamentos/admin/liquidacoes/?status=paid" class="bg-white rounded-3xl border border-emerald-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-slate-500">Liquidadas</p>
+            <h3 class="text-4xl font-black mt-2 text-emerald-700">{{ paid_count }}</h3>
+            <p class="text-xs text-slate-500 mt-2">{{ paid_total }} MT já pago</p>
+        </a>
+        <a href="/pagamentos/admin/liquidacoes/?status=held" class="bg-white rounded-3xl border border-red-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-slate-500">Retidas</p>
+            <h3 class="text-4xl font-black mt-2 text-red-600">{{ held_count }}</h3>
+            <p class="text-xs text-slate-500 mt-2">{{ held_total }} MT em análise</p>
+        </a>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5 mb-8">
+        <div class="bg-white rounded-3xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Total a liquidar</p>
+            <h3 class="text-3xl font-black text-amber-600 mt-2">{{ pending_total }} MT</h3>
+        </div>
+        <div class="bg-white rounded-3xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Comissão +258 Guest confirmada</p>
+            <h3 class="text-3xl font-black text-blue-700 mt-2">{{ total_commission }} MT</h3>
+        </div>
+        <div class="bg-white rounded-3xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Canceladas</p>
+            <h3 class="text-3xl font-black text-slate-700 mt-2">{{ cancelled_count }}</h3>
+        </div>
+    </div>
+
+    <form method="get" class="bg-white rounded-2xl border border-slate-200 p-5 mb-8">
+        <div class="grid md:grid-cols-4 gap-4">
+            <input type="text" name="q" value="{{ query }}" placeholder="Pesquisar proprietário, reserva, alojamento ou referência" class="md:col-span-2 px-4 py-3 rounded-xl border border-slate-300">
+            <select name="status" class="px-4 py-3 rounded-xl border border-slate-300">
+                <option value="all" {% if status == 'all' %}selected{% endif %}>Todos os estados</option>
+                {% for value,label in status_choices %}
+                    <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button class="bg-blue-700 text-white rounded-xl font-bold hover:bg-blue-800">Filtrar</button>
+        </div>
+    </form>
+
+    <div class="grid gap-5">
+        {% for payout in payouts %}
+            <article class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-6">
+                    <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-3 mb-3">
+                            <h2 class="text-2xl font-black">Liquidação #{{ payout.id }}</h2>
+                            <span class="text-xs px-3 py-1 rounded-full font-bold
+                                {% if payout.status == 'paid' %}bg-emerald-100 text-emerald-700
+                                {% elif payout.status == 'pending' or payout.status == 'scheduled' %}bg-amber-100 text-amber-700
+                                {% elif payout.status == 'held' %}bg-red-100 text-red-700
+                                {% else %}bg-slate-100 text-slate-700{% endif %}">
+                                {{ payout.get_status_display }}
+                            </span>
+                        </div>
+                        <p class="text-slate-700 font-semibold">
+                            {{ payout.owner.get_full_name|default:payout.owner.username }} · {{ payout.owner.email }}
+                        </p>
+                        <p class="text-sm text-slate-500 mt-1">
+                            Reserva #{{ payout.payment.booking.id }} · {{ payout.payment.booking.property.name }} · Cliente {{ payout.payment.booking.customer_name }}
+                        </p>
+                        <p class="text-xs text-slate-500 mt-1">
+                            Pagamento #{{ payout.payment.id }} · {{ payout.payment.get_payment_method_display }} · Ref. {{ payout.payment.transaction_reference|default:"sem referência" }}
+                        </p>
+                    </div>
+
+                    <div class="xl:text-right">
+                        <p class="text-sm text-slate-500">Valor líquido do proprietário</p>
+                        <p class="text-4xl font-black text-emerald-700">{{ payout.payout_amount }} MT</p>
+                        <p class="text-xs text-slate-500 mt-1">Cliente pagou {{ payout.gross_amount }} MT · comissão {{ payout.commission_amount }} MT</p>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-4 gap-4 mt-6 text-sm">
+                    <div class="bg-slate-50 rounded-2xl p-4">
+                        <p class="text-xs text-slate-500">Telefone proprietário</p>
+                        <strong>{{ payout.payout_phone|default:"não informado" }}</strong>
+                    </div>
+                    <div class="bg-slate-50 rounded-2xl p-4">
+                        <p class="text-xs text-slate-500">Método</p>
+                        <strong>{{ payout.get_method_display|default:"a definir" }}</strong>
+                    </div>
+                    <div class="bg-slate-50 rounded-2xl p-4">
+                        <p class="text-xs text-slate-500">Referência</p>
+                        <strong>{{ payout.payout_reference|default:"não informada" }}</strong>
+                    </div>
+                    <div class="bg-slate-50 rounded-2xl p-4">
+                        <p class="text-xs text-slate-500">Criada em</p>
+                        <strong>{{ payout.created_at|date:"d/m/Y H:i" }}</strong>
+                    </div>
+                </div>
+
+                {% if payout.admin_notes %}
+                    <div class="mt-5 bg-amber-50 border border-amber-100 rounded-2xl p-4 text-sm text-amber-900">
+                        <strong>Notas:</strong> {{ payout.admin_notes }}
+                    </div>
+                {% endif %}
+
+                {% if payout.status != 'paid' %}
+                    <div class="mt-6 grid lg:grid-cols-2 gap-4">
+                        <form method="post" action="/pagamentos/admin/liquidacoes/{{ payout.id }}/pagar/" class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4">
+                            {% csrf_token %}
+                            <h3 class="font-black text-emerald-900 mb-3">Marcar como liquidada</h3>
+                            <div class="grid md:grid-cols-3 gap-3">
+                                <select name="method" class="px-3 py-3 rounded-xl border border-emerald-200 bg-white">
+                                    <option value="mpesa" {% if payout.method == 'mpesa' %}selected{% endif %}>M-Pesa</option>
+                                    <option value="emola" {% if payout.method == 'emola' %}selected{% endif %}>e-Mola</option>
+                                    <option value="bank_transfer" {% if payout.method == 'bank_transfer' %}selected{% endif %}>Transferência</option>
+                                    <option value="cash" {% if payout.method == 'cash' %}selected{% endif %}>Numerário</option>
+                                    <option value="other" {% if payout.method == 'other' %}selected{% endif %}>Outro</option>
+                                </select>
+                                <input type="text" name="payout_reference" value="{{ payout.payout_reference }}" placeholder="Referência" class="px-3 py-3 rounded-xl border border-emerald-200 bg-white">
+                                <button class="bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700">Confirmar</button>
+                            </div>
+                            <textarea name="admin_notes" rows="2" placeholder="Notas internas opcionais" class="mt-3 w-full px-3 py-3 rounded-xl border border-emerald-200 bg-white">{{ payout.admin_notes }}</textarea>
+                        </form>
+
+                        <form method="post" action="/pagamentos/admin/liquidacoes/{{ payout.id }}/reter/" class="bg-red-50 border border-red-100 rounded-2xl p-4">
+                            {% csrf_token %}
+                            <h3 class="font-black text-red-900 mb-3">Reter para análise</h3>
+                            <textarea name="admin_notes" rows="3" placeholder="Motivo da retenção" class="w-full px-3 py-3 rounded-xl border border-red-200 bg-white">{{ payout.admin_notes }}</textarea>
+                            <button class="mt-3 bg-red-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-red-700">Colocar em retenção</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </article>
+        {% empty %}
+            <div class="bg-white rounded-3xl border border-slate-200 p-10 text-center">
+                <h2 class="text-2xl font-black mb-2">Nenhuma liquidação encontrada</h2>
+                <p class="text-slate-600 mb-5">As liquidações são criadas quando um pagamento do cliente é confirmado pela +258 Guest.</p>
+                <form method="post" action="/pagamentos/admin/liquidacoes/sincronizar/">
+                    {% csrf_token %}
+                    <button class="bg-blue-700 text-white px-5 py-3 rounded-xl font-bold hover:bg-blue-800">Sincronizar agora</button>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

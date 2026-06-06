@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Conversa #{{ conversation.booking.id }} - +258 Guest{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-4 py-6 md:py-10">
+    <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <a href="/mensagens/" class="text-blue-700 font-bold">← Voltar às mensagens</a>
+            <h1 class="text-3xl md:text-5xl font-black mt-3 tracking-tight">Reserva #{{ conversation.booking.id }}</h1>
+            <p class="text-slate-600 mt-1">{{ conversation.property.name }} · {{ conversation.booking.room.name }}</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            {% if whatsapp_url %}
+                <a href="{{ whatsapp_url }}" target="_blank" class="bg-green-600 text-white px-5 py-3 rounded-2xl font-bold hover:bg-green-700">WhatsApp</a>
+            {% endif %}
+            <a href="/suporte/novo/?booking={{ conversation.booking.id }}" class="bg-slate-900 text-white px-5 py-3 rounded-2xl font-bold hover:bg-slate-800">Abrir suporte</a>
+        </div>
+    </div>
+
+    <div class="mb-6 bg-white border border-slate-200 rounded-3xl p-5 grid md:grid-cols-4 gap-4 text-sm">
+        <div>
+            <span class="block text-slate-500">Estado</span>
+            <strong>{{ conversation.booking.get_status_display }}</strong>
+        </div>
+        <div>
+            <span class="block text-slate-500">Valor estimado</span>
+            <strong>{{ conversation.booking.estimated_amount|default:'A confirmar' }} MT</strong>
+        </div>
+        <div>
+            <span class="block text-slate-500">Mensagens</span>
+            <strong>{{ message_count }}</strong>
+        </div>
+        <div>
+            <span class="block text-slate-500">Próxima acção</span>
+            <strong>{{ next_action }}</strong>
+        </div>
+    </div>
+
+    <div class="grid lg:grid-cols-[1fr_380px] gap-6">
+        <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-700 to-slate-900 text-white p-5 flex items-center justify-between gap-4">
+                <div>
+                    <p class="text-blue-100 text-sm">Conversa com</p>
+                    <h2 class="text-xl font-black">{{ other_party_label }}</h2>
+                </div>
+                <span class="text-xs px-3 py-1 rounded-full bg-white/15">
+                    {{ conversation.booking.get_status_display }}
+                </span>
+            </div>
+
+            <div id="chatBox" class="space-y-4 p-5 md:p-6 max-h-[62vh] overflow-y-auto bg-slate-50">
+                {% for message in messages_qs %}
+                    <div class="flex {% if message.sender == user %}justify-end{% else %}justify-start{% endif %}">
+                        <div class="max-w-[88%] md:max-w-[72%] rounded-3xl px-5 py-4 shadow-sm
+                            {% if message.sender == user %}
+                                bg-blue-700 text-white rounded-br-md
+                            {% else %}
+                                bg-white text-slate-900 border border-slate-200 rounded-bl-md
+                            {% endif %}">
+                            <p class="whitespace-pre-line leading-relaxed">{{ message.text }}</p>
+                            <p class="text-xs mt-3 {% if message.sender == user %}text-blue-100{% else %}text-slate-500{% endif %}">
+                                {{ message.sender.username }} · {{ message.created_at }}
+                            </p>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="text-center text-slate-500 py-12">
+                        <div class="text-5xl mb-4">👋</div>
+                        <h2 class="text-xl font-black text-slate-800">Inicie a conversa</h2>
+                        <p>Use este espaço para combinar chegada, disponibilidade, pagamento ou dúvidas da reserva.</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="p-5 md:p-6 border-t border-slate-200 bg-white">
+                <div class="flex flex-wrap gap-2 mb-4">
+                    {% for reply in quick_replies %}
+                        <button type="button" data-reply="{{ reply }}" class="quick-reply text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-700 border border-slate-200 px-3 py-2 rounded-full">
+                            {{ reply|truncatechars:60 }}
+                        </button>
+                    {% endfor %}
+                </div>
+
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    {{ form.text }}
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <p class="text-xs text-slate-500">A outra parte recebe notificação interna e, se tiver e-mail, aviso automático.</p>
+                        <button class="bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold hover:bg-blue-800">
+                            Enviar mensagem
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <aside class="space-y-4">
+            <div class="bg-white rounded-3xl border border-slate-200 p-6">
+                <h2 class="text-xl font-black mb-4">Resumo da reserva</h2>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between gap-3"><span class="text-slate-500">Cliente</span><strong class="text-right">{{ conversation.booking.customer_name }}</strong></div>
+                    <div class="flex justify-between gap-3"><span class="text-slate-500">Telefone</span><strong class="text-right">{{ conversation.booking.customer_phone }}</strong></div>
+                    <div class="flex justify-between gap-3"><span class="text-slate-500">Entrada</span><strong class="text-right">{{ conversation.booking.checkin_date }} {{ conversation.booking.checkin_time|default:'' }}</strong></div>
+                    <div class="flex justify-between gap-3"><span class="text-slate-500">Saída</span><strong class="text-right">{{ conversation.booking.checkout_date|default:'A confirmar' }} {{ conversation.booking.checkout_time|default:'' }}</strong></div>
+                    <div class="flex justify-between gap-3"><span class="text-slate-500">Pessoas</span><strong class="text-right">{{ conversation.booking.number_of_guests }}</strong></div>
+                    <div class="flex justify-between gap-3 border-t border-slate-200 pt-3"><span class="text-slate-500">Valor</span><strong class="text-right text-blue-700">{{ conversation.booking.estimated_amount|default:'A confirmar' }} MT</strong></div>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-3xl p-6">
+                <h3 class="font-black text-blue-900 mb-2">Fluxo seguro</h3>
+                <ol class="text-sm text-blue-900 space-y-2">
+                    <li>1. Cliente envia pedido de reserva.</li>
+                    <li>2. Proprietário confirma disponibilidade.</li>
+                    <li>3. Cliente paga apenas após aceitação.</li>
+                    <li>4. Administração valida comprovativo.</li>
+                </ol>
+            </div>
+
+            <div class="bg-slate-900 text-white rounded-3xl p-6">
+                <h3 class="font-black mb-2">Boas práticas</h3>
+                <ul class="text-sm text-slate-300 space-y-2">
+                    <li>• Confirme sempre datas e hora de chegada.</li>
+                    <li>• Evite combinar pagamentos fora do fluxo da +258 Guest.</li>
+                    <li>• Use suporte se houver desacordo ou dúvida sensível.</li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+</section>
+
+<script>
+(function () {
+    const chatBox = document.getElementById('chatBox');
+    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+
+    const textarea = document.getElementById('id_text');
+    document.querySelectorAll('.quick-reply').forEach((button) => {
+        button.addEventListener('click', () => {
+            if (!textarea) return;
+            textarea.value = button.dataset.reply || '';
+            textarea.focus();
+        });
+    });
+})();
+</script>
+{% endblock %}

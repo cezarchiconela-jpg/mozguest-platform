@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Verificação de Proprietários - +258 Guest{% endblock %}
+{% block content %}
+<section class="max-w-[1500px] mx-auto px-4 py-8">
+  <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+    <div>
+      <p class="uppercase text-xs tracking-widest font-bold text-blue-700">+258 Admin</p>
+      <h1 class="text-3xl font-black">Verificação/KYC dos proprietários</h1>
+      <p class="text-slate-600 mt-2">Controle contas verificadas, rejeitadas ou suspensas antes de movimentar valores reais.</p>
+    </div>
+    <div class="grid grid-cols-4 gap-2 text-center text-sm">
+      <div class="bg-white border rounded-2xl p-3"><b>{{ pending_count }}</b><br>Pendentes</div>
+      <div class="bg-white border rounded-2xl p-3"><b>{{ verified_count }}</b><br>Verificados</div>
+      <div class="bg-white border rounded-2xl p-3"><b>{{ rejected_count }}</b><br>Rejeitados</div>
+      <div class="bg-white border rounded-2xl p-3"><b>{{ suspended_count }}</b><br>Suspensos</div>
+    </div>
+  </div>
+
+  <form class="bg-white rounded-3xl border p-4 mb-6 flex flex-wrap gap-3">
+    <input name="q" value="{{ query }}" placeholder="Pesquisar proprietário, email, NUIT..." class="flex-1 min-w-72 px-4 py-3 rounded-xl border">
+    <select name="status" class="px-4 py-3 rounded-xl border">
+      <option value="all" {% if status == 'all' %}selected{% endif %}>Todos</option>
+      {% for value,label in status_choices %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <button class="bg-slate-900 text-white px-5 py-3 rounded-xl font-bold">Filtrar</button>
+  </form>
+
+  <div class="grid gap-4">
+    {% for profile in owners %}
+      <article class="bg-white border rounded-3xl p-5 grid lg:grid-cols-[1.5fr_1fr_1fr] gap-5">
+        <div>
+          <h2 class="text-xl font-black">{{ profile.business_name|default:profile.user.username }}</h2>
+          <p class="text-sm text-slate-600">{{ profile.user.email }} · {{ profile.payment_phone }}</p>
+          <p class="text-sm mt-2">NUIT: <b>{{ profile.nuit|default:'—' }}</b> · Documento: <b>{{ profile.document_number|default:'—' }}</b></p>
+          <p class="mt-3 text-sm bg-slate-100 rounded-xl p-3">{{ profile.verification_notes|default:'Sem notas administrativas.' }}</p>
+        </div>
+        <div class="text-sm space-y-2">
+          <p><b>Estado:</b> {{ profile.get_verification_status_display }}</p>
+          <p><b>Preenchimento:</b> {{ profile.kyc_completion_percent }}%</p>
+          <p><b>M-Pesa:</b> {{ profile.payout_mpesa_phone|default:profile.payment_phone|default:'—' }}</p>
+          <p><b>e-Mola:</b> {{ profile.payout_emola_phone|default:'—' }}</p>
+          {% if profile.identity_document %}<a class="text-blue-700 font-bold" href="{{ profile.identity_document.url }}" target="_blank">Documento</a>{% endif %}
+          {% if profile.ownership_proof %}<a class="text-blue-700 font-bold ml-3" href="{{ profile.ownership_proof.url }}" target="_blank">Titularidade</a>{% endif %}
+        </div>
+        <form method="post" class="grid gap-2">
+          {% csrf_token %}
+          <textarea name="verification_notes" rows="2" placeholder="Notas administrativas" class="px-3 py-2 rounded-xl border text-sm"></textarea>
+          <button formaction="{% url 'admin_owner_verify' profile.id %}" class="bg-emerald-600 text-white rounded-xl py-2 font-bold">Verificar</button>
+          <button formaction="{% url 'admin_owner_reject' profile.id %}" class="bg-amber-600 text-white rounded-xl py-2 font-bold">Rejeitar</button>
+          <button formaction="{% url 'admin_owner_suspend' profile.id %}" class="bg-red-700 text-white rounded-xl py-2 font-bold">Suspender</button>
+        </form>
+      </article>
+    {% empty %}
+      <div class="bg-white border rounded-3xl p-8 text-center text-slate-600">Nenhum proprietário encontrado.</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

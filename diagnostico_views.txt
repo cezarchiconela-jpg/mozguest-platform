@@ -1,0 +1,82 @@
+=== PROPERTIES VIEWS ===
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:12:def is_owner_user(user):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:16:def owner_required(request):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:23:def get_min_price(property_obj):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:48:def get_main_photo(property_obj):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:57:def property_list(request):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:218:def property_detail(request, pk):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:251:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:252:def owner_property_list(request):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:263:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:264:def owner_property_create(request):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:288:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:289:def owner_property_edit(request, pk):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:314:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:315:def owner_room_list(request, property_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:328:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:329:def owner_room_create(request, property_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:371:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:372:def owner_room_edit(request, room_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:417:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:418:def owner_room_toggle(request, room_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:434:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:435:def owner_photo_create(request, property_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:470:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:471:def owner_photo_gallery(request, property_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:484:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:485:def owner_photo_set_main(request, photo_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:500:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\properties\views.py:501:def owner_photo_delete(request, photo_id):
+
+=== BOOKINGS VIEWS ===
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:10:def booking_create(request, room_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:105:def booking_success(request, booking_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:113:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:114:def client_booking_list(request):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:128:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:129:def owner_booking_list(request):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:147:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:148:def owner_booking_accept(request, booking_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:181:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:182:def owner_booking_reject(request, booking_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:196:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:197:def owner_booking_complete(request, booking_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:211:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:212:def client_booking_cancel(request, booking_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:228:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:229:def owner_availability_calendar(request, property_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:255:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:256:def owner_availability_block_create(request, property_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:278:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:279:def owner_availability_block_delete(request, block_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:294:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:295:def owner_availability_calendar(request, property_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:321:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:322:def owner_availability_block_create(request, property_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:344:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:345:def owner_availability_block_delete(request, block_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:360:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\bookings\views.py:361:def owner_availability_events(request, property_id):
+
+=== PAYMENTS VIEWS ===
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\payments\views.py:12:def is_staff_user(user):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\payments\views.py:16:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\payments\views.py:17:def submit_payment(request, booking_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\payments\views.py:60:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\payments\views.py:61:def owner_payment_list(request):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\payments\views.py:75:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\payments\views.py:76:def owner_finance_dashboard(request):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\payments\views.py:130:@user_passes_test(is_staff_user)
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\payments\views.py:131:def admin_finance_dashboard(request):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\payments\views.py:199:@user_passes_test(is_staff_user)
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\payments\views.py:200:def admin_finance_export_csv(request):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\payments\views.py:262:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\payments\views.py:263:def owner_finance_export_csv(request):
+
+=== REVIEWS VIEWS ===
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\reviews\views.py:10:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\reviews\views.py:11:def create_review(request, property_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\reviews\views.py:45:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\reviews\views.py:46:def favorite_toggle(request, property_id):
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\reviews\views.py:69:@login_required
+C:\Users\Win10\Desktop\MOZGUEST\mozguest_platform_limpo\reviews\views.py:70:def favorite_list(request):

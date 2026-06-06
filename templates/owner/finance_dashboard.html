@@ -1,0 +1,189 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}Financeiro do Proprietário - +258 Guest{% endblock %}
+
+{% block content %}
+
+<section class="max-w-7xl mx-auto px-4 py-10">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-4xl font-bold">Financeiro do Proprietário</h1>
+            <p class="text-slate-600 mt-2">
+                Consulte receitas, comissões e valores líquidos das suas propriedades.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <a href="/pagamentos/proprietario/liquidacoes/" class="bg-slate-900 text-white px-5 py-3 rounded-xl font-semibold hover:bg-slate-800">
+                Ver liquidações
+            </a>
+            <a href="/pagamentos/proprietario/financeiro/exportar/?status={{ status|default:'' }}&start_date={{ start_date|default:'' }}&end_date={{ end_date|default:'' }}" class="bg-emerald-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-emerald-700">
+                Exportar CSV
+            </a>
+        </div>
+    </div>
+
+    <form method="get" class="bg-white rounded-2xl border border-slate-200 p-5 mb-8">
+        <div class="grid md:grid-cols-4 gap-4">
+            <select name="status" class="px-4 py-3 rounded-xl border border-slate-300">
+                <option value="">Todos os estados</option>
+                <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pendente</option>
+                <option value="submitted" {% if status == 'submitted' %}selected{% endif %}>Comprovativo enviado</option>
+                <option value="confirmed" {% if status == 'confirmed' %}selected{% endif %}>Confirmado</option>
+                <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Rejeitado</option>
+            </select>
+
+            <input type="date" name="start_date" value="{{ start_date|default:'' }}" class="px-4 py-3 rounded-xl border border-slate-300">
+
+            <input type="date" name="end_date" value="{{ end_date|default:'' }}" class="px-4 py-3 rounded-xl border border-slate-300">
+
+            <button class="bg-blue-700 text-white rounded-xl font-semibold hover:bg-blue-800">
+                Filtrar
+            </button>
+        </div>
+    </form>
+
+    <div class="grid md:grid-cols-3 gap-5 mb-8">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Total pago</p>
+            <h3 class="text-3xl font-bold mt-2">{{ total_amount }} MT</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Comissão +258 Guest</p>
+            <h3 class="text-3xl font-bold mt-2 text-blue-700">{{ total_commission }} MT</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Valor líquido do proprietário</p>
+            <h3 class="text-3xl font-bold mt-2 text-emerald-700">{{ total_owner_amount }} MT</h3>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5 mb-8">
+        <a href="/pagamentos/proprietario/liquidacoes/?status=pending" class="bg-amber-50 rounded-2xl border border-amber-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-amber-700">A receber da +258 Guest</p>
+            <h3 class="text-3xl font-bold mt-2 text-amber-700">{{ payout_pending_total }} MT</h3>
+            <p class="text-xs text-amber-700 mt-2">{{ payout_pending_count }} liquidação(ões) pendente(s)</p>
+        </a>
+
+        <a href="/pagamentos/proprietario/liquidacoes/?status=paid" class="bg-emerald-50 rounded-2xl border border-emerald-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-emerald-700">Já recebido</p>
+            <h3 class="text-3xl font-bold mt-2 text-emerald-700">{{ payout_paid_total }} MT</h3>
+            <p class="text-xs text-emerald-700 mt-2">{{ payout_paid_count }} liquidação(ões) pagas</p>
+        </a>
+
+        <a href="/pagamentos/proprietario/liquidacoes/?status=held" class="bg-red-50 rounded-2xl border border-red-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-red-700">Em retenção</p>
+            <h3 class="text-3xl font-bold mt-2 text-red-700">{{ payout_held_total }} MT</h3>
+            <p class="text-xs text-red-700 mt-2">{{ payout_held_count }} item(ns) em análise</p>
+        </a>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5 mb-10">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Pagamentos confirmados</p>
+            <h3 class="text-2xl font-bold mt-2 text-emerald-600">{{ confirmed_payments }}</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Pendentes / enviados</p>
+            <h3 class="text-2xl font-bold mt-2 text-amber-600">{{ pending_payments }}</h3>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Rejeitados</p>
+            <h3 class="text-2xl font-bold mt-2 text-red-600">{{ rejected_payments }}</h3>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8 mb-10">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <h2 class="text-2xl font-bold mb-5">Resumo por propriedade</h2>
+
+            <div class="space-y-3">
+                {% for item in property_summary %}
+                    <div class="border border-slate-200 rounded-xl p-4">
+                        <div class="flex justify-between gap-4">
+                            <div>
+                                <h3 class="font-bold">{{ item.booking__property__name }}</h3>
+                                <p class="text-sm text-slate-500">{{ item.total_payments }} pagamento(s)</p>
+                            </div>
+
+                            <div class="text-right">
+                                <p class="font-bold">{{ item.total_owner }} MT</p>
+                                <p class="text-xs text-slate-500">líquido</p>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-slate-600">Ainda não há dados financeiros por propriedade.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <h2 class="text-2xl font-bold mb-5">Últimos pagamentos</h2>
+
+            <div class="space-y-3">
+                {% for payment in payments|slice:":8" %}
+                    <div class="border border-slate-200 rounded-xl p-4">
+                        <div class="flex justify-between gap-4">
+                            <div>
+                                <h3 class="font-bold">Reserva #{{ payment.booking.id }}</h3>
+                                <p class="text-sm text-slate-500">{{ payment.booking.property.name }} · {{ payment.booking.customer_name }}</p>
+                            </div>
+
+                            <div class="text-right">
+                                <p class="font-bold">{{ payment.owner_amount }} MT</p>
+                                <p class="text-xs text-slate-500">{{ payment.get_status_display }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-slate-600">Ainda não existem pagamentos.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-slate-100">
+                <tr>
+                    <th class="text-left p-4">Reserva</th>
+                    <th class="text-left p-4">Cliente</th>
+                    <th class="text-left p-4">Propriedade</th>
+                    <th class="text-left p-4">Método</th>
+                    <th class="text-left p-4">Valor pago</th>
+                    <th class="text-left p-4">Comissão</th>
+                    <th class="text-left p-4">Valor líquido</th>
+                    <th class="text-left p-4">Estado</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for payment in payments %}
+                    <tr class="border-t border-slate-200">
+                        <td class="p-4">#{{ payment.booking.id }}</td>
+                        <td class="p-4">{{ payment.booking.customer_name }}</td>
+                        <td class="p-4">{{ payment.booking.property.name }}</td>
+                        <td class="p-4">{{ payment.get_payment_method_display }}</td>
+                        <td class="p-4">{{ payment.amount }} MT</td>
+                        <td class="p-4">{{ payment.platform_commission_amount }} MT</td>
+                        <td class="p-4 font-semibold">{{ payment.owner_amount }} MT</td>
+                        <td class="p-4">{{ payment.get_status_display }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" class="p-8 text-center text-slate-600">
+                            Nenhum pagamento encontrado.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}

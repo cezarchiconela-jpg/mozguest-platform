@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block title %}Centro Operacional +258 Guest{% endblock %}
+
+{% block content %}
+
+<section class="bg-gradient-to-br from-slate-950 via-blue-950 to-blue-800 text-white">
+    <div class="max-w-7xl mx-auto px-4 py-10 md:py-14">
+        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div>
+                <span class="inline-flex bg-white/10 border border-white/15 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                    Painel central de operação
+                </span>
+                <h1 class="text-4xl md:text-5xl font-black leading-tight">Centro Operacional +258 Guest</h1>
+                <p class="text-blue-100 mt-3 max-w-3xl">
+                    Acompanhe propriedades, reservas, pagamentos, avaliações, suporte e pontos que exigem acção imediata antes da plataforma avançar para operação efectiva.
+                </p>
+            </div>
+
+            <div class="bg-white text-slate-900 rounded-3xl p-5 shadow-xl min-w-[260px]">
+                <p class="text-sm text-slate-500">Acções pendentes agora</p>
+                <div class="flex items-end justify-between gap-4 mt-2">
+                    <strong class="text-5xl font-black text-red-600">{{ urgent_action_count }}</strong>
+                    <span class="text-xs bg-red-50 text-red-700 px-3 py-1 rounded-full font-bold">atenção</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-3">Soma de propriedades, reservas, pagamentos, avaliações e liquidações pendentes.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-4 py-8">
+    <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-5 mb-8">
+        <a href="/258-admin/propriedades/?status=pending" class="bg-white rounded-3xl border border-slate-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-slate-500">Propriedades pendentes</p>
+            <h3 class="text-4xl font-black mt-2 text-amber-600">{{ pending_properties }}</h3>
+            <p class="text-xs text-slate-500 mt-2">Aprovação necessária</p>
+        </a>
+
+        <a href="/258-admin/reservas/?status=pending" class="bg-white rounded-3xl border border-slate-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-slate-500">Reservas pendentes</p>
+            <h3 class="text-4xl font-black mt-2 text-amber-600">{{ pending_bookings }}</h3>
+            <p class="text-xs text-slate-500 mt-2">Aguardam resposta do proprietário</p>
+        </a>
+
+        <a href="/258-admin/pagamentos/?status=submitted" class="bg-white rounded-3xl border border-slate-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-slate-500">Pagamentos enviados</p>
+            <h3 class="text-4xl font-black mt-2 text-blue-600">{{ submitted_payments }}</h3>
+            <p class="text-xs text-slate-500 mt-2">Comprovativos por validar</p>
+        </a>
+
+        <a href="/258-admin/avaliacoes/" class="bg-white rounded-3xl border border-slate-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-slate-500">Avaliações pendentes</p>
+            <h3 class="text-4xl font-black mt-2 text-amber-600">{{ pending_reviews }}</h3>
+            <p class="text-xs text-slate-500 mt-2">Moderação necessária</p>
+        </a>
+
+        <a href="/pagamentos/admin/liquidacoes/?status=pending" class="bg-white rounded-3xl border border-slate-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-slate-500">Liquidações pendentes</p>
+            <h3 class="text-4xl font-black mt-2 text-emerald-600">{{ pending_payouts }}</h3>
+            <p class="text-xs text-slate-500 mt-2">Valores a pagar aos proprietários</p>
+        </a>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-5 mb-8">
+        <div class="bg-white rounded-3xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Utilizadores</p>
+            <h3 class="text-3xl font-black mt-2">{{ total_users }}</h3>
+            <p class="text-xs text-slate-500 mt-2">{{ total_clients }} clientes · {{ total_owners }} proprietários</p>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Propriedades aprovadas</p>
+            <h3 class="text-3xl font-black mt-2 text-emerald-600">{{ approved_properties }}</h3>
+            <p class="text-xs text-slate-500 mt-2">{{ featured_properties }} em destaque</p>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Reservas totais</p>
+            <h3 class="text-3xl font-black mt-2">{{ total_bookings }}</h3>
+            <p class="text-xs text-slate-500 mt-2">{{ accepted_bookings }} aceites · {{ completed_bookings }} concluídas</p>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Unidades/quartos</p>
+            <h3 class="text-3xl font-black mt-2 text-blue-700">{{ total_rooms }}</h3>
+            <p class="text-xs text-slate-500 mt-2">Ligadas às propriedades</p>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-5 mb-10">
+        <div class="bg-white rounded-3xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Total pago confirmado</p>
+            <h3 class="text-3xl font-black mt-2">{{ total_paid }} MT</h3>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Comissão +258 Guest</p>
+            <h3 class="text-3xl font-black mt-2 text-blue-700">{{ total_commission }} MT</h3>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200 p-6">
+            <p class="text-sm text-slate-500">Valor dos proprietários</p>
+            <h3 class="text-3xl font-black mt-2 text-emerald-700">{{ total_owner_amount }} MT</h3>
+        </div>
+
+        <a href="/pagamentos/admin/liquidacoes/" class="bg-white rounded-3xl border border-slate-200 p-6 hover:shadow-lg transition">
+            <p class="text-sm text-slate-500">A liquidar agora</p>
+            <h3 class="text-3xl font-black mt-2 text-amber-600">{{ total_payout_pending }} MT</h3>
+            <p class="text-xs text-slate-500 mt-2">{{ total_payout_paid }} MT já liquidado</p>
+        </a>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8 mb-10">
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 lg:col-span-1">
+            <h2 class="text-2xl font-black mb-5">Acções rápidas</h2>
+            <div class="grid gap-3">
+                <a href="/258-admin/propriedades/?status=pending" class="p-4 rounded-2xl bg-amber-50 hover:bg-amber-100 font-semibold text-amber-800">Aprovar propriedades</a>
+                <a href="/258-admin/reservas/" class="p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 font-semibold">Ver todas as reservas</a>
+                <a href="/258-admin/pagamentos/?status=submitted" class="p-4 rounded-2xl bg-blue-50 hover:bg-blue-100 font-semibold text-blue-800">Validar comprovativos</a>
+                <a href="/pagamentos/admin/transaccoes/" class="p-4 rounded-2xl bg-indigo-50 hover:bg-indigo-100 font-semibold text-indigo-800">Transacções online</a>
+                <a href="/pagamentos/admin/liquidacoes/" class="p-4 rounded-2xl bg-emerald-50 hover:bg-emerald-100 font-semibold text-emerald-800">Liquidar proprietários</a>
+                <a href="/pagamentos/admin/financeiro/" class="p-4 rounded-2xl bg-emerald-50 hover:bg-emerald-100 font-semibold text-emerald-800">Relatório financeiro</a>
+                <a href="/258-admin/suporte/" class="p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 font-semibold">Tickets de suporte</a>
+                <a href="/admin/" class="p-4 rounded-2xl bg-slate-900 text-white hover:bg-slate-800 font-semibold">Abrir Django Admin</a>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 lg:col-span-2">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-2xl font-black">Resumo operacional</h2>
+                <a href="/258-admin/reservas/" class="text-blue-700 font-semibold">Ver reservas</a>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                <div class="rounded-2xl bg-slate-50 p-4 flex justify-between"><span>Reservas aceites</span><strong>{{ accepted_bookings }}</strong></div>
+                <div class="rounded-2xl bg-slate-50 p-4 flex justify-between"><span>Reservas concluídas</span><strong>{{ completed_bookings }}</strong></div>
+                <div class="rounded-2xl bg-slate-50 p-4 flex justify-between"><span>Reservas canceladas</span><strong>{{ cancelled_bookings }}</strong></div>
+                <div class="rounded-2xl bg-slate-50 p-4 flex justify-between"><span>Reservas rejeitadas</span><strong>{{ rejected_bookings }}</strong></div>
+                <div class="rounded-2xl bg-slate-50 p-4 flex justify-between"><span>Pagamentos confirmados</span><strong>{{ confirmed_payments }}</strong></div>
+                <div class="rounded-2xl bg-slate-50 p-4 flex justify-between"><span>Pagamentos rejeitados</span><strong>{{ rejected_payments }}</strong></div>
+                <div class="rounded-2xl bg-slate-50 p-4 flex justify-between"><span>Liquidações pendentes</span><strong>{{ pending_payouts }}</strong></div>
+                <div class="rounded-2xl bg-slate-50 p-4 flex justify-between"><span>Liquidações pagas</span><strong>{{ paid_payouts }}</strong></div>
+                <div class="rounded-2xl bg-slate-50 p-4 flex justify-between"><span>Propriedades rejeitadas</span><strong>{{ rejected_properties }}</strong></div>
+                <div class="rounded-2xl bg-slate-50 p-4 flex justify-between"><span>Propriedades suspensas</span><strong>{{ suspended_properties }}</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-8 mb-10">
+        <div class="bg-white rounded-3xl border border-slate-200 p-6">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-2xl font-black">Reservas recentes</h2>
+                <a href="/258-admin/reservas/" class="text-blue-700 font-semibold">Ver todas</a>
+            </div>
+            <div class="space-y-3">
+                {% for booking in recent_bookings %}
+                    <div class="border border-slate-200 rounded-2xl p-4">
+                        <div class="flex justify-between gap-4">
+                            <div>
+                                <strong>#{{ booking.id }} · {{ booking.customer_name }}</strong>
+                                <p class="text-sm text-slate-500">{{ booking.property.name }} · {{ booking.room.name }}</p>
+                            </div>
+                            <span class="text-xs px-3 py-1 rounded-full font-semibold h-fit
+                                {% if booking.status == 'accepted' %}bg-emerald-100 text-emerald-700
+                                {% elif booking.status == 'pending' %}bg-amber-100 text-amber-700
+                                {% elif booking.status == 'rejected' %}bg-red-100 text-red-700
+                                {% elif booking.status == 'completed' %}bg-blue-100 text-blue-700
+                                {% else %}bg-slate-100 text-slate-700{% endif %}">
+                                {{ booking.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-slate-600">Ainda não existem reservas.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200 p-6">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-2xl font-black">Propriedades recentes</h2>
+                <a href="/258-admin/propriedades/?status=all" class="text-blue-700 font-semibold">Ver todas</a>
+            </div>
+            <div class="space-y-3">
+                {% for property in recent_properties %}
+                    <div class="border border-slate-200 rounded-2xl p-4 flex justify-between gap-4">
+                        <div>
+                            <strong>{{ property.name }}</strong>
+                            <p class="text-sm text-slate-500">{{ property.city }} · {{ property.owner.username }}</p>
+                            <p class="text-xs text-slate-400">{{ property.rooms.count }} unidade(s) · {{ property.photos.count }} foto(s)</p>
+                        </div>
+                        <span class="text-xs px-3 py-1 rounded-full font-semibold h-fit
+                            {% if property.status == 'approved' %}bg-emerald-100 text-emerald-700
+                            {% elif property.status == 'pending' %}bg-amber-100 text-amber-700
+                            {% elif property.status == 'rejected' %}bg-red-100 text-red-700
+                            {% else %}bg-slate-100 text-slate-700{% endif %}">
+                            {{ property.get_status_display }}
+                        </span>
+                    </div>
+                {% empty %}
+                    <p class="text-slate-600">Ainda não existem propriedades.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-8">
+        <div class="bg-white rounded-3xl border border-slate-200 p-6">
+            <h2 class="text-2xl font-black mb-5">Propriedades sem fotografias</h2>
+            <div class="space-y-3">
+                {% for property in properties_without_photos %}
+                    <div class="border border-amber-200 bg-amber-50 rounded-2xl p-4">
+                        <strong>{{ property.name }}</strong>
+                        <p class="text-sm text-amber-800">{{ property.city }} · {{ property.owner.username }}</p>
+                    </div>
+                {% empty %}
+                    <p class="text-slate-600">Nenhum alerta deste tipo.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200 p-6">
+            <h2 class="text-2xl font-black mb-5">Propriedades sem quartos/unidades</h2>
+            <div class="space-y-3">
+                {% for property in properties_without_rooms %}
+                    <div class="border border-amber-200 bg-amber-50 rounded-2xl p-4">
+                        <strong>{{ property.name }}</strong>
+                        <p class="text-sm text-amber-800">{{ property.city }} · {{ property.owner.username }}</p>
+                    </div>
+                {% empty %}
+                    <p class="text-slate-600">Nenhum alerta deste tipo.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

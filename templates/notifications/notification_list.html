@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}Central - +258 Guest{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-4 py-10">
+    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 mb-8">
+        <div>
+            <span class="inline-flex bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-bold mb-4">🔔 Central +258 Guest</span>
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight">Notificações, mensagens e acções</h1>
+            <p class="text-slate-600 mt-2 max-w-2xl">
+                Acompanhe reservas, pagamentos, mensagens, suporte e decisões administrativas num único lugar operacional.
+            </p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3">
+            <a href="/mensagens/" class="bg-white border border-slate-300 text-slate-900 px-5 py-3 rounded-2xl font-bold hover:bg-slate-50 text-center">Mensagens</a>
+            <form method="post" action="/notificacoes/marcar-todas/">
+                {% csrf_token %}
+                <button class="w-full bg-slate-900 text-white px-5 py-3 rounded-2xl font-bold hover:bg-slate-800">
+                    Marcar todas como lidas
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {% if urgent_unread_count %}
+        <div class="mb-6 bg-amber-50 border border-amber-200 text-amber-900 rounded-3xl p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div>
+                <h2 class="font-black text-lg">Existem {{ urgent_unread_count }} alerta(s) operacional(is) por ler</h2>
+                <p class="text-sm">Priorize notificações de reservas e pagamentos para evitar atrasos na operação.</p>
+            </div>
+            <a href="/notificacoes/?estado=nao_lidas" class="bg-amber-600 text-white px-5 py-3 rounded-2xl font-bold text-center">Ver não lidas</a>
+        </div>
+    {% endif %}
+
+    <div class="grid md:grid-cols-5 gap-4 mb-6">
+        <a href="/notificacoes/" class="bg-white rounded-3xl border border-slate-200 p-5 hover:shadow-lg transition {% if not status and not notification_type and not q %}ring-2 ring-blue-600{% endif %}">
+            <p class="text-sm text-slate-500">Total</p>
+            <p class="text-3xl font-black">{{ total_count }}</p>
+        </a>
+        <a href="/notificacoes/?estado=nao_lidas" class="bg-white rounded-3xl border border-slate-200 p-5 hover:shadow-lg transition {% if status == 'nao_lidas' %}ring-2 ring-blue-600{% endif %}">
+            <p class="text-sm text-slate-500">Não lidas</p>
+            <p class="text-3xl font-black text-blue-700">{{ unread_count_page }}</p>
+        </a>
+        <a href="/notificacoes/?tipo=booking" class="bg-white rounded-3xl border border-slate-200 p-5 hover:shadow-lg transition {% if notification_type == 'booking' %}ring-2 ring-blue-600{% endif %}">
+            <p class="text-sm text-slate-500">Reservas</p>
+            <p class="text-3xl font-black text-amber-600">{{ booking_count }}</p>
+        </a>
+        <a href="/notificacoes/?tipo=payment" class="bg-white rounded-3xl border border-slate-200 p-5 hover:shadow-lg transition {% if notification_type == 'payment' %}ring-2 ring-blue-600{% endif %}">
+            <p class="text-sm text-slate-500">Pagamentos</p>
+            <p class="text-3xl font-black text-emerald-600">{{ payment_count }}</p>
+        </a>
+        <a href="/suporte/" class="bg-slate-900 rounded-3xl border border-slate-900 p-5 hover:shadow-lg transition text-white">
+            <p class="text-sm text-slate-300">Suporte</p>
+            <p class="text-xl font-black">Abrir</p>
+        </a>
+    </div>
+
+    <form method="get" class="bg-white rounded-3xl border border-slate-200 p-4 mb-6 grid lg:grid-cols-[1.5fr_1fr_1fr_auto_auto] gap-3">
+        <input type="text" name="q" value="{{ q }}" placeholder="Pesquisar por título, mensagem ou link..." class="px-4 py-3 rounded-2xl border border-slate-300">
+        <select name="estado" class="px-4 py-3 rounded-2xl border border-slate-300">
+            <option value="">Todos os estados</option>
+            <option value="nao_lidas" {% if status == 'nao_lidas' %}selected{% endif %}>Não lidas</option>
+            <option value="lidas" {% if status == 'lidas' %}selected{% endif %}>Lidas</option>
+        </select>
+        <select name="tipo" class="px-4 py-3 rounded-2xl border border-slate-300">
+            <option value="">Todos os tipos</option>
+            {% for value,label in type_choices %}
+                <option value="{{ value }}" {% if notification_type == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button class="bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold hover:bg-blue-800">Filtrar</button>
+        <a href="/notificacoes/" class="px-6 py-3 rounded-2xl border border-slate-300 text-center font-semibold">Limpar</a>
+    </form>
+
+    <div class="grid lg:grid-cols-[1fr_320px] gap-6">
+        <div class="space-y-4">
+            {% for notification in notifications %}
+                <a href="/notificacoes/{{ notification.id }}/ler/" class="block rounded-3xl border p-5 hover:shadow-xl transition
+                    {% if not notification.is_read %}bg-blue-50 border-blue-300{% else %}bg-white border-slate-200{% endif %}">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="min-w-0">
+                            <div class="flex flex-wrap items-center gap-2 mb-2">
+                                <span class="text-xs px-3 py-1 rounded-full
+                                    {% if notification.notification_type == 'booking' %}bg-amber-100 text-amber-700
+                                    {% elif notification.notification_type == 'payment' %}bg-emerald-100 text-emerald-700
+                                    {% elif notification.notification_type == 'property' %}bg-blue-100 text-blue-700
+                                    {% elif notification.notification_type == 'review' %}bg-purple-100 text-purple-700
+                                    {% else %}bg-slate-100 text-slate-700{% endif %}">
+                                    {{ notification.get_notification_type_display }}
+                                </span>
+                                {% if not notification.is_read %}
+                                    <span class="text-xs bg-blue-700 text-white px-3 py-1 rounded-full font-bold">Nova</span>
+                                {% endif %}
+                            </div>
+                            <h3 class="font-black text-lg">{{ notification.title }}</h3>
+                            <p class="text-slate-600 mt-2">{{ notification.message }}</p>
+                            <p class="text-xs text-slate-400 mt-3">{{ notification.created_at }}</p>
+                        </div>
+                        <span class="text-blue-700 font-bold text-sm whitespace-nowrap">Abrir</span>
+                    </div>
+                </a>
+            {% empty %}
+                <div class="bg-white rounded-3xl p-10 text-center border border-dashed border-slate-300">
+                    <div class="text-5xl mb-4">🔕</div>
+                    <h2 class="text-2xl font-black mb-2">Sem notificações</h2>
+                    <p class="text-slate-600">Quando houver reservas, pagamentos, mensagens ou suporte, os alertas aparecerão aqui.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <aside class="space-y-4">
+            <div class="bg-white border border-slate-200 rounded-3xl p-6">
+                <h2 class="font-black text-xl mb-4">Resumo rápido</h2>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between"><span>Reservas</span><strong>{{ booking_count }}</strong></div>
+                    <div class="flex justify-between"><span>Pagamentos</span><strong>{{ payment_count }}</strong></div>
+                    <div class="flex justify-between"><span>Propriedades</span><strong>{{ property_count }}</strong></div>
+                    <div class="flex justify-between"><span>Avaliações</span><strong>{{ review_count }}</strong></div>
+                    <div class="flex justify-between"><span>Sistema/Suporte</span><strong>{{ system_count }}</strong></div>
+                </div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-3xl p-6">
+                <h2 class="font-black text-xl mb-4">Últimas não lidas</h2>
+                <div class="space-y-3">
+                    {% for item in latest_unread %}
+                        <a href="/notificacoes/{{ item.id }}/ler/" class="block text-sm border-b border-slate-100 pb-3 last:border-b-0">
+                            <strong class="block">{{ item.title|truncatechars:46 }}</strong>
+                            <span class="text-slate-500">{{ item.created_at }}</span>
+                        </a>
+                    {% empty %}
+                        <p class="text-sm text-slate-500">Sem notificações pendentes.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="bg-slate-900 text-white rounded-3xl p-6">
+                <h3 class="font-black mb-2">Rotina diária recomendada</h3>
+                <ol class="text-sm text-slate-300 space-y-2">
+                    <li>1. Ver reservas pendentes.</li>
+                    <li>2. Validar comprovativos enviados.</li>
+                    <li>3. Responder mensagens novas.</li>
+                    <li>4. Resolver tickets urgentes.</li>
+                </ol>
+            </div>
+        </aside>
+    </div>
+</section>
+{% endblock %}

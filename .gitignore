@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+
+# Django/local data
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+logs/
+backups/
+.env
+.env.*.local
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Test/cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build artifacts
+*.zip
+
+.env
+db.sqlite3
+media/
+staticfiles/
+.venv/
+venv/
+logs/
+backups/
+__pycache__/
+*.pyc

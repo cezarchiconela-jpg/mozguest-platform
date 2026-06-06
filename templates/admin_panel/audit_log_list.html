@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Auditoria Operacional - +258 Guest{% endblock %}
+{% block content %}
+<section class="max-w-[1500px] mx-auto px-4 py-8">
+  <div class="mb-6">
+    <p class="uppercase text-xs tracking-widest font-bold text-blue-700">+258 Admin</p>
+    <h1 class="text-3xl font-black">Auditoria operacional</h1>
+    <p class="text-slate-600 mt-2">Registo das acções sensíveis realizadas na plataforma. Total registado: {{ total_count }}.</p>
+  </div>
+
+  <form class="bg-white rounded-3xl border p-4 mb-6 flex flex-wrap gap-3">
+    <input name="q" value="{{ query }}" placeholder="Pesquisar utilizador, alvo, mensagem..." class="flex-1 min-w-72 px-4 py-3 rounded-xl border">
+    <select name="action" class="px-4 py-3 rounded-xl border"><option value="">Todas acções</option>{% for value,label in action_choices %}<option value="{{ value }}" {% if action == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    <button class="bg-slate-900 text-white px-5 py-3 rounded-xl font-bold">Filtrar</button>
+  </form>
+
+  <div class="bg-white rounded-3xl border overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-100"><tr><th class="p-3 text-left">Data</th><th class="p-3 text-left">Utilizador</th><th class="p-3 text-left">Acção</th><th class="p-3 text-left">Alvo</th><th class="p-3 text-left">Mensagem</th><th class="p-3 text-left">IP</th></tr></thead>
+      <tbody>
+      {% for log in logs %}<tr class="border-t align-top"><td class="p-3 whitespace-nowrap">{{ log.created_at|date:'d/m/Y H:i' }}</td><td class="p-3">{{ log.actor|default:'Sistema' }}</td><td class="p-3 font-bold">{{ log.get_action_display }}</td><td class="p-3">{{ log.target_model }} #{{ log.target_id }}<br><span class="text-slate-500">{{ log.target_repr }}</span></td><td class="p-3">{{ log.message }}</td><td class="p-3">{{ log.ip_address|default:'—' }}</td></tr>{% empty %}<tr><td colspan="6" class="p-8 text-center text-slate-500">Sem registos.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

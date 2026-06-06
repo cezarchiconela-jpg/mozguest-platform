@@ -1,0 +1,374 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ property.name }} - +258 Guest{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block content %}
+
+<section class="bg-gradient-to-br from-blue-950 via-blue-900 to-slate-950 text-white">
+    <div class="max-w-7xl mx-auto px-4 py-6 md:py-10">
+        <a href="/properties/explorar/" class="inline-flex items-center gap-2 text-blue-100 hover:text-white font-semibold mb-5">← Voltar à pesquisa</a>
+
+        <div class="grid lg:grid-cols-5 gap-8 items-end">
+            <div class="lg:col-span-3">
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="bg-white/15 border border-white/15 px-3 py-1 rounded-full text-xs font-bold">{{ property.get_property_type_display }}</span>
+                    {% if property.is_verified %}<span class="bg-emerald-400/20 border border-emerald-200/30 text-emerald-50 px-3 py-1 rounded-full text-xs font-bold">✓ Verificado</span>{% endif %}
+                    {% if property.is_featured %}<span class="bg-amber-400/20 border border-amber-200/30 text-amber-50 px-3 py-1 rounded-full text-xs font-bold">Destaque +258 Guest</span>{% endif %}
+                </div>
+
+                <h1 class="text-3xl md:text-6xl font-black leading-tight">{{ property.name }}</h1>
+
+                <p class="text-blue-50 mt-4 text-base md:text-lg">
+                    {{ property.city }}{% if property.neighbourhood %}, {{ property.neighbourhood }}{% endif %}{% if property.address_reference %} · {{ property.address_reference }}{% endif %}
+                </p>
+
+                <div class="flex flex-wrap items-center gap-3 mt-5 text-sm">
+                    {% if average_rating %}
+                        <span class="bg-amber-400 text-slate-950 px-3 py-1 rounded-full font-black">★ {{ average_rating|floatformat:1 }}</span>
+                        <span class="text-blue-50">{{ review_breakdown.score_label }} · {{ review_count }} avaliação(ões)</span>
+                    {% else %}
+                        <span class="bg-white/15 border border-white/15 px-3 py-1 rounded-full font-bold">Novo na +258 Guest</span>
+                    {% endif %}
+                    <span class="text-blue-100">{{ rooms|length }} unidade(s) disponível(is)</span>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 bg-white/10 border border-white/15 rounded-3xl p-5 backdrop-blur">
+                <p class="text-blue-100 text-sm mb-3">Preços disponíveis</p>
+                {% if price_summary %}
+                    <div class="grid grid-cols-2 gap-3 mb-5">
+                        {% for item in price_summary %}
+                            <div class="bg-white/10 rounded-2xl p-4">
+                                <span class="block text-xs text-blue-100">Desde / {{ item.label }}</span>
+                                <strong class="text-xl">{{ item.min_price }} MT</strong>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="bg-white/10 rounded-2xl p-4 mb-5">Preço sob consulta</div>
+                {% endif %}
+
+                <div class="grid sm:grid-cols-2 gap-3">
+                    <a href="#quartos" class="text-center bg-white text-blue-900 px-5 py-3 rounded-xl font-black hover:bg-blue-50">Solicitar reserva</a>
+                    {% if whatsapp_url %}
+                        <a href="{{ whatsapp_url }}" target="_blank" class="text-center bg-emerald-500 text-white px-5 py-3 rounded-xl font-black hover:bg-emerald-600">WhatsApp</a>
+                    {% elif property.phone %}
+                        <a href="tel:{{ property.phone }}" class="text-center bg-emerald-500 text-white px-5 py-3 rounded-xl font-black hover:bg-emerald-600">Ligar</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-4 py-8 md:py-10">
+    <div class="grid md:grid-cols-4 gap-3 md:gap-4 mb-8 md:mb-10">
+        {% for photo in gallery_photos %}
+            <button type="button" onclick="openGallery('{{ photo.image.url }}')" class="h-48 md:h-60 bg-slate-200 rounded-3xl overflow-hidden mg-image-zoom {% if forloop.first %}md:col-span-2 md:row-span-2 md:h-full min-h-[22rem]{% endif %}">
+                <img src="{{ photo.image.url }}" loading="lazy" class="w-full h-full object-cover hover:scale-105 transition duration-500" alt="Fotografia de {{ property.name }}">
+            </button>
+        {% empty %}
+            <div class="md:col-span-4 h-72 bg-slate-200 rounded-3xl flex items-center justify-center">
+                <p class="text-slate-500 font-semibold">Sem fotografias disponíveis</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8 items-start">
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-3xl border border-slate-200 p-5 md:p-7 mb-6 shadow-sm">
+                <div class="flex items-start justify-between gap-4 mb-4">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-black">Sobre este alojamento</h2>
+                        <p class="text-sm text-slate-500 mt-1">Informação principal para decidir com confiança.</p>
+                    </div>
+                    {% if property.is_verified %}
+                        <span class="hidden md:inline-flex bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Validado</span>
+                    {% endif %}
+                </div>
+                <p class="text-slate-700 leading-relaxed whitespace-pre-line">{{ property.description }}</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-blue-50 border border-blue-100 rounded-3xl p-5">
+                    <p class="font-black text-blue-900">1. Escolha a unidade</p>
+                    <p class="text-sm text-blue-800 mt-1">Compare preços, capacidade e comodidades.</p>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-100 rounded-3xl p-5">
+                    <p class="font-black text-emerald-900">2. Envie o pedido</p>
+                    <p class="text-sm text-emerald-800 mt-1">A reserva fica pendente até aceitação do proprietário.</p>
+                </div>
+                <div class="bg-amber-50 border border-amber-100 rounded-3xl p-5">
+                    <p class="font-black text-amber-900">3. Pague com segurança</p>
+                    <p class="text-sm text-amber-800 mt-1">Só envie comprovativo depois da reserva aceite.</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl border border-slate-200 p-5 md:p-7 mb-6 shadow-sm">
+                <h2 class="text-2xl font-black mb-4">Confiança e transparência</h2>
+                <div class="grid md:grid-cols-2 gap-4">
+                    {% for badge in trust_badges %}
+                        <div class="rounded-2xl border p-4 {% if badge.tone == 'emerald' %}bg-emerald-50 border-emerald-100 text-emerald-900{% elif badge.tone == 'amber' %}bg-amber-50 border-amber-100 text-amber-900{% elif badge.tone == 'blue' %}bg-blue-50 border-blue-100 text-blue-900{% else %}bg-slate-50 border-slate-100 text-slate-900{% endif %}">
+                            <div class="flex items-start gap-3">
+                                <span class="w-9 h-9 rounded-2xl bg-white/80 grid place-items-center font-black">{{ badge.icon }}</span>
+                                <div>
+                                    <p class="font-black">{{ badge.label }}</p>
+                                    <p class="text-sm opacity-80 mt-1">{{ badge.description }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="md:col-span-2 bg-slate-50 rounded-2xl p-4 text-slate-600">Este alojamento ainda está a completar dados de confiança.</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if property.latitude and property.longitude %}
+                <div class="bg-white rounded-3xl border border-slate-200 p-5 md:p-7 mb-6 shadow-sm">
+                    <div class="flex items-center justify-between gap-3 mb-4">
+                        <div>
+                            <h2 class="text-2xl font-black">Localização</h2>
+                            <p class="text-sm text-slate-500">Use o mapa apenas como referência inicial.</p>
+                        </div>
+                        <a href="https://www.google.com/maps?q={{ property.latitude }},{{ property.longitude }}" target="_blank" class="text-blue-700 text-sm font-bold">Abrir rota</a>
+                    </div>
+                    <div id="detailMap" class="h-80 rounded-3xl overflow-hidden border border-slate-200"></div>
+                </div>
+            {% endif %}
+
+            <div id="quartos" class="bg-white rounded-3xl border border-slate-200 p-5 md:p-7 mb-6 scroll-mt-28 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-black">Escolha a sua unidade</h2>
+                        <p class="text-sm text-slate-500 mt-1">Cada unidade pode ter preços diferentes por hora, dia, noite ou mês.</p>
+                    </div>
+                    <span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-sm font-semibold self-start">{{ rooms|length }} opção(ões)</span>
+                </div>
+
+                <div class="space-y-6">
+                    {% for room in rooms %}
+                        <article class="border border-slate-200 rounded-3xl p-4 md:p-5 mg-card-hover bg-white">
+                            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                                <div>
+                                    <h3 class="font-black text-xl">{{ room.name }}</h3>
+                                    <p class="text-sm text-slate-500 mt-1">{{ room.get_room_type_display }} · Capacidade: {{ room.capacity }} pessoa(s)</p>
+                                </div>
+                                {% if room.lowest_price %}
+                                    <div class="bg-blue-50 text-blue-900 rounded-2xl p-3 md:text-right">
+                                        <span class="block text-xs text-blue-700">A partir de</span>
+                                        <strong class="text-lg">{{ room.lowest_price }} MT</strong>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {% if room.photos.all %}
+                                <div class="flex md:grid md:grid-cols-3 gap-3 mt-4 overflow-x-auto mg-scroll-shadow pb-1">
+                                    {% for photo in room.photos.all|slice:":6" %}
+                                        <button type="button" onclick="openGallery('{{ photo.image.url }}')" class="shrink-0 w-52 md:w-auto h-36 bg-slate-200 rounded-2xl overflow-hidden mg-image-zoom">
+                                            <img src="{{ photo.image.url }}" loading="lazy" class="w-full h-full object-cover" alt="Fotografia de {{ room.name }}">
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            {% if room.description %}<p class="text-slate-600 mt-4">{{ room.description }}</p>{% endif %}
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 text-sm">
+                                {% for price in room.price_options %}
+                                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                                        <span class="block text-slate-500">{{ price.label }}</span>
+                                        <strong>{{ price.price }} MT</strong>
+                                    </div>
+                                {% empty %}
+                                    <div class="col-span-2 md:col-span-4 bg-amber-50 text-amber-800 p-3 rounded-2xl">Preço sob consulta.</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="flex flex-wrap gap-2 mt-4 text-xs">
+                                {% if room.has_wifi %}<span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full">Wi-Fi</span>{% endif %}
+                                {% if room.has_ac %}<span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full">Ar condicionado</span>{% endif %}
+                                {% if room.has_parking %}<span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full">Estacionamento</span>{% endif %}
+                                {% if room.has_private_bathroom %}<span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full">WC privativo</span>{% endif %}
+                            </div>
+
+                            <div class="mt-5 grid sm:grid-cols-2 gap-3">
+                                <a href="/reservas/novo/{{ room.id }}/" class="inline-block text-center bg-blue-700 text-white px-5 py-3 rounded-xl font-black hover:bg-blue-800">Solicitar reserva</a>
+                                {% if whatsapp_url %}
+                                    <a href="{{ whatsapp_url }}" target="_blank" class="inline-block text-center bg-emerald-50 text-emerald-700 px-5 py-3 rounded-xl font-black hover:bg-emerald-100">Perguntar no WhatsApp</a>
+                                {% endif %}
+                            </div>
+                        </article>
+                    {% empty %}
+                        <div class="bg-amber-50 border border-amber-100 text-amber-900 rounded-2xl p-5">
+                            Não existem quartos disponíveis neste momento. Use o WhatsApp ou volte mais tarde.
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div id="avaliacoes" class="bg-white rounded-3xl border border-slate-200 p-5 md:p-7 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-black">Avaliações dos clientes</h2>
+                        <p class="text-sm text-slate-500 mt-1">As avaliações são moderadas antes de aparecer publicamente.</p>
+                    </div>
+                    {% if user.is_authenticated %}
+                        {% if can_review %}
+                            <a href="/reviews/avaliar/{{ property.id }}/" class="bg-blue-700 text-white px-5 py-3 rounded-xl font-black text-center">Avaliar alojamento</a>
+                        {% else %}
+                            <span class="bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-sm font-semibold">Avaliação já submetida</span>
+                        {% endif %}
+                    {% else %}
+                        <a href="/login/?next=/reviews/avaliar/{{ property.id }}/" class="bg-slate-900 text-white px-5 py-3 rounded-xl font-black text-center">Entrar para avaliar</a>
+                    {% endif %}
+                </div>
+
+                {% if average_rating %}
+                    <div class="grid md:grid-cols-3 gap-5 mb-6">
+                        <div class="bg-amber-50 border border-amber-100 rounded-3xl p-5 text-center">
+                            <p class="text-5xl font-black text-amber-600">{{ average_rating|floatformat:1 }}</p>
+                            <p class="font-black text-amber-900 mt-1">{{ review_breakdown.score_label }}</p>
+                            <p class="text-sm text-amber-800">{{ review_count }} avaliação(ões)</p>
+                        </div>
+                        <div class="md:col-span-2 space-y-2">
+                            {% for row in review_breakdown.star_counts %}
+                                <div class="flex items-center gap-3 text-sm">
+                                    <span class="w-12 text-slate-600">{{ row.stars }} ★</span>
+                                    <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-amber-400" style="width: {{ row.percentage }}%"></div>
+                                    </div>
+                                    <span class="w-8 text-right text-slate-500">{{ row.count }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-3 mb-6">
+                        {% for category in review_breakdown.category_ratings %}
+                            <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                                <div class="flex items-center justify-between text-sm font-semibold mb-2">
+                                    <span>{{ category.label }}</span>
+                                    <span>{% if category.average %}{{ category.average }}{% else %}—{% endif %}</span>
+                                </div>
+                                <div class="h-2 bg-white rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-600" style="width: {{ category.percentage }}%"></div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="space-y-4">
+                    {% for review in reviews %}
+                        <article class="border border-slate-200 rounded-3xl p-5">
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="font-black">{{ review.customer_name }}</h3>
+                                    <p class="text-xs text-slate-400">{{ review.created_at }}</p>
+                                </div>
+                                <span class="text-amber-600 font-black">★ {{ review.advanced_average }}</span>
+                            </div>
+                            {% if review.comment %}<p class="text-slate-600 mt-3">{{ review.comment }}</p>{% endif %}
+                        </article>
+                    {% empty %}
+                        <div class="bg-slate-50 rounded-3xl p-6 text-slate-600 text-center">
+                            Ainda não existem avaliações aprovadas para este alojamento.
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <aside class="lg:sticky lg:top-24">
+            <div class="bg-white rounded-3xl border border-slate-200 p-5 md:p-6 shadow-sm mb-5">
+                <h3 class="text-xl font-black mb-2">Reservar com segurança</h3>
+                <p class="text-sm text-slate-600 mb-4">O pedido é enviado primeiro. O pagamento só deve acontecer depois da aceitação.</p>
+
+                {% if first_room %}
+                    <a href="/reservas/novo/{{ first_room.id }}/" class="block bg-blue-700 text-white text-center px-5 py-3 rounded-xl font-black mb-3 hover:bg-blue-800">Reservar primeira unidade</a>
+                {% endif %}
+                <a href="#quartos" class="block bg-blue-50 text-blue-700 text-center px-5 py-3 rounded-xl font-black mb-3 hover:bg-blue-100">Ver todas as unidades</a>
+
+                {% if whatsapp_url %}
+                    <a href="{{ whatsapp_url }}" target="_blank" class="block bg-emerald-600 text-white text-center px-5 py-3 rounded-xl font-black mb-3 hover:bg-emerald-700">Falar no WhatsApp</a>
+                {% endif %}
+
+                {% if property.phone %}
+                    <a href="tel:{{ property.phone }}" class="block bg-slate-100 text-slate-900 text-center px-5 py-3 rounded-xl font-black mb-3 hover:bg-slate-200">Ligar agora</a>
+                {% endif %}
+
+                {% if property.latitude and property.longitude %}
+                    <a href="https://www.google.com/maps?q={{ property.latitude }},{{ property.longitude }}" target="_blank" class="block bg-slate-900 text-white text-center px-5 py-3 rounded-xl font-black hover:bg-slate-800">Abrir rota no mapa</a>
+                {% endif %}
+            </div>
+
+            <div class="bg-blue-50 border border-blue-100 text-blue-900 rounded-3xl p-5 text-sm">
+                <p class="font-black mb-2">Dica +258 Guest</p>
+                <p>Confirme sempre datas, hora de entrada, comodidades e condições antes de enviar comprovativo.</p>
+            </div>
+        </aside>
+    </div>
+</section>
+
+<div id="galleryModal" class="hidden fixed inset-0 z-[80] bg-black/90 p-4 md:p-8" onclick="closeGallery()">
+    <button type="button" class="absolute top-4 right-4 text-white text-3xl font-black">×</button>
+    <div class="h-full w-full grid place-items-center">
+        <img id="galleryModalImage" src="" alt="Fotografia ampliada" class="max-h-full max-w-full rounded-2xl shadow-2xl object-contain">
+    </div>
+</div>
+
+<div class="mg-mobile-cta">
+    <div class="grid grid-cols-2 gap-3 bg-white/95 backdrop-blur rounded-3xl border border-slate-200 shadow-2xl p-3">
+        {% if first_room %}
+            <a href="/reservas/novo/{{ first_room.id }}/" class="text-center bg-blue-700 text-white px-4 py-3 rounded-2xl font-black">Reservar</a>
+        {% else %}
+            <a href="#quartos" class="text-center bg-blue-700 text-white px-4 py-3 rounded-2xl font-black">Unidades</a>
+        {% endif %}
+        {% if whatsapp_url %}
+            <a href="{{ whatsapp_url }}" target="_blank" class="text-center bg-emerald-600 text-white px-4 py-3 rounded-2xl font-black">WhatsApp</a>
+        {% elif property.phone %}
+            <a href="tel:{{ property.phone }}" class="text-center bg-emerald-600 text-white px-4 py-3 rounded-2xl font-black">Ligar</a>
+        {% else %}
+            <a href="/properties/explorar/" class="text-center bg-slate-900 text-white px-4 py-3 rounded-2xl font-black">Explorar</a>
+        {% endif %}
+    </div>
+</div>
+
+{% if property.latitude and property.longitude %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const map = L.map('detailMap').setView([{{ property.latitude }}, {{ property.longitude }}], 15);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+L.marker([{{ property.latitude }}, {{ property.longitude }}]).addTo(map).bindPopup('{{ property.name|escapejs }}').openPopup();
+</script>
+{% endif %}
+
+<script>
+function openGallery(src) {
+    const modal = document.getElementById('galleryModal');
+    const image = document.getElementById('galleryModalImage');
+    if (!modal || !image) return;
+    image.src = src;
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeGallery() {
+    const modal = document.getElementById('galleryModal');
+    const image = document.getElementById('galleryModalImage');
+    if (!modal || !image) return;
+    modal.classList.add('hidden');
+    image.src = '';
+    document.body.style.overflow = '';
+}
+
+window.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') closeGallery();
+});
+</script>
+
+{% endblock %}
