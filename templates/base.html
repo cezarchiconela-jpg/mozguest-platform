@@ -1,17 +1,31 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-MZ">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}+258 Guest{% endblock %}</title>
+    <title>{% block title %}+258 Guest | Alojamentos em Moçambique{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <meta name="description" content="{% block meta_description %}+258 Guest ajuda clientes a encontrar guest houses, pensões, quartos, apartamentos e alojamentos em Moçambique, com pesquisa simples, reservas organizadas e contacto directo com proprietários.{% endblock %}">
+    <meta name="robots" content="{% block robots %}index, follow{% endblock %}">
+    <meta name="author" content="+258 Guest">
+    <meta name="language" content="pt-MZ">
+
+    <link rel="canonical" href="https://258guest.com{{ request.path }}">
 
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#1d4ed8">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="+258 Guest">
-    <meta name="description" content="+258 Guest ajuda clientes a encontrar alojamentos, quartos, guest houses e apartamentos em Moçambique, com reservas simples e contacto directo.">
+
+    <meta property="og:site_name" content="+258 Guest">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_MZ">
+    <meta property="og:url" content="https://258guest.com{{ request.path }}">
+    <meta property="og:title" content="{% block og_title %}+258 Guest | Alojamentos em Moçambique{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Encontre guest houses, pensões, quartos, apartamentos e alojamentos em Moçambique através da +258 Guest.{% endblock %}">
+    <meta name="twitter:card" content="summary_large_image">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{% static 'css/guest258-ui.css' %}">
@@ -23,6 +37,7 @@
             backdrop-filter: blur(16px);
         }
     </style>
+
     {% block extra_head %}{% endblock %}
 </head>
 
@@ -261,7 +276,6 @@
     </div>
 {% endif %}
 
-
 <div id="networkStatus" class="mg-offline-badge fixed top-0 left-0 right-0 z-[70] bg-amber-500 text-white text-center text-sm font-bold py-2">
     Está offline. Algumas páginas podem abrir em modo limitado.
 </div>
@@ -336,7 +350,7 @@
         <div>
             <h3 class="text-2xl font-black mb-3"><span class="text-emerald-400">+258</span> Guest</h3>
             <p class="text-slate-300 text-sm">
-                Plataforma para encontrar guest houses, quartos, apartamentos e residências próximas de si.
+                Plataforma para encontrar guest houses, pensões, quartos, apartamentos e alojamentos próximos de si em Moçambique.
             </p>
         </div>
 
@@ -479,4 +493,3 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
-
