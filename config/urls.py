@@ -31,6 +31,13 @@ from pages.health import healthz, readyz
 
 def robots_txt(request):
     content = """User-agent: *
+Disallow: /admin/
+Disallow: /258-admin/
+Disallow: /proprietario/
+Disallow: /reservas/
+Disallow: /pagamentos/
+Disallow: /notificacoes/
+Disallow: /mensagens/
 Allow: /
 
 Sitemap: https://258guest.com/sitemap.xml
@@ -44,6 +51,46 @@ def sitemap_xml(request):
     <url>
         <loc>https://258guest.com/</loc>
         <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://258guest.com/properties/explorar/</loc>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://258guest.com/institucional/sobre/</loc>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://258guest.com/institucional/contacto/</loc>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://258guest.com/comercial/planos/</loc>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://258guest.com/cadastro/cliente/</loc>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://258guest.com/cadastro/proprietario/</loc>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://258guest.com/institucional/termos/</loc>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://258guest.com/institucional/privacidade/</loc>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://258guest.com/institucional/politica-cancelamento/</loc>
+        <priority>0.4</priority>
+    </url>
+    <url>
+        <loc>https://258guest.com/institucional/politica-reembolso/</loc>
+        <priority>0.4</priority>
     </url>
 </urlset>
 """
