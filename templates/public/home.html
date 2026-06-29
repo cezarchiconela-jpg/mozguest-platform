@@ -1,6 +1,45 @@
 {% extends 'base.html' %}
 
-{% block title %}+258 Guest - Alojamentos perto de si{% endblock %}
+{% block title %}+258 Guest | Guest Houses, Pensões e Quartos em Moçambique{% endblock %}
+
+{% block meta_description %}
+Encontre guest houses, pensões, quartos, apartamentos e alojamentos por hora ou por noite em Moçambique. A +258 Guest aproxima clientes e proprietários de hospedagens de forma simples, rápida e segura.
+{% endblock %}
+
+{% block extra_head %}
+<meta name="description" content="Encontre guest houses, pensões, quartos, apartamentos e alojamentos por hora ou por noite em Moçambique. A +258 Guest aproxima clientes e proprietários de hospedagens de forma simples, rápida e segura.">
+<meta name="keywords" content="+258 Guest, 258guest, guest house Moçambique, pensões em Maputo, quartos em Moçambique, alojamento em Moçambique, hospedagem por hora, hospedagem por noite, quartos para descansar">
+<meta property="og:title" content="+258 Guest | Guest Houses, Pensões e Quartos em Moçambique">
+<meta property="og:description" content="Pesquise guest houses, pensões, quartos e apartamentos em Moçambique. Encontre alojamentos próximos, compare opções e solicite reserva de forma simples.">
+<meta property="og:url" content="https://258guest.com/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "+258 Guest",
+    "url": "https://258guest.com/",
+    "description": "Plataforma moçambicana para encontrar guest houses, pensões, quartos, apartamentos e alojamentos por hora ou por noite em Moçambique.",
+    "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://258guest.com/properties/explorar/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+    }
+}
+</script>
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "+258 Guest",
+    "url": "https://258guest.com/",
+    "description": "A +258 Guest é uma plataforma digital moçambicana criada para facilitar a procura por guest houses, pensões, quartos e alojamentos em Moçambique."
+}
+</script>
+{% endblock %}
 
 {% block content %}
 
@@ -17,18 +56,18 @@
                 </span>
 
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.03] tracking-tight mb-5">
-                    Encontre quartos, guest houses e apartamentos com mais confiança.
+                    Encontre guest houses, pensões e quartos para descansar em Moçambique.
                 </h1>
 
                 <p class="text-base md:text-lg text-blue-50 mb-6 leading-relaxed max-w-2xl">
-                    Pesquise por cidade, bairro, preço, comodidades e localização. Compare opções, veja fotografias, peça reserva e acompanhe tudo numa plataforma simples.
+                    A +258 Guest é uma plataforma moçambicana para pesquisar alojamentos por cidade, bairro, preço, comodidades e localização. Encontre guest houses, pensões, quartos, apartamentos e espaços para descanso por hora ou por noite, compare opções, veja fotografias, solicite reserva e acompanhe tudo de forma simples.
                 </p>
 
                 <form action="/properties/explorar/" method="get" class="bg-white/95 backdrop-blur p-2 rounded-2xl shadow-2xl flex flex-col sm:flex-row gap-2 max-w-2xl">
                     <input
                         type="text"
                         name="q"
-                        placeholder="Digite cidade, bairro ou nome do alojamento"
+                        placeholder="Digite cidade, bairro, guest house, pensão ou alojamento"
                         class="flex-1 px-4 py-3 rounded-xl text-slate-800 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
                     >
 
@@ -44,9 +83,11 @@
                 <p id="locationMessage" class="text-sm text-blue-100 mt-3"></p>
 
                 <div class="flex flex-wrap gap-2 mt-5 text-sm">
-                    <a href="/properties/explorar/?price_mode=night" class="bg-white/10 hover:bg-white/20 border border-white/15 px-4 py-2 rounded-full">Por noite</a>
-                    <a href="/properties/explorar/?price_mode=hour" class="bg-white/10 hover:bg-white/20 border border-white/15 px-4 py-2 rounded-full">Por hora</a>
+                    <a href="/properties/explorar/?price_mode=night" class="bg-white/10 hover:bg-white/20 border border-white/15 px-4 py-2 rounded-full">Alojamento por noite</a>
+                    <a href="/properties/explorar/?price_mode=hour" class="bg-white/10 hover:bg-white/20 border border-white/15 px-4 py-2 rounded-full">Quartos por hora</a>
                     <a href="/properties/explorar/?type=guest_house" class="bg-white/10 hover:bg-white/20 border border-white/15 px-4 py-2 rounded-full">Guest houses</a>
+                    <a href="/properties/explorar/?q=pens%C3%A3o" class="bg-white/10 hover:bg-white/20 border border-white/15 px-4 py-2 rounded-full">Pensões</a>
+                    <a href="/properties/explorar/?q=Maputo" class="bg-white/10 hover:bg-white/20 border border-white/15 px-4 py-2 rounded-full">Maputo</a>
                     <a href="/properties/explorar/?verified=1" class="bg-white/10 hover:bg-white/20 border border-white/15 px-4 py-2 rounded-full">Verificados</a>
                 </div>
 
@@ -81,16 +122,18 @@
 
                         <div class="grid grid-cols-2 gap-3 text-sm">
                             <a href="/properties/explorar/?type=guest_house" class="p-4 bg-slate-50 rounded-xl hover:bg-blue-50 font-semibold">Guest houses</a>
+                            <a href="/properties/explorar/?q=pens%C3%A3o" class="p-4 bg-slate-50 rounded-xl hover:bg-blue-50 font-semibold">Pensões</a>
                             <a href="/properties/explorar/?type=room" class="p-4 bg-slate-50 rounded-xl hover:bg-blue-50 font-semibold">Quartos</a>
                             <a href="/properties/explorar/?type=apartment" class="p-4 bg-slate-50 rounded-xl hover:bg-blue-50 font-semibold">Apartamentos</a>
                             <a href="/properties/explorar/?price_mode=hour" class="p-4 bg-slate-50 rounded-xl hover:bg-blue-50 font-semibold">Por hora</a>
                             <a href="/properties/explorar/?price_mode=night" class="p-4 bg-slate-50 rounded-xl hover:bg-blue-50 font-semibold">Por noite</a>
+                            <a href="/properties/explorar/?q=Maputo" class="p-4 bg-slate-50 rounded-xl hover:bg-blue-50 font-semibold">Maputo</a>
                             <a href="/properties/explorar/?verified=1" class="p-4 bg-slate-50 rounded-xl hover:bg-blue-50 font-semibold">Verificados</a>
                         </div>
 
                         <div class="mt-5 bg-blue-50 border border-blue-100 rounded-2xl p-4">
                             <p class="text-sm text-blue-900 font-semibold">Como funciona?</p>
-                            <p class="text-sm text-blue-800 mt-1">Pesquise, compare, solicite reserva e acompanhe o estado da sua estadia.</p>
+                            <p class="text-sm text-blue-800 mt-1">Pesquise, compare, solicite reserva e acompanhe o estado da sua estadia numa plataforma simples e organizada.</p>
                         </div>
                     </div>
                 </div>
@@ -104,20 +147,48 @@
     <div class="grid md:grid-cols-3 gap-5">
         <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
             <div class="w-11 h-11 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center font-black mb-4">1</div>
-            <h3 class="font-black text-xl mb-2">Pesquise com filtros</h3>
-            <p class="text-slate-600 text-sm leading-relaxed">Filtre por localização, preço, tipo de alojamento, comodidades, avaliação e proximidade.</p>
+            <h2 class="font-black text-xl mb-2">Pesquise guest houses, pensões e quartos</h2>
+            <p class="text-slate-600 text-sm leading-relaxed">
+                Filtre por localização, preço, tipo de alojamento, comodidades, avaliação e proximidade. Encontre opções em Maputo e em outras regiões de Moçambique.
+            </p>
         </div>
 
         <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
             <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black mb-4">2</div>
-            <h3 class="font-black text-xl mb-2">Compare antes de reservar</h3>
-            <p class="text-slate-600 text-sm leading-relaxed">Veja fotografias, localização, preços disponíveis, avaliações e contactos do alojamento.</p>
+            <h2 class="font-black text-xl mb-2">Compare antes de reservar</h2>
+            <p class="text-slate-600 text-sm leading-relaxed">
+                Veja fotografias, localização, preços disponíveis, avaliações, contactos e detalhes do alojamento antes de avançar com o pedido.
+            </p>
         </div>
 
         <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
             <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center font-black mb-4">3</div>
-            <h3 class="font-black text-xl mb-2">Acompanhe o pedido</h3>
-            <p class="text-slate-600 text-sm leading-relaxed">O cliente acompanha a reserva e o proprietário recebe o pedido no painel de gestão.</p>
+            <h2 class="font-black text-xl mb-2">Solicite e acompanhe o pedido</h2>
+            <p class="text-slate-600 text-sm leading-relaxed">
+                O cliente acompanha a reserva e o proprietário recebe o pedido no painel de gestão, com mais organização e visibilidade.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-4 py-8 md:py-12">
+    <div class="bg-white border border-slate-200 rounded-[2rem] p-6 md:p-10 shadow-sm">
+        <div class="max-w-4xl">
+            <span class="inline-block bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                Plataforma de alojamento em Moçambique
+            </span>
+
+            <h2 class="text-2xl md:text-4xl font-black text-slate-950 mb-4">
+                Chega de sofrer para encontrar um lugar para descansar.
+            </h2>
+
+            <p class="text-slate-600 leading-relaxed mb-4">
+                A +258 Guest foi criada para facilitar a procura por guest houses, pensões, quartos, apartamentos e alojamentos em Moçambique. A plataforma ajuda clientes a encontrarem espaços próximos, com informação organizada, fotografias, localização, preços e opções de reserva.
+            </p>
+
+            <p class="text-slate-600 leading-relaxed">
+                Para proprietários de guest houses, pensões, quartos e apartamentos, a +258 Guest oferece uma forma simples de divulgar o espaço, aumentar a visibilidade online e receber pedidos de clientes que procuram alojamento por hora, por noite ou por estadias mais longas.
+            </p>
         </div>
     </div>
 </section>
@@ -126,7 +197,7 @@
     <div class="flex items-center justify-between mb-6 gap-4">
         <div>
             <h2 class="text-2xl md:text-3xl font-black">Alojamentos em destaque</h2>
-            <p class="text-slate-600 mt-1 text-sm md:text-base">Espaços recomendados e verificados pela +258 Guest.</p>
+            <p class="text-slate-600 mt-1 text-sm md:text-base">Guest houses, pensões, quartos e apartamentos recomendados pela +258 Guest.</p>
         </div>
 
         <a href="/properties/explorar/?sort=featured" class="text-blue-700 font-semibold text-sm md:text-base whitespace-nowrap">
@@ -139,10 +210,17 @@
             <a href="/properties/{{ property.id }}/" class="group bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl transition">
                 <div class="h-56 bg-slate-200 relative">
                     {% if property.photos.first %}
-                        <img src="{{ property.photos.first.image.url }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <img
+                            src="{{ property.photos.first.image.url }}"
+                            loading="lazy"
+                            alt="{{ property.name }} em {{ property.city }}{% if property.neighbourhood %}, {{ property.neighbourhood }}{% endif %} - alojamento na +258 Guest"
+                            class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                        >
                     {% endif %}
                     <span class="absolute top-3 left-3 bg-blue-700 text-white text-xs px-3 py-1 rounded-full shadow">Destaque</span>
-                    {% if property.is_verified %}<span class="absolute top-3 right-3 bg-emerald-600 text-white text-xs px-3 py-1 rounded-full shadow">Verificado</span>{% endif %}
+                    {% if property.is_verified %}
+                        <span class="absolute top-3 right-3 bg-emerald-600 text-white text-xs px-3 py-1 rounded-full shadow">Verificado</span>
+                    {% endif %}
                 </div>
 
                 <div class="p-5">
@@ -172,8 +250,10 @@
         <div class="relative grid md:grid-cols-2 gap-8 items-center">
             <div>
                 <span class="inline-block bg-white/10 border border-white/15 px-4 py-2 rounded-full text-sm mb-4">Para proprietários</span>
-                <h2 class="text-3xl md:text-4xl font-black mb-4">Tem guest house, quarto ou apartamento para divulgar?</h2>
-                <p class="text-blue-50 leading-relaxed">Cadastre o seu alojamento, adicione quartos, preços, fotografias e receba pedidos de reserva num painel simples.</p>
+                <h2 class="text-3xl md:text-4xl font-black mb-4">Tem guest house, pensão, quarto ou apartamento para divulgar?</h2>
+                <p class="text-blue-50 leading-relaxed">
+                    Cadastre o seu alojamento na +258 Guest, adicione quartos, preços, fotografias, localização e receba pedidos de reserva num painel simples. Aumente a visibilidade do seu espaço e chegue a mais clientes em Moçambique.
+                </p>
             </div>
             <div class="md:text-right">
                 <a href="/cadastro/proprietario/" class="inline-block bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold hover:bg-emerald-700">Cadastrar alojamento</a>
@@ -187,7 +267,7 @@
     <div class="flex items-center justify-between mb-6 gap-4">
         <div>
             <h2 class="text-2xl md:text-3xl font-black">Adicionados recentemente</h2>
-            <p class="text-slate-600 mt-1 text-sm md:text-base">Novas opções aprovadas na plataforma.</p>
+            <p class="text-slate-600 mt-1 text-sm md:text-base">Novas guest houses, pensões, quartos e apartamentos aprovados na plataforma.</p>
         </div>
         <a href="/properties/explorar/?sort=recent" class="text-blue-700 font-semibold text-sm md:text-base whitespace-nowrap">Ver mais</a>
     </div>
@@ -197,7 +277,12 @@
             <a href="/properties/{{ property.id }}/" class="bg-white rounded-3xl border border-slate-200 overflow-hidden hover:shadow-lg transition">
                 <div class="h-40 bg-slate-200">
                     {% if property.photos.first %}
-                        <img src="{{ property.photos.first.image.url }}" loading="lazy" class="w-full h-full object-cover">
+                        <img
+                            src="{{ property.photos.first.image.url }}"
+                            loading="lazy"
+                            alt="{{ property.name }} em {{ property.city }}{% if property.neighbourhood %}, {{ property.neighbourhood }}{% endif %} - alojamento em Moçambique"
+                            class="w-full h-full object-cover"
+                        >
                     {% endif %}
                 </div>
                 <div class="p-4">
@@ -210,6 +295,24 @@
                 Ainda não existem alojamentos aprovados.
             </div>
         {% endfor %}
+    </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-4 py-10 md:py-14">
+    <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-blue-50 border border-blue-100 rounded-[2rem] p-6 md:p-8">
+            <h2 class="text-2xl font-black text-blue-950 mb-3">Para quem procura alojamento</h2>
+            <p class="text-blue-900 leading-relaxed">
+                Encontre locais para descansar, passar algumas horas, dormir por uma noite ou planear uma estadia mais longa. Pesquise por cidade, bairro, tipo de alojamento, preço e proximidade.
+            </p>
+        </div>
+
+        <div class="bg-emerald-50 border border-emerald-100 rounded-[2rem] p-6 md:p-8">
+            <h2 class="text-2xl font-black text-emerald-950 mb-3">Para proprietários de alojamentos</h2>
+            <p class="text-emerald-900 leading-relaxed">
+                Divulgue a sua guest house, pensão, quarto ou apartamento numa plataforma criada para aproximar proprietários e clientes. Organize informações, fotografias, preços e pedidos de reserva.
+            </p>
+        </div>
     </div>
 </section>
 
